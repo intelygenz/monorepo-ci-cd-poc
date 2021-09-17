@@ -43,7 +43,7 @@ async function main() {
       if(existCommit) return console.log(`Action skipped because a tag with this commit '${workflowSha}' has been previously generated.`)
     }
 
-    console.log(`Run action in mode ${mode}`)
+    console.log(`Run action with mode ${mode}`)
     switch(mode){
       case 'pre-release':
         if(checkPrereleaseRequirements(core, preRelease)) runPreRelease()
