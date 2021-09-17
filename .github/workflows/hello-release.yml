@@ -1,0 +1,22 @@
+name: Release
+
+on:
+  branches: ["main"]
+  paths:
+    - "hello-world/**/*"
+
+jobs:
+  release-component:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Generate a release
+        uses: ./.github/actions/product-version-tags
+        with:
+          prefix: "hello-"
+          mode: 'component'
+          default-branch: 'main'
+        env:
+          GITHUB_TOKEN: ${{ secrets.PATNAME }}
