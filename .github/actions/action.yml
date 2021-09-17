@@ -9,7 +9,7 @@ inputs:
     required: false
     default: 'false'
   mode:
-    description: 'Execution mode can be "pre-release" "release" "fix"'
+    description: 'Execution mode can be "pre-release" "release" "fix" "release-component"'
     required: true
   current-major:
     description: 'Current major'

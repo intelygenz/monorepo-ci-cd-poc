@@ -10858,9 +10858,31 @@ async function runFix() {
 }
 
 async function runReleaseComponent(prefix) {
-  console.log(`Release component  ${prefix}`)
-  const tag = await getLastComponentReleaseTag(prefix)
-  console.log(`Release component  ${prefix}-${tag}`)
+  try {
+    const tag = await getLastComponentReleaseTag(prefix)
+    if(!tag) return core.setFailed('There are any pre-release yet')
+
+    console.log(`Release component ${prefix} with tag ${tag}`)
+
+
+    const regex = new RegExp(`^${prefix}v(\\d+).(\\d+)`, 'g')
+    const matches = regex.exec(tag)
+    const major = parseInt(matches[1]);
+    const minor = parseInt(matches[2]);
+
+    const releaseTag = `${prefix}v${major}.${minor + 1}.0`
+
+    if (!dryRun) {
+      await createTag(releaseTag, defaultBranch)
+    }
+
+    console.log(`🚀 New release tag '${releaseTag}' created`)
+
+    core.setOutput("release-version", releaseTag)
+  } catch (err) {
+    throw err
+  }
+
 }
 
 async function runRelease(prefix, defaultBranch) {
