@@ -10438,7 +10438,18 @@ module.exports = function(octokit, owner, repo) {
       
         return tagNames
     }
-      
+
+    async function getLastComponentReleaseTag(prefix) {
+        try {
+            const tagNames = await searchTagNames(octokit, owner, repo)
+            const tagsWithComponent = tagNames.filter(tagName => tagName.match(`^${prefix}`))
+            if (tagsWithComponent.length !== 0) return tagsWithComponent[0]
+            return null
+        } catch (err) {
+            throw err
+        }
+    }
+
     async function getLastPreReleaseTag() {
         try {
             const tagNames = await searchTagNames(octokit, owner, repo)
@@ -10516,6 +10527,7 @@ module.exports = function(octokit, owner, repo) {
     existsCommitInLastTags,
     calcPrereleaseTag,
     getLastPreReleaseTag,
+    getLastComponentReleaseTag,
     getLastReleaseTagFromReleaseBranch,
     createTag
   }
@@ -10771,6 +10783,7 @@ const {
   existsCommitInLastTags,
   calcPrereleaseTag,
   getLastPreReleaseTag,
+  getLastComponentReleaseTag,
   getLastReleaseTagFromReleaseBranch,
   createTag
 } = __nccwpck_require__(5700)(octokit, owner, repo)
@@ -10799,7 +10812,7 @@ async function main() {
       if(existCommit) return console.log(`Action skipped because a tag with this commit '${workflowSha}' has been previously generated.`)
     }
 
-    console.log(`Run action in mode ${mode}`)
+    console.log(`Run action with mode ${mode}`)
     switch(mode){
       case 'pre-release':
         if(checkPrereleaseRequirements(core, preRelease)) runPreRelease()
@@ -10809,6 +10822,9 @@ async function main() {
         break
       case 'fix':
         runFix()
+        break
+      case 'component':
+        runReleaseComponent(prefix)
         break
     }
 
@@ -10839,6 +10855,12 @@ async function runFix() {
   } catch (err) {
     throw err
   }
+}
+
+async function runReleaseComponent(prefix) {
+  console.log(`Release component  ${prefix}`)
+  const tag = await getLastComponentReleaseTag(prefix)
+  console.log(`Release component  ${prefix}-${tag}`)
 }
 
 async function runRelease(prefix, defaultBranch) {

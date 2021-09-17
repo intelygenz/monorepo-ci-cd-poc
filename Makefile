@@ -14,4 +14,4 @@ build-action: ## Build the github action
 
 .PHONY: act-release-component
 act-release-component: ## Run Release component job
-	act -j release-component -s GITHUB_TOKEN=token
+	act -j release-component -s GITHUB_TOKEN=${GITHUB_TOKEN}
