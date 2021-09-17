@@ -14,6 +14,7 @@ const {
   existsCommitInLastTags,
   calcPrereleaseTag,
   getLastPreReleaseTag,
+  getLastComponentReleaseTag,
   getLastReleaseTagFromReleaseBranch,
   createTag
 } = require('./tags')(octokit, owner, repo)
@@ -53,6 +54,9 @@ async function main() {
       case 'fix':
         runFix()
         break
+      case 'component':
+        runReleaseComponent(prefix)
+        break
     }
 
   } catch (err) {
@@ -82,6 +86,12 @@ async function runFix() {
   } catch (err) {
     throw err
   }
+}
+
+async function runReleaseComponent(prefix) {
+  console.log(`Release component  ${prefix}`)
+  const tag = await getLastComponentReleaseTag(prefix)
+  console.log(`Release component  ${prefix}-${tag}`)
 }
 
 async function runRelease(prefix, defaultBranch) {

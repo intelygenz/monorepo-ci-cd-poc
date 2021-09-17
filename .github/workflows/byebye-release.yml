@@ -1,4 +1,4 @@
-name: Release
+name: ByeBye Release
 
 on:
   workflow_dispatch:
@@ -18,7 +18,7 @@ jobs:
         uses: ./.github/actions
         with:
           prefix: "byebye-"
-          mode: 'release'
+          mode: 'component'
           default-branch: 'main'
         env:
           GITHUB_TOKEN: ${{ secrets.PATNAME }}
