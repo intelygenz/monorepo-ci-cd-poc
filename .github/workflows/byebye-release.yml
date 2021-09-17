@@ -1,9 +1,10 @@
 name: Release
 
 on:
-  branches: ["main"]
-  paths:
-    - "byebye-world/**/*"
+  push:
+    branches: ["main"]
+    paths:
+      - "byebye-world/**/*"
 
 jobs:
   release-component:
