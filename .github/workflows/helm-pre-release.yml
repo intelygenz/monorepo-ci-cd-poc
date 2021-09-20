@@ -11,6 +11,7 @@ on:
 jobs:
   generate-prerelease:
     runs-on: ubuntu-latest
+    # if needed for checking workflow success: https://github.community/t/workflow-run-success-type-reference/133194/2
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Checkout
