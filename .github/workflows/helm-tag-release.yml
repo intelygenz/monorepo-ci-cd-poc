@@ -2,7 +2,7 @@
 # Executed manually
 # Generate a branch with name 'release/v*.*' tag with 'v*.*.0'
 
-name: Helm Release
+name: Helm Tag And Branch For Release
 
 on:
   workflow_dispatch:

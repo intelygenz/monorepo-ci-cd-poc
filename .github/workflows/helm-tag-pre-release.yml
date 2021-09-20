@@ -2,7 +2,7 @@
 # Executed only when a Quality* workflow completes successfully
 # Generate a tag with 'v*.*-rc.*'
 
-name: Helm Pre Release
+name: Helm Tag Pre Release
 
 on:
   workflow_run:
