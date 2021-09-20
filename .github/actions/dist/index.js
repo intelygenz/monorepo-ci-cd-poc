@@ -10442,8 +10442,8 @@ module.exports = function(octokit, owner, repo) {
     async function getLastTag(regex) {
         try {
             const tagNames = await searchTagNames(octokit, owner, repo)
-            const tagsWithComponent = tagNames.filter(tagName => tagName.match(regex))
-            if (tagsWithComponent.length !== 0) return tagsWithComponent[0]
+            const tags = tagNames.filter(tagName => tagName.match(regex))
+            if (tags.length !== 0) return tags[0]
             return null
         } catch (err) {
             throw err
@@ -10454,8 +10454,8 @@ module.exports = function(octokit, owner, repo) {
         return getLastTag(`^${prefix}`)
     }
 
-    async function getLastPreReleaseTag() {
-        return getLastTag(/^v[0-9]+.[0-9]+-/)
+    async function getLastReleaseTag() {
+        return getLastTag(`^v[0-9]+.[0-9]+-`)
     }
 
     async function getLastReleaseTagFromReleaseBranch(release_branch) {
@@ -10523,7 +10523,7 @@ module.exports = function(octokit, owner, repo) {
   return {
     existsCommitInLastTags,
     calcPrereleaseTag,
-    getLastPreReleaseTag,
+    getLastReleaseTag,
     getLastComponentReleaseTag,
     getLastReleaseTagFromReleaseBranch,
     createTag
@@ -10779,7 +10779,7 @@ const {calcPreReleaseBranch, createBranch} = __nccwpck_require__(3545)(octokit, 
 const {
   existsCommitInLastTags,
   calcPrereleaseTag,
-  getLastPreReleaseTag,
+  getLastReleaseTag,
   getLastComponentReleaseTag,
   getLastReleaseTagFromReleaseBranch,
   createTag
@@ -10886,7 +10886,7 @@ async function runReleaseComponent(prefix) {
 async function runRelease(prefix, defaultBranch) {
   try {
 
-    const tag = await getLastPreReleaseTag()
+    const tag = await getLastReleaseTag()
     if(!tag) return core.setFailed('There are any pre-release yet')
     
     const regex = new RegExp(`^v(\\d+).(\\d+)`, 'g')
