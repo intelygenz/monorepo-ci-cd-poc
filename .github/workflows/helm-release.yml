@@ -46,7 +46,7 @@ jobs:
           yq w -i metaapp/values.yaml 'byebyeWorld.tag' ${{ steps.byebye_version.outputs.tag }}
 
           # set app version and chart version for kdl
-          yq w -i metaapp/Chart.yaml 'appVersion' ${{ steps.get_version.outputs.VERSION }}
+          yq w -i metaapp/Chart.yaml 'appVersion' "${{ steps.get_version.outputs.VERSION }}"
           yq w -i metaapp/Chart.yaml 'version' ${{ steps.get_version.outputs.RELEASE_VERSION }}
 
           # debug output
