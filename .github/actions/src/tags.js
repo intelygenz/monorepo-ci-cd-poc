@@ -52,6 +52,7 @@ module.exports = function(octokit, owner, repo) {
         try {
             const tagNames = await searchTagNames(octokit, owner, repo)
             const tags = tagNames.filter(tagName => tagName.match(regex))
+            console.log(`Tag with prefix '${regex}' found`, tags)
             if (tags.length !== 0) return tags[0]
             return null
         } catch (err) {
