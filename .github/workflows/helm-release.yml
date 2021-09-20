@@ -43,7 +43,7 @@ jobs:
           # format version X.X.X
           RELEASE_VERSION=`echo "${GITHUB_REF#refs/tags/}" | sed -e 's/v//g' | sed -e 's/-rc.*/.0/g'`
           echo ::set-output name=RELEASE_VERSION::${RELEASE_VERSION}
-          echo ::set-output name=VERSION::${ }
+          echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
 
       - uses: chrisdickinson/setup-yq@latest
       - name: Replace component versions
