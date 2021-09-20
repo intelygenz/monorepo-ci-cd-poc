@@ -16,6 +16,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Hello Component Version
+        id: hello_version
+        uses: ./.github/actions
+        with:
+          prefix: "hello-"
+          mode: 'component-get-last-version'
+
+      - name: ByeBye Component Version
+        id: byebye_version
+        uses: ./.github/actions
+        with:
+          prefix: "byebye-"
+          mode: 'component-get-last-version'
+
       - name: App Version
         id: get_version
         run: |
