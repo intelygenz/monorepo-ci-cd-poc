@@ -7,7 +7,9 @@ on:
 
 jobs:
   build-release:
-    runs-on: ubuntu-latest    
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.PATNAME }}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -31,8 +33,6 @@ jobs:
         with:
           prefix: "hello-"
           mode: 'component-get-last-version'
-        env:
-          GITHUB_TOKEN: ${{ secrets.PATNAME }}
 
       - name: Display the component version
         run: echo "Build & Release component hello with version ${{ steps.version.outputs.tag }}"
@@ -47,3 +47,13 @@ jobs:
       #    tags: |
       #      konstellation/hello-world:${{ steps.get_version.outputs.VERSION }}
       #      konstellation/hello-world:latest
+
+      - name: Update hello image version in chart
+        uses: fjogeleit/yaml-update-action@master
+        with:
+          valueFile: 'metaapp/values.yaml'
+          propertyPath: 'helloWorld.tag'
+          value: ${{ steps.version.outputs.tag }}
+          message: 'Update Hello Component Image Version to ${{ steps.version.outputs.tag }} [skip-ci]'
+          commitChange: true
+          updateFile: true
