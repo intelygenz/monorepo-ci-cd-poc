@@ -56,4 +56,5 @@ jobs:
           value: ${{ steps.version.outputs.tag }}
           message: 'Update Hello Component Image Version to ${{ steps.version.outputs.tag }} [skip-ci]'
           commitChange: true
+          branch: main
           updateFile: true
