@@ -6,11 +6,12 @@ on:
       - "Hello Build and Publish"
       - "ByeBye Build and Publish"
     types:
-      - success
+      - completed
 
 jobs:
   generate-prerelease:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
