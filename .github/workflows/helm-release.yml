@@ -40,8 +40,8 @@ jobs:
           echo ::set-output name=RELEASE_VERSION::${RELEASE_VERSION}
           echo ::set-output name=VERSION::${ }
 
+      - uses: chrisdickinson/setup-yq@latest
       - name: Replace component versions
-        uses: chrisdickinson/setup-yq@latest
         run: |
           # set image tags on kdl
           yq w -i metaapp/values.yaml 'helloWorld.tag' ${{ steps.hello_version.outputs.tag }}
