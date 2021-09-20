@@ -13,7 +13,7 @@ const {calcPreReleaseBranch, createBranch} = require('./branches')(octokit, owne
 const {
   existsCommitInLastTags,
   calcPrereleaseTag,
-  getLastReleaseTag,
+  getLastPreReleaseTag,
   getLastComponentReleaseTag,
   getLastReleaseTagFromReleaseBranch,
   createTag
@@ -120,7 +120,7 @@ async function runReleaseComponent(prefix) {
 async function runRelease(prefix, defaultBranch) {
   try {
 
-    const tag = await getLastReleaseTag()
+    const tag = await getLastPreReleaseTag()
     if(!tag) return core.setFailed('There are any pre-release yet')
     
     const regex = new RegExp(`^v(\\d+).(\\d+)`, 'g')

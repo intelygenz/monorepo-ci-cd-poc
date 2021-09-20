@@ -51,9 +51,8 @@ module.exports = function(octokit, owner, repo) {
     async function getLastTag(regex) {
         try {
             const tagNames = await searchTagNames(octokit, owner, repo)
-            const tags = tagNames.filter(tagName => tagName.match(regex))
-            console.log(`Tag with prefix '${regex}' found`, tags)
-            if (tags.length !== 0) return tags[0]
+            const tagsWithComponent = tagNames.filter(tagName => tagName.match(regex))
+            if (tagsWithComponent.length !== 0) return tagsWithComponent[0]
             return null
         } catch (err) {
             throw err
@@ -64,7 +63,7 @@ module.exports = function(octokit, owner, repo) {
         return getLastTag(`^${prefix}`)
     }
 
-    async function getLastReleaseTag() {
+    async function getLastPreReleaseTag() {
         return getLastTag(`^v[0-9]+.[0-9]+-`)
     }
 
@@ -133,7 +132,7 @@ module.exports = function(octokit, owner, repo) {
   return {
     existsCommitInLastTags,
     calcPrereleaseTag,
-    getLastReleaseTag,
+    getLastPreReleaseTag,
     getLastComponentReleaseTag,
     getLastReleaseTagFromReleaseBranch,
     createTag
