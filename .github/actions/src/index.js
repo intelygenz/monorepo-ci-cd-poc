@@ -39,8 +39,8 @@ async function main() {
       const workflowSha = github.context.payload.workflow_run.head_commit.id
       const successDeps = await checkWorkflowDeps(workflow.on.workflow_run.workflows, workflowSha)
       if(!successDeps) return console.log(`Action skipped because another workflows for the same commit '${workflowSha}' are in progress.`)
-      const existCommit = await existsCommitInLastTags(workflowSha)
-      if(existCommit) return console.log(`Action skipped because a tag with this commit '${workflowSha}' has been previously generated.`)
+      // const existCommit = await existsCommitInLastTags(workflowSha)
+      // if(existCommit) return console.log(`Action skipped because a tag with this commit '${workflowSha}' has been previously generated.`)
     }
 
     console.log(`Run action with mode ${mode}`)
