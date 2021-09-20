@@ -6,9 +6,6 @@
 # applications root directory, which will override the default gunicorn.conf.py
 # included with this project
 
-
-import multiprocessing
-
 # Use threaded workers. Thread-based concurrency is provided via the 'futures'
 # package. 'gevent' or other workers would be candidates, except that the ndb
 # library has its own concurrency model that conflicts with gevent and possibly
@@ -17,10 +14,10 @@ worker_class = 'gthread'
 
 # Use a number of workers equal to the number of CPU cores available.
 # Reducing this number on a multicore instance will reduce memory consumption,
-# but will also reduce the app's ability to utilize all available CPU resources.
+# but will also reduce the app's ability to utilize all available CPU resources
 # workers = multiprocessing.cpu_count()
 # workers = 8 # good
-workers = 2 # good
+workers = 2  # good
 
 # Use an arbitrary number of threads for concurrency. This will dictate the
 # maximum number of requests handled concurrently by EACH worker.
