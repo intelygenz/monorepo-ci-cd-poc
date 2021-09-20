@@ -17,7 +17,7 @@ jobs:
 
       - name: Generate a pre-release
         id: rc_tag
-        uses: intelygenz/action-product-version-tags@v0.1.8
+        uses: ./.github/actions
         with:
           current-major: 0
           prefix: "release-"
