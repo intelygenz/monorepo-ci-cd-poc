@@ -1,6 +1,10 @@
-#By default the multi-process version of the runtime is launched via the Gunicorn webserver and is configured to use gevent-based concurrency and a number of processes equal to the number of CPU cores available.
+# By default the multi-process version of the runtime is launched via the
+# Gunicorn webserver and is configured to use gevent-based concurrency and
+# a number of processes equal to the number of CPU cores available.
 
-#This can be changed by creating a file called gunicorn.conf.py in your applications root directory, which will override the default gunicorn.conf.py included with this project
+# This can be changed by creating a file called gunicorn.conf.py in your
+# applications root directory, which will override the default gunicorn.conf.py
+# included with this project
 
 
 import multiprocessing
@@ -14,8 +18,8 @@ worker_class = 'gthread'
 # Use a number of workers equal to the number of CPU cores available.
 # Reducing this number on a multicore instance will reduce memory consumption,
 # but will also reduce the app's ability to utilize all available CPU resources.
-#workers = multiprocessing.cpu_count()
-#workers = 8 # good
+# workers = multiprocessing.cpu_count()
+# workers = 8 # good
 workers = 2 # good
 
 # Use an arbitrary number of threads for concurrency. This will dictate the

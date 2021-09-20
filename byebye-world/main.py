@@ -1,13 +1,15 @@
 import logging
 
-from flask import Flask, request, jsonify
+from flask import Flask
 
 app = Flask(__name__)
+
 
 @app.route('/')
 def hello():
     """Return a friendly HTTP greeting."""
     return 'Bye bye world'
+
 
 @app.errorhandler(500)
 def server_error(e):
@@ -16,6 +18,7 @@ def server_error(e):
     An internal error occurred: <pre>{}</pre>
     See logs for full stacktrace.
     """.format(e), 500
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8081)
