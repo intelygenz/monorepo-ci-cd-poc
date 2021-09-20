@@ -1,7 +1,7 @@
 # Build and publish the docker image for component ByeBye
 # Executed on 'byebye-v*.*.*' tags
 
-name: ByeBye Build and Publish
+name: 3. ByeBye Build and Publish
 
 on:
   push:

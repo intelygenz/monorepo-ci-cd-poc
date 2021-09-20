@@ -1,7 +1,7 @@
 # Build and publish the docker image for component Hello
 # Executed on 'hello-v*.*.*' tags
 
-name: Hello Build and Publish
+name: 3. Hello Build and Publish
 
 on:
   push:

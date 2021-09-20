@@ -2,7 +2,7 @@
 # Executed on 'v*.*.*' and 'v*.*-rc.*' tags
 # This workflow updates the helm chart file Chart.yml and values.yml with new versions and commit them
 
-name: Helm Release
+name: 6. Helm Release
 
 on:
   push:

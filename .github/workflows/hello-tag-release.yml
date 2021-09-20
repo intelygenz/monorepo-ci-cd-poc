@@ -2,7 +2,7 @@
 # Executed only on main and if the "Hello Quality" completes successfully
 # Generates a tag with 'hello-v*.*.0'
 
-name: Hello Release
+name: 2. Hello Tag Release
 
 on:
   workflow_run:

@@ -2,7 +2,7 @@
 # Executed only on main and if the "ByeBye Quality" completes successfully
 # Generates a tag with 'byebye-v*.*.0'
 
-name: ByeBye Release
+name: 2. ByeBye Tag Release
 
 on:
   workflow_run:

@@ -1,7 +1,7 @@
 # Checks quality for component Hello
 # Executed on changes in the component folder or in this action
 
-name: Hello Quality
+name: 1. Hello Quality
 
 on:
   push:
