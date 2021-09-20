@@ -47,14 +47,3 @@ jobs:
       #    tags: |
       #      konstellation/hello-world:${{ steps.get_version.outputs.VERSION }}
       #      konstellation/hello-world:latest
-
-      - name: Update hello image version in chart
-        uses: fjogeleit/yaml-update-action@v0.6.1
-        with:
-          valueFile: 'metaapp/values.yaml'
-          propertyPath: 'helloWorld.tag'
-          value: ${{ steps.version.outputs.tag }}
-          message: 'Update Hello Component Image Version to ${{ steps.version.outputs.tag }} [skip-ci]'
-          commitChange: true
-          branch: main
-          updateFile: true

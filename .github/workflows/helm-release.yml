@@ -16,20 +16,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Hello Component Version
-        id: hello_version
-        uses: ./.github/actions
-        with:
-          prefix: "hello-"
-          mode: 'component-get-last-version'
-
-      - name: ByeBye Component Version
-        id: byebye_version
-        uses: ./.github/actions
-        with:
-          prefix: "byebye-"
-          mode: 'component-get-last-version'
-
       - name: App Version
         id: get_version
         run: |
@@ -54,3 +40,15 @@ jobs:
           echo 'byebyeWorld.tag' ${{ steps.byebye_version.outputs.tag }}
           echo 'appVersion' ${{ steps.get_version.outputs.VERSION }}
           echo 'version' ${{ steps.get_version.outputs.RELEASE_VERSION }}
+
+      - name: Commit files
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+          git commit -m "Update chart to version ${{ steps.get_version.outputs.RELEASE_VERSION }} [skip-ci]" -a
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.PATNAME }}
+          branch: main
