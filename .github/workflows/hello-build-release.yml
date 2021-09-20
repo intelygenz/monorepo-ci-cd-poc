@@ -31,6 +31,8 @@ jobs:
         with:
           prefix: "hello-"
           mode: 'component-get-last-version'
+        env:
+          GITHUB_TOKEN: ${{ secrets.PATNAME }}
 
       - name: Display the component version
         run: echo "Build & Release component hello with version ${{ steps.version.outputs.tag }}"

@@ -35,6 +35,8 @@ jobs:
         with:
           prefix: "byebye-"
           mode: 'component-get-last-version'
+        env:
+          GITHUB_TOKEN: ${{ secrets.PATNAME }}
 
       - name: Display the component version
         run: echo "Build & Release component byebye with version ${{ steps.version.outputs.tag }}"
