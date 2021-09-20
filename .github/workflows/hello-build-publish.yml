@@ -49,7 +49,7 @@ jobs:
       #      konstellation/hello-world:latest
 
       - name: Update hello image version in chart
-        uses: fjogeleit/yaml-update-action@master
+        uses: fjogeleit/yaml-update-action@v0.6.1
         with:
           valueFile: 'metaapp/values.yaml'
           propertyPath: 'helloWorld.tag'
