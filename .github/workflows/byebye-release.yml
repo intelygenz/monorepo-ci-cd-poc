@@ -1,7 +1,6 @@
 name: ByeBye Release
 
 on:
-  workflow_dispatch:
   push:
     branches: ["main"]
     paths:
@@ -18,7 +17,7 @@ jobs:
         uses: ./.github/actions
         with:
           prefix: "byebye-"
-          mode: 'component'
+          mode: 'component-release'
           default-branch: 'main'
         env:
           GITHUB_TOKEN: ${{ secrets.PATNAME }}

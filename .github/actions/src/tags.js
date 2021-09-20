@@ -48,10 +48,10 @@ module.exports = function(octokit, owner, repo) {
         return tagNames
     }
 
-    async function getLastComponentReleaseTag(prefix) {
+    async function getLastTag(regex) {
         try {
             const tagNames = await searchTagNames(octokit, owner, repo)
-            const tagsWithComponent = tagNames.filter(tagName => tagName.match(`^${prefix}`))
+            const tagsWithComponent = tagNames.filter(tagName => tagName.match(regex))
             if (tagsWithComponent.length !== 0) return tagsWithComponent[0]
             return null
         } catch (err) {
@@ -59,15 +59,12 @@ module.exports = function(octokit, owner, repo) {
         }
     }
 
+    async function getLastComponentReleaseTag(prefix) {
+        return getLastTag(`^${prefix}`)
+    }
+
     async function getLastPreReleaseTag() {
-        try {
-            const tagNames = await searchTagNames(octokit, owner, repo)
-            const tagsWithPrefix = tagNames.filter(tagName => tagName.match(`^v[0-9]+.[0-9]+-`))
-            if (tagsWithPrefix.length !== 0) return tagsWithPrefix[0]
-            return null
-        } catch (err) {
-            throw err
-        }
+        return getLastTag(`^v[0-9]+.[0-9]+-`)
     }
 
     async function getLastReleaseTagFromReleaseBranch(release_branch) {

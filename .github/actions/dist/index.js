@@ -10439,10 +10439,10 @@ module.exports = function(octokit, owner, repo) {
         return tagNames
     }
 
-    async function getLastComponentReleaseTag(prefix) {
+    async function getLastTag(regex) {
         try {
             const tagNames = await searchTagNames(octokit, owner, repo)
-            const tagsWithComponent = tagNames.filter(tagName => tagName.match(`^${prefix}`))
+            const tagsWithComponent = tagNames.filter(tagName => tagName.match(regex))
             if (tagsWithComponent.length !== 0) return tagsWithComponent[0]
             return null
         } catch (err) {
@@ -10450,15 +10450,12 @@ module.exports = function(octokit, owner, repo) {
         }
     }
 
+    async function getLastComponentReleaseTag(prefix) {
+        return getLastTag(`^${prefix}`)
+    }
+
     async function getLastPreReleaseTag() {
-        try {
-            const tagNames = await searchTagNames(octokit, owner, repo)
-            const tagsWithPrefix = tagNames.filter(tagName => tagName.match(`^v[0-9]+.[0-9]+-`))
-            if (tagsWithPrefix.length !== 0) return tagsWithPrefix[0]
-            return null
-        } catch (err) {
-            throw err
-        }
+        return getLastTag(`^v[0-9]+.[0-9]+-`)
     }
 
     async function getLastReleaseTagFromReleaseBranch(release_branch) {
@@ -10815,16 +10812,20 @@ async function main() {
     console.log(`Run action with mode ${mode}`)
     switch(mode){
       case 'pre-release':
-        if(checkPrereleaseRequirements(core, preRelease)) runPreRelease()
+        if(checkPrereleaseRequirements(core, preRelease)) await runPreRelease()
         break
       case 'release':
-        runRelease(prefix,defaultBranch)
+        await runRelease(prefix,defaultBranch)
         break
       case 'fix':
-        runFix()
+        await runFix()
         break
-      case 'component':
-        runReleaseComponent(prefix)
+      case 'component-release':
+        await runReleaseComponent(prefix)
+        break
+      case 'component-get-last-version':
+        const tag = await getLastComponentReleaseTag(prefix)
+        core.setOutput("tag", tag.replace(prefix, ''))
         break
     }
 
@@ -10849,7 +10850,7 @@ async function runFix() {
     const fixTag = `v${major}.${minor}.${patch + 1}`
     if (!dryRun) await createTag(fixTag, releaseBranch)
 
-    core.setOutput("release-version", fixTag)
+    core.setOutput("tag", fixTag)
     console.log(`🚀 New fix '${fixTag}' created`)
   
   } catch (err) {
@@ -10860,10 +10861,7 @@ async function runFix() {
 async function runReleaseComponent(prefix) {
   try {
     const tag = await getLastComponentReleaseTag(prefix)
-    if(!tag) return core.setFailed('There are any pre-release yet')
-
-    console.log(`Release component ${prefix} with tag ${tag}`)
-
+    if(!tag) return core.setFailed('There are not any component release yet')
 
     const regex = new RegExp(`^${prefix}v(\\d+).(\\d+)`, 'g')
     const matches = regex.exec(tag)
@@ -10878,7 +10876,7 @@ async function runReleaseComponent(prefix) {
 
     console.log(`🚀 New release tag '${releaseTag}' created`)
 
-    core.setOutput("release-version", releaseTag)
+    core.setOutput("tag", releaseTag)
   } catch (err) {
     throw err
   }
@@ -10909,7 +10907,7 @@ async function runRelease(prefix, defaultBranch) {
     console.log(`🚀 New release '${release}' created`)    
     console.log(`🚀 New release tag '${releaseTag}' created`)
 
-    core.setOutput("release-version", releaseTag)
+    core.setOutput("tag", releaseTag)
 
   } catch (err) {
     throw err
@@ -10941,7 +10939,7 @@ async function runPreRelease() {
     if (!dryRun) createTag(preReleaseTag, defaultBranch)
 
     console.log(`🚀 New pre-release tag '${preReleaseTag}' created`)
-    core.setOutput("release-version", preReleaseTag)
+    core.setOutput("tag", preReleaseTag)
 
   } catch (error) {
     core.setFailed(error.message);

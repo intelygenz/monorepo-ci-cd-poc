@@ -17,7 +17,7 @@ jobs:
         uses: ./.github/actions
         with:
           prefix: "hello-"
-          mode: 'component'
+          mode: 'component-release'
           default-branch: 'main'
         env:
           GITHUB_TOKEN: ${{ secrets.PATNAME }}

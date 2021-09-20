@@ -46,16 +46,20 @@ async function main() {
     console.log(`Run action with mode ${mode}`)
     switch(mode){
       case 'pre-release':
-        if(checkPrereleaseRequirements(core, preRelease)) runPreRelease()
+        if(checkPrereleaseRequirements(core, preRelease)) await runPreRelease()
         break
       case 'release':
-        runRelease(prefix,defaultBranch)
+        await runRelease(prefix,defaultBranch)
         break
       case 'fix':
-        runFix()
+        await runFix()
         break
-      case 'release-component':
-        runReleaseComponent(prefix)
+      case 'component-release':
+        await runReleaseComponent(prefix)
+        break
+      case 'component-get-last-version':
+        const tag = await getLastComponentReleaseTag(prefix)
+        core.setOutput("tag", tag.replace(prefix, ''))
         break
     }
 
@@ -80,7 +84,7 @@ async function runFix() {
     const fixTag = `v${major}.${minor}.${patch + 1}`
     if (!dryRun) await createTag(fixTag, releaseBranch)
 
-    core.setOutput("release-version", fixTag)
+    core.setOutput("tag", fixTag)
     console.log(`🚀 New fix '${fixTag}' created`)
   
   } catch (err) {
@@ -106,7 +110,7 @@ async function runReleaseComponent(prefix) {
 
     console.log(`🚀 New release tag '${releaseTag}' created`)
 
-    core.setOutput("release-version", releaseTag)
+    core.setOutput("tag", releaseTag)
   } catch (err) {
     throw err
   }
@@ -137,7 +141,7 @@ async function runRelease(prefix, defaultBranch) {
     console.log(`🚀 New release '${release}' created`)    
     console.log(`🚀 New release tag '${releaseTag}' created`)
 
-    core.setOutput("release-version", releaseTag)
+    core.setOutput("tag", releaseTag)
 
   } catch (err) {
     throw err
@@ -169,7 +173,7 @@ async function runPreRelease() {
     if (!dryRun) createTag(preReleaseTag, defaultBranch)
 
     console.log(`🚀 New pre-release tag '${preReleaseTag}' created`)
-    core.setOutput("release-version", preReleaseTag)
+    core.setOutput("tag", preReleaseTag)
 
   } catch (error) {
     core.setFailed(error.message);
