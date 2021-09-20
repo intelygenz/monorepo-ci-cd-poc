@@ -6,7 +6,7 @@ on:
       - "Hello Build and Publish"
       - "ByeBye Build and Publish"
     types:
-      - completed
+      - success
 
 jobs:
   generate-prerelease:
