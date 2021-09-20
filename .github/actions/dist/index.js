@@ -10455,7 +10455,7 @@ module.exports = function(octokit, owner, repo) {
     }
 
     async function getLastPreReleaseTag() {
-        return getLastTag(`^v[0-9]+.[0-9]+-`)
+        return getLastTag(/^v[0-9]+.[0-9]+-/)
     }
 
     async function getLastReleaseTagFromReleaseBranch(release_branch) {
