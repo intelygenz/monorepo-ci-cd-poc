@@ -1,3 +1,7 @@
+# Creates a pre-release tag for helm chart
+# Executed only when a Quality* workflow completes successfully
+# Generate a tag with 'v*.*-rc.*'
+
 name: Helm Pre Release
 
 on:
@@ -11,8 +15,7 @@ on:
 jobs:
   generate-prerelease:
     runs-on: ubuntu-latest
-    # if needed for checking workflow success: https://github.community/t/workflow-run-success-type-reference/133194/2
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' }} # https://github.community/t/workflow-run-success-type-reference/133194/3
     steps:
       - name: Checkout
         uses: actions/checkout@v2

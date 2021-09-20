@@ -1,3 +1,6 @@
+# Checks quality for component ByeBye
+# Executed on changes in the component folder or in this action
+
 name: ByeBye Quality
 
 on:
@@ -15,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Lint
     steps:
-      - name: Check out source repository
+      - name: CheckOut
         uses: actions/checkout@v2
 
       - name: Set up Python environment

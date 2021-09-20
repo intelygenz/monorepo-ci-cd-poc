@@ -1,3 +1,7 @@
+# Generate a new version of the helm chart updating the components to their respective lasts version
+# Executed on 'v*.*.*' and 'v*.*-rc.*' tags
+# This workflow updates the helm chart file Chart.yml and values.yml with new versions and commit them
+
 name: Helm Release
 
 on:

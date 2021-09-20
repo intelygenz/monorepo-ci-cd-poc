@@ -1,3 +1,6 @@
+# Build and publish the docker image for component ByeBye
+# Executed on 'byebye-v*.*.*' tags
+
 name: ByeBye Build and Publish
 
 on:
@@ -9,9 +12,8 @@ jobs:
   build-release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0  
+      - name: Checkout
+        uses: actions/checkout@v2
 
       #- name: Set up QEMU
       #  uses: docker/setup-qemu-action@v1
@@ -25,21 +27,11 @@ jobs:
       #    username: ${{ secrets.DOCKERHUB_USERNAME }}
       #    password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Get Version
-        id: get_version
-        run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
-
-      - name: Get Component Version
+      - name: Set output
         id: version
-        uses: ./.github/actions
-        with:
-          prefix: "byebye-"
-          mode: 'component-get-last-version'
-        env:
-          GITHUB_TOKEN: ${{ secrets.PATNAME }}
-
-      - name: Display the component version
-        run: echo "Build & Release component byebye with version ${{ steps.version.outputs.tag }}"
+        run: |
+          echo ::set-output name=tag::${GITHUB_REF#refs/*/}
+          echo Version for new release: ${GITHUB_REF#refs/*/}
 
       #- name: Push to Docker Hub
       #  uses: docker/build-push-action@v2
@@ -49,5 +41,5 @@ jobs:
       #    platforms: linux/amd64
       #    push: true
       #    tags: |
-      #      konstellation/byebye-world:${{ steps.get_version.outputs.VERSION }}
+      #      konstellation/byebye-world:${{ steps.version.outputs.tag }}
       #      konstellation/byebye-world:latest

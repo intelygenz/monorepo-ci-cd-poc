@@ -1,3 +1,6 @@
+# Build and publish the docker image for component Hello
+# Executed on 'hello-v*.*.*' tags
+
 name: Hello Build and Publish
 
 on:
@@ -11,9 +14,8 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ secrets.PATNAME }}
     steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0  
+      - name: Checkout
+        uses: actions/checkout@v2
 
       #- name: Set up QEMU
       #  uses: docker/setup-qemu-action@v1
@@ -27,15 +29,11 @@ jobs:
       #    username: ${{ secrets.DOCKERHUB_USERNAME }}
       #    password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Get Component Version
+      - name: Set output
         id: version
-        uses: ./.github/actions
-        with:
-          prefix: "hello-"
-          mode: 'component-get-last-version'
-
-      - name: Display the component version
-        run: echo "Build & Release component hello with version ${{ steps.version.outputs.tag }}"
+        run: |
+          echo ::set-output name=tag::${GITHUB_REF#refs/*/}
+          echo Version for new release: ${GITHUB_REF#refs/*/}
 
       #- name: Push to Docker Hub
       #  uses: docker/build-push-action@v2
@@ -45,5 +43,5 @@ jobs:
       #    platforms: linux/amd64
       #    push: true
       #    tags: |
-      #      konstellation/hello-world:${{ steps.get_version.outputs.VERSION }}
+      #      konstellation/hello-world:${{ steps.version.outputs.tag }}
       #      konstellation/hello-world:latest

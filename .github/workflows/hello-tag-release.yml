@@ -1,3 +1,7 @@
+# Generates a release tag for component Hello
+# Executed only on main and if the "Hello Quality" completes successfully
+# Generates a tag with 'hello-v*.*.0'
+
 name: Hello Release
 
 on:
@@ -8,15 +12,16 @@ on:
     types:
       - completed
 
-
 jobs:
   release-component:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }} # https://github.community/t/workflow-run-success-type-reference/133194/3
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Generate a release
+
+      - name: Generate a release tag
         uses: ./.github/actions
         with:
           prefix: "hello-"
