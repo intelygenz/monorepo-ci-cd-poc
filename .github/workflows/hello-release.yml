@@ -3,7 +3,7 @@ name: Hello Release
 on:
   workflow_run:
     workflows:
-      - "ByeBye Quality"
+      - "Hello Quality"
     branches: [main]
     types:
       - completed
