@@ -5,10 +5,10 @@ on:
     branches-ignore:
       - "v*"
     tags-ignore:
-      - v*
+      - "**"
     paths:
       - "byebye-world/**/*"
-      - ".github/hello-quality*"
+      - ".github/byebye-quality*"
 
 jobs:
   flake8-lint:

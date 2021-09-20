@@ -5,7 +5,7 @@ on:
     branches-ignore:
       - "v*"
     tags-ignore:
-      - v*
+      - "**"
     paths:
       - "hello-world/**/*"
       - ".github/hello-quality*"
