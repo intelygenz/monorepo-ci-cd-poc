@@ -1,4 +1,4 @@
-name: KDL Server App API Quality
+name: Hello Quality
 
 on:
   push:

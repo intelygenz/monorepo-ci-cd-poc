@@ -1,10 +1,13 @@
 name: Hello Release
 
 on:
-  push:
-    branches: ["main"]
-    paths:
-      - "hello-world/**/*"
+  workflow_run:
+    workflows:
+      - "ByeBye Quality"
+    branches: [main]
+    types:
+      - completed
+
 
 jobs:
   release-component:
