@@ -1,4 +1,4 @@
-# Creates a pre-release tag for helm chart
+# Creates a pre-release tag for helm chart. A new pre-release of the chart is created when a component is updated.
 # Executed only when a Quality* workflow completes successfully
 # Generate a tag with 'v*.*-rc.*'
 
