@@ -34,7 +34,7 @@ jobs:
         uses: ./.github/actions
         with:
           prefix: "hello-"
-          current-version: steps.compoment_version.outputs.TAG
+          current-version: ${{ steps.compoment_version.outputs.TAG }}
           mode: 'component-fix'
         env:
           GITHUB_TOKEN: ${{ secrets.PATNAME }}
