@@ -25,7 +25,7 @@ jobs:
         uses: ./.github/actions
         with:
           current-major: 0
-          prefix: "release-"
+          prefix: "release/v"
           mode: 'pre-release'
           pre-release: 'rc'
           default-branch: 'main'
