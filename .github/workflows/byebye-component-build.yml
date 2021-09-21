@@ -38,6 +38,9 @@ jobs:
     needs: quality-checks
     runs-on: ubuntu-20.04
     steps:
+      - name: CheckOut
+        uses: actions/checkout@v2
+
       - name: Generate a release tag
         uses: ./.github/actions
         id: release_tag
@@ -50,10 +53,13 @@ jobs:
         run: echo ::set-env name=TAG::${steps.release_tag.outputs.tag }
 
   tag-fix-version:
-    if: ${{ contains(github.ref, 'release') }} # only in release branches
+    if: startsWith(github.ref, 'refs/heads/release') # only in release branches
     needs: quality-checks
     runs-on: ubuntu-20.04
     steps:
+      - name: CheckOut
+        uses: actions/checkout@v2
+
       - uses: chrisdickinson/setup-yq@latest
       - name: Get component versions
         id: compoment_version
