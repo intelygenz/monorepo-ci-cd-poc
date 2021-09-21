@@ -82,6 +82,7 @@ jobs:
         run: echo ::set-env name=TAG::${steps.fix_tag.outputs.tag }
 
   build-release:
+    if: always()
     needs: [tag-release-version, tag-fix-version]
     runs-on: ubuntu-latest
     steps:
