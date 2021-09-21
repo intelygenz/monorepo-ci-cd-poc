@@ -10822,7 +10822,7 @@ async function main() {
         await runFix()
         break
       case 'component-fix':
-        await runComponentFix(currentVersion)
+        await runComponentFix(prefix, currentVersion)
         break
       case 'component-release':
         await runReleaseComponent(prefix)
