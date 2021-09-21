@@ -34,16 +34,7 @@ main()
 
 async function main() {
   try {
-    const workflow = readWorkflowsAndFilterByName(github.context.workflow)
-    // TODO: Clean this code
-    if (workflow.on && workflow.on.workflow_run && workflow.on.workflow_run.workflows) {
-      const workflowSha = github.context.payload.workflow_run.head_commit.id
-      const successDeps = await checkWorkflowDeps(workflow.on.workflow_run.workflows, workflowSha)
-      if(!successDeps) return console.log(`Action skipped because another workflows for the same commit '${workflowSha}' are in progress.`)
-      // const existCommit = await existsCommitInLastTags(workflowSha)
-      // if(existCommit) return console.log(`Action skipped because a tag with this commit '${workflowSha}' has been previously generated.`)
-    }
-
+    
     console.log(`Run action with mode ${mode}`)
     switch(mode){
       case 'pre-release':
