@@ -52,7 +52,9 @@ jobs:
           default-branch: 'main'
 
       - name: Store release tag
-        run: echo "TAG=${{ steps.release_tag.outputs.tag }}" >> $GITHUB_ENV
+        run: |
+          echo "TAG=${{ steps.release_tag.outputs.tag }}" >> $GITHUB_ENV
+          echo tag store in env ${{ env.TAG }}
 
   tag-fix-version:
     if: startsWith(github.ref, 'refs/heads/release') # only in release branches
@@ -79,7 +81,9 @@ jobs:
           mode: 'component-fix'
 
       - name: Store fix tag
-        run: echo "TAG=${{ steps.fix_tag.outputs.tag }}" >> $GITHUB_ENV
+        run: |
+          echo "TAG=${{ steps.fix_tag.outputs.tag }}" >> $GITHUB_ENV
+          echo tag store in env ${{ env.TAG }}
 
   build-release:
     if: always()
@@ -99,7 +103,7 @@ jobs:
       #    password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Store fix tag
-        run: echo Tag set to $TAG
+        run: echo Tag set to ${{ env.TAG }}
 
       #- name: Push to Docker Hub
       #  uses: docker/build-push-action@v2
