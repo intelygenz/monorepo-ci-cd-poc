@@ -18,7 +18,7 @@ jobs:
         id: rc_tag
         uses: ./.github/actions
         with:
-          prefix: "release/"
+          prefix: "release/v"
           mode: 'release'
           default-branch: 'main'
         env:
