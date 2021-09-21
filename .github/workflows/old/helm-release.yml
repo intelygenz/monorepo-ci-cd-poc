@@ -1,53 +1,25 @@
-name: Helm Release
+# Generate a new version of the helm chart updating the components to their respective lasts version
+# Executed on 'v*.*.*' and 'v*.*-rc.*' tags
+# This workflow updates the helm chart file Chart.yml and values.yml with new versions and commit them
+
+name: 6. Helm Release
 
 on:
-  workflow_run:
-    workflows:
-      - "Hello Component Build"
-      - "ByeBye Component Build"
-    types:
-      - completed
   push:
     tags:
       - 'v*.*.*'
       - 'v*.*-rc.*'
-    branches: ["release/*"]
-
-
-env:
-  GITHUB_TOKEN: ${{ secrets.PATNAME }}
-
 
 jobs:
 
-  checkout:
+  release:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.PATNAME }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
-  generate-prerelease:
-    runs-on: ubuntu-latest
-    needs: checkout
-    if: |
-      github.event.workflow_run.conclusion == 'success' &&
-      github.ref == 'ref/head/main'
-    steps:
-      - name: Generate a pre-release
-        id: rc_tag
-        uses: ./.github/actions
-        with:
-          current-major: 0
-          prefix: "release/v"
-          mode: 'pre-release'
-          pre-release: 'rc'
-          default-branch: 'main'
-
-  release:
-    runs-on: ubuntu-latest
-    needs: checkout
-    if: startsWith(github.event.ref, 'refs/tags/v')
-    steps:
       - name: Hello Component Version
         id: hello_version
         uses: ./.github/actions
@@ -96,25 +68,5 @@ jobs:
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
-          github_token: ${{ env.GITHUB_TOKEN }}
+          github_token: ${{ secrets.PATNAME }}
           branch: main
-
-  create-fix:
-    runs-on: ubuntu-latest
-    needs: checkout
-    if: startsWith(github.ref, 'ref/head/release')
-    steps:
-      - uses: chrisdickinson/setup-yq@latest
-      - name: Get component versions
-        id: compoment_version
-        run: |
-          TAG=`yq r metaapp/values.yaml 'helloWorld.tag'`
-          echo ::set-output name=TAG::${TAG}
-          echo Component version in release branch is ${TAG}
-
-      - name: Generate a fix
-        uses: ./.github/actions
-        with:
-          prefix: "hello-"
-          current-version: ${{ steps.compoment_version.outputs.TAG }}
-          mode: 'component-fix'
