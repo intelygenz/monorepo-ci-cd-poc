@@ -34,7 +34,7 @@ main()
 
 async function main() {
   try {
-    
+
     console.log(`Run action with mode ${mode}`)
     switch(mode){
       case 'pre-release':
