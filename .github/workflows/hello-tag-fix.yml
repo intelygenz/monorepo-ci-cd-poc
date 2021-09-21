@@ -19,9 +19,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.workflow_run.head_branch }} # Checkout the branch in the original workflow
 
       - uses: chrisdickinson/setup-yq@latest
       - name: Get component versions
+        id: compoment_version
         run: |
           TAG=`yq r metaapp/values.yaml 'helloWorld.tag'`
           echo ::set-output name=TAG::${TAG}
@@ -31,7 +34,7 @@ jobs:
         uses: ./.github/actions
         with:
           prefix: "hello-"
-          current-version: ${TAG}
+          current-version: steps.compoment_version.outputs.TAG
           mode: 'component-fix'
         env:
           GITHUB_TOKEN: ${{ secrets.PATNAME }}
