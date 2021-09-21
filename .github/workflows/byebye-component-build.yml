@@ -34,7 +34,7 @@ jobs:
         uses: py-actions/flake8@v1
 
   tag-release-version:
-    if: ${{ github.ref == 'ref/head/main' }} # only in main branch
+    if: github.ref == 'refs/heads/main' # only in main branch
     needs: quality-checks
     runs-on: ubuntu-20.04
     steps:
