@@ -7,8 +7,8 @@ name: 4. Helm Tag Pre Release
 on:
   workflow_run:
     workflows:
-      - "Hello Build and Publish"
-      - "ByeBye Build and Publish"
+      - "3. Hello Build and Publish"
+      - "3. ByeBye Build and Publish"
     types:
       - completed
 
