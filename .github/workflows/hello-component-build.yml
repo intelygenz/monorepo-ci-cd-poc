@@ -39,6 +39,8 @@ jobs:
     if: github.ref == 'refs/heads/main' # only in main branch
     needs: quality-checks
     runs-on: ubuntu-20.04
+    outputs:
+      tag: ${{ steps.release_tag.outputs.tag }}
     steps:
       - name: CheckOut
         uses: actions/checkout@v2
@@ -51,15 +53,12 @@ jobs:
           mode: 'component-release'
           default-branch: 'main'
 
-      - name: Store release tag
-        run: |
-          echo "TAG=${{ steps.release_tag.outputs.tag }}" >> $GITHUB_ENV
-          echo tag store in env ${{ env.TAG }}
-
   tag-fix-version:
     if: startsWith(github.ref, 'refs/heads/release') # only in release branches
     needs: quality-checks
     runs-on: ubuntu-20.04
+    outputs:
+       tag: ${{ steps.fix_tag.outputs.tag }}
     steps:
       - name: CheckOut
         uses: actions/checkout@v2
@@ -80,11 +79,6 @@ jobs:
           current-version: ${{ steps.compoment_version.outputs.TAG }}
           mode: 'component-fix'
 
-      - name: Store fix tag
-        run: |
-          echo "TAG=${{ steps.fix_tag.outputs.tag }}" >> $GITHUB_ENV
-          echo tag store in env ${{ env.TAG }}
-
   build-release:
     if: always()
     needs: [tag-release-version, tag-fix-version]
@@ -103,7 +97,7 @@ jobs:
       #    password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Store fix tag
-        run: echo Tag set to ${{ env.TAG }}
+        run: echo Tag set to ${{needs.tag-release-version.outputs.tag}}${{needs.tag-fix-version.outputs.tag}}
 
       #- name: Push to Docker Hub
       #  uses: docker/build-push-action@v2
