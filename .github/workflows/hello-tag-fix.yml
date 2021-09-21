@@ -1,6 +1,6 @@
 # Generates a fix tag for component Hello
-# Executed only on main and if the "Hello Quality" completes successfully
-# Generates a tag with 'hello-v*.*.0'
+# Executed only on `release/*` branch and if the "Hello Quality" completes successfully
+# Generates a tag with 'hello-vX.X.*'
 
 name: 7. Hello Component Fix
 
