@@ -42,7 +42,7 @@ jobs:
           echo ::set-output name=RELEASE_VERSION::${RELEASE_VERSION}
           echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
 
-      - uses: chrisdickinson/setup-yq@v1.0.0
+      - uses: chrisdickinson/setup-yq@latest
       - name: Replace component versions
         run: |
           # set image tags on kdl
