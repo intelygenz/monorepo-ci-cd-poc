@@ -52,7 +52,7 @@ jobs:
           default-branch: 'main'
 
       - name: Store release tag
-        run: echo "TAG=${steps.release_tag.outputs.tag }" >> $GITHUB_ENV
+        run: echo "TAG=${{ steps.release_tag.outputs.tag }}" >> $GITHUB_ENV
 
   tag-fix-version:
     if: startsWith(github.ref, 'refs/heads/release') # only in release branches
