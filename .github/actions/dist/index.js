@@ -10442,9 +10442,8 @@ module.exports = function(octokit, owner, repo) {
     async function getLastTag(regex) {
         try {
             const tagNames = await searchTagNames(octokit, owner, repo)
-            const tags = tagNames.filter(tagName => tagName.match(regex))
-            console.log(`Tag with prefix '${regex}' found`, tags)
-            if (tags.length !== 0) return tags[0]
+            const tagsWithComponent = tagNames.filter(tagName => tagName.match(regex))
+            if (tagsWithComponent.length !== 0) return tagsWithComponent[0]
             return null
         } catch (err) {
             throw err
@@ -10455,7 +10454,7 @@ module.exports = function(octokit, owner, repo) {
         return getLastTag(`^${prefix}`)
     }
 
-    async function getLastReleaseTag() {
+    async function getLastPreReleaseTag() {
         return getLastTag(`^v[0-9]+.[0-9]+-`)
     }
 
@@ -10524,7 +10523,7 @@ module.exports = function(octokit, owner, repo) {
   return {
     existsCommitInLastTags,
     calcPrereleaseTag,
-    getLastReleaseTag,
+    getLastPreReleaseTag,
     getLastComponentReleaseTag,
     getLastReleaseTagFromReleaseBranch,
     createTag
@@ -10780,7 +10779,7 @@ const {calcPreReleaseBranch, createBranch} = __nccwpck_require__(3545)(octokit, 
 const {
   existsCommitInLastTags,
   calcPrereleaseTag,
-  getLastReleaseTag,
+  getLastPreReleaseTag,
   getLastComponentReleaseTag,
   getLastReleaseTagFromReleaseBranch,
   createTag
@@ -10794,6 +10793,7 @@ const currentMajor = parseInt(core.getInput('current-major'))
 const prefix = core.getInput('prefix')
 const preRelease = core.getInput('pre-release')
 const defaultBranch = core.getInput('default-branch')
+const currentVersion = core.getInput('current-version')
 
 
 main()
@@ -10821,6 +10821,9 @@ async function main() {
       case 'fix':
         await runFix()
         break
+      case 'component-fix':
+        await runComponentFix(currentVersion)
+        break
       case 'component-release':
         await runReleaseComponent(prefix)
         break
@@ -10832,6 +10835,28 @@ async function main() {
 
   } catch (err) {
     console.log(err)
+  }
+}
+
+async function runComponentFix(prefix, currentVersion) {
+  try {
+    if (!currentVersion) return core.setFailed('To run a fix you need to specify a currentVersion')
+
+    const branch = github.context.payload.workflow_run.head_branch
+    const regex = new RegExp(`^v(\\d+).(\\d+).(\\d+)$`, 'g')
+    const matches = regex.exec(currentVersion)
+    const major = parseInt(matches[1]);
+    const minor = parseInt(matches[2]);
+    const patch = parseInt(matches[3]);
+
+    const fixTag = `${prefix}v${major}.${minor}.${patch + 1}`
+    if (!dryRun) await createTag(fixTag, branch)
+
+    core.setOutput("tag", fixTag)
+    console.log(`🚀 New component fix '${fixTag}' created`)
+  
+  } catch (err) {
+    throw err
   }
 }
 
@@ -10853,7 +10878,7 @@ async function runFix() {
 
     core.setOutput("tag", fixTag)
     console.log(`🚀 New fix '${fixTag}' created`)
-  
+
   } catch (err) {
     throw err
   }
@@ -10887,7 +10912,7 @@ async function runReleaseComponent(prefix) {
 async function runRelease(prefix, defaultBranch) {
   try {
 
-    const tag = await getLastReleaseTag()
+    const tag = await getLastPreReleaseTag()
     if(!tag) return core.setFailed('There are any pre-release yet')
     
     const regex = new RegExp(`^v(\\d+).(\\d+)`, 'g')

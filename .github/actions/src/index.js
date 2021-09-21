@@ -27,6 +27,7 @@ const currentMajor = parseInt(core.getInput('current-major'))
 const prefix = core.getInput('prefix')
 const preRelease = core.getInput('pre-release')
 const defaultBranch = core.getInput('default-branch')
+const currentVersion = core.getInput('current-version')
 
 
 main()
@@ -54,6 +55,9 @@ async function main() {
       case 'fix':
         await runFix()
         break
+      case 'component-fix':
+        await runComponentFix(currentVersion)
+        break
       case 'component-release':
         await runReleaseComponent(prefix)
         break
@@ -65,6 +69,28 @@ async function main() {
 
   } catch (err) {
     console.log(err)
+  }
+}
+
+async function runComponentFix(prefix, currentVersion) {
+  try {
+    if (!currentVersion) return core.setFailed('To run a fix you need to specify a currentVersion')
+
+    const branch = github.context.payload.workflow_run.head_branch
+    const regex = new RegExp(`^v(\\d+).(\\d+).(\\d+)$`, 'g')
+    const matches = regex.exec(currentVersion)
+    const major = parseInt(matches[1]);
+    const minor = parseInt(matches[2]);
+    const patch = parseInt(matches[3]);
+
+    const fixTag = `${prefix}v${major}.${minor}.${patch + 1}`
+    if (!dryRun) await createTag(fixTag, branch)
+
+    core.setOutput("tag", fixTag)
+    console.log(`🚀 New component fix '${fixTag}' created`)
+  
+  } catch (err) {
+    throw err
   }
 }
 
@@ -86,7 +112,7 @@ async function runFix() {
 
     core.setOutput("tag", fixTag)
     console.log(`🚀 New fix '${fixTag}' created`)
-  
+
   } catch (err) {
     throw err
   }
