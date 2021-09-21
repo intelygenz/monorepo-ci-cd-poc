@@ -79,7 +79,7 @@ jobs:
           mode: 'component-fix'
 
       - name: Store fix tag
-        run: echo ::set-env name=TAG::${steps.fix_tag.outputs.tag }
+        run: echo "TAG=${{ steps.fix_tag.outputs.tag }}" >> $GITHUB_ENV
 
   build-release:
     if: always()
@@ -101,7 +101,7 @@ jobs:
       - name: Set output
         id: version
         run: |
-          echo Version for new release: ${{ env.TAG }}
+          echo Version for new release: ${{ TAG }}
 
       #- name: Push to Docker Hub
       #  uses: docker/build-push-action@v2
