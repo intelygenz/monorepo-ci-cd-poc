@@ -10,8 +10,10 @@ on:
       - "byebye-world/**/*"
       - ".github/byebye-quality*"
 
+
 env:
   GITHUB_TOKEN: ${{ secrets.PATNAME }}
+
 
 jobs:
 
@@ -37,6 +39,8 @@ jobs:
     if: github.ref == 'refs/heads/main' # only in main branch
     needs: quality-checks
     runs-on: ubuntu-20.04
+    outputs:
+      tag: ${{ steps.release_tag.outputs.tag }}
     steps:
       - name: CheckOut
         uses: actions/checkout@v2
@@ -49,13 +53,12 @@ jobs:
           mode: 'component-release'
           default-branch: 'main'
 
-      - name: Store release tag
-        run: echo ::set-env name=TAG::${steps.release_tag.outputs.tag }
-
   tag-fix-version:
     if: startsWith(github.ref, 'refs/heads/release') # only in release branches
     needs: quality-checks
     runs-on: ubuntu-20.04
+    outputs:
+      tag: ${{ steps.fix_tag.outputs.tag }}
     steps:
       - name: CheckOut
         uses: actions/checkout@v2
@@ -76,10 +79,8 @@ jobs:
           current-version: ${{ steps.compoment_version.outputs.TAG }}
           mode: 'component-fix'
 
-      - name: Store fix tag
-        run: echo ::set-env name=TAG::${steps.fix_tag.outputs.tag }
-
   build-release:
+    if: always()
     needs: [tag-release-version, tag-fix-version]
     runs-on: ubuntu-latest
     steps:
@@ -95,10 +96,8 @@ jobs:
       #    username: ${{ secrets.DOCKERHUB_USERNAME }}
       #    password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Set output
-        id: version
-        run: |
-          echo Version for new release: ${{ env.TAG }}
+      - name: Store fix tag
+        run: echo Tag set to ${{needs.tag-release-version.outputs.tag}}${{needs.tag-fix-version.outputs.tag}}
 
       #- name: Push to Docker Hub
       #  uses: docker/build-push-action@v2
