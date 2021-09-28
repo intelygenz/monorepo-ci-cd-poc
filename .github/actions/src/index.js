@@ -70,7 +70,6 @@ async function runComponentFix(prefix, currentVersion) {
   try {
     if (!currentVersion) return core.setFailed('To run a fix you need to specify a currentVersion')
 
-    const branch = github.context.payload.workflow_run.head_branch
     const regex = new RegExp(`^v(\\d+).(\\d+).(\\d+)$`, 'g')
     const matches = regex.exec(currentVersion)
     const major = parseInt(matches[1]);
@@ -78,7 +77,7 @@ async function runComponentFix(prefix, currentVersion) {
     const patch = parseInt(matches[3]);
 
     const fixTag = `${prefix}v${major}.${minor}.${patch + 1}`
-    if (!dryRun) await createTag(fixTag, branch)
+    if (!dryRun) await createTag(fixTag, github.context.payload.ref)
 
     core.setOutput("tag", fixTag)
     console.log(`🚀 New component fix '${fixTag}' created`)
