@@ -17,16 +17,12 @@ env:
 
 jobs:
 
-  checkout:
-    runs-on: ubuntu-latest
+  quality-checks:
+    runs-on: ubuntu-20.04
     steps:
       - name: CheckOut
         uses: actions/checkout@v2
 
-  quality-checks:
-    needs: checkout
-    runs-on: ubuntu-20.04
-    steps:
       - name: Set up Python environment
         uses: actions/setup-python@v1
         with:
@@ -34,6 +30,7 @@ jobs:
 
       - name: flake8 Lint
         uses: py-actions/flake8@v1
+
 
   create-release-tag:
     if: github.ref == 'refs/heads/main' # only in main branch
@@ -52,6 +49,7 @@ jobs:
           prefix: "hello-"
           mode: 'component-release'
           default-branch: 'main'
+
 
   create-fix-tag:
     if: startsWith(github.ref, 'refs/heads/release') # only in release branches
@@ -79,6 +77,7 @@ jobs:
           current-version: ${{ steps.component_version.outputs.TAG }}
           mode: 'component-fix'
 
+
   output-variables:
     if: always()
     needs: [create-release-tag, create-fix-tag]
@@ -89,10 +88,11 @@ jobs:
           echo Release tag set to ${{needs.create-release-tag.outputs.tag}}
           echo Fix set to ${{needs.create-fix-tag.outputs.tag}}
 
+
   build-release:
     if: |
-      ${{needs.create-release-tag.outputs.tag}} != null ||
-      ${{needs.create-fix-tag.outputs.tag}} != null
+      needs.create-release-tag.outputs.tag != null ||
+      needs.create-fix-tag.outputs.tag != null
     needs: [create-release-tag, create-fix-tag]
     runs-on: ubuntu-latest
     steps:
