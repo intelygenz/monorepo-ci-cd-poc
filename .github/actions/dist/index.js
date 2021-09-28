@@ -10306,61 +10306,51 @@ module.exports = function (octokit, owner, repo) {
         let branchNames = []
         let data_length = 0
         let page = 0;
-        try {
-          do {
-            const { data } = await octokit.repos.listBranches({
-              owner,
-              repo,
-              per_page: 100,
-              page
-            });
-            const branchNamesPerPage = data.map(branch => branch.name)
-            data_length = branchNamesPerPage.length
-            branchNames.push(...branchNamesPerPage)
-            page++
-          } while (data_length == 100)
-        } catch (err) {
-            throw err
-        }
+        do {
+          const { data } = await octokit.repos.listBranches({
+            owner,
+            repo,
+            per_page: 100,
+            page
+          });
+          const branchNamesPerPage = data.map(branch => branch.name)
+          data_length = branchNamesPerPage.length
+          branchNames.push(...branchNamesPerPage)
+          page++
+        } while (data_length == 100)
 
         return branchNames.reverse()
     }
 
     async function calcPreReleaseBranch(currentMajor, prefix) {
-        try {
-            const branchNames = await searchBranchNames(octokit, owner, repo)
-            let major = currentMajor
-            let minor = 0
-    
-            const regex = new RegExp(`^${prefix}(\\d+).(\\d+)$`, 'g')
-            
-            const greaterReleaseBranches = branchNames.filter(branchName => {
-                if(branchName.match(`^${prefix}${major+1}.[0-9]+$`)) return true
-                return false
-            })
-    
-            if(greaterReleaseBranches.length > 0) throw new Error('Branch with greater major version already exist')
-    
-            const branchesWithPrefix = branchNames.filter(branchName => {
-            if(branchName.match(`^${prefix}${major}.[0-9]+$`)) return true
-                return false
-            })
-    
-            if(branchesWithPrefix.length === 0) {
-                return `v${major}.${minor}`
-            }
-    
-            const releaseBranch = branchesWithPrefix[0]
-            const matches = regex.exec(releaseBranch)
-            major = parseInt(matches[1]);
-            minor = parseInt(matches[2]);
-    
-            return `v${major}.${minor+1}`
-    
-        } catch (err) {
-            throw err
+        const branchNames = await searchBranchNames(octokit, owner, repo)
+        let major = currentMajor
+        let minor = 0
+
+        const regex = new RegExp(`^${prefix}(\\d+).(\\d+)$`, 'g')
+
+        const greaterReleaseBranches = branchNames.filter(branchName => {
+            if(branchName.match(`^${prefix}${major+1}.[0-9]+$`)) return true
+            return false
+        })
+
+        if(greaterReleaseBranches.length > 0) throw new Error('Branch with greater major version already exist')
+
+        const branchesWithPrefix = branchNames.filter(branchName => {
+        if(branchName.match(`^${prefix}${major}.[0-9]+$`)) return true
+            return false
+        })
+
+        if(branchesWithPrefix.length === 0) {
+            return `v${major}.${minor}`
         }
-        
+
+        const releaseBranch = branchesWithPrefix[0]
+        const matches = regex.exec(releaseBranch)
+        major = parseInt(matches[1]);
+        minor = parseInt(matches[2]);
+
+        return `v${major}.${minor+1}`
     }
 
     async function createBranch(branchName, sha) {
@@ -10380,7 +10370,8 @@ module.exports = function (octokit, owner, repo) {
         }
 
     }
-    return {calcPreReleaseBranch, createBranch} 
+
+    return {calcPreReleaseBranch, createBranch}
 }
 
 
@@ -10459,65 +10450,52 @@ module.exports = function(octokit, owner, repo) {
     }
 
     async function getLastReleaseTagFromReleaseBranch(release_branch) {
-      try {
         const tagNames = await searchTagNames(octokit, owner, repo)
         const tagsWithPrefix = tagNames.filter(tagName => tagName.match(`^v${release_branch}.[0-9]+$`))
         if (tagsWithPrefix.length !== 0) {
           return tagsWithPrefix[0]
         }
         return null
-      } catch (err) {
-        throw err
-      }
     }
       
     async function calcPrereleaseTag(release, preRelease) {
-        try {
-            const tagNames = await searchTagNames(octokit, owner, repo)
-            const tagsWithPrefix = tagNames.filter(tagName => tagName.match(`^${release}-${preRelease}`))
-        
-            if(tagsWithPrefix.length === 0) return `${release}-${preRelease}.0`
-            const regex = new RegExp(`^${release}-${preRelease}.(\\d+)$`, 'g')
-            const releaseTag = tagsWithPrefix[0]
-        
-            const matches = regex.exec(releaseTag)
-            bumpVersion = parseInt(matches[1]);
-            return `${release}-${preRelease}.${bumpVersion+1}`
-        
-        } catch (err) {
-            throw err
-        }
+        const tagNames = await searchTagNames(octokit, owner, repo)
+        const tagsWithPrefix = tagNames.filter(tagName => tagName.match(`^${release}-${preRelease}`))
+
+        if(tagsWithPrefix.length === 0) return `${release}-${preRelease}.0`
+        const regex = new RegExp(`^${release}-${preRelease}.(\\d+)$`, 'g')
+        const releaseTag = tagsWithPrefix[0]
+
+        const matches = regex.exec(releaseTag)
+        bumpVersion = parseInt(matches[1]);
+        return `${release}-${preRelease}.${bumpVersion+1}`
     }
       
     async function createTag(tagName, defaultBranch) {
         console.log("Creating tag")
-        try {
-            const { data:branchData } = await octokit.repos.getBranch({
-                owner,
-                repo,
-                branch: defaultBranch
-            });
-            const mainBranchSHA = branchData.commit.sha
-            const { data:tagData } = await octokit.git.createTag({
-                owner,
-                repo,
-                tag: tagName,
-                message: `Release ${tagName}`,
-                object: mainBranchSHA,
-                type: "commit"
-            });
-            const { data:createTagData } = await octokit.git.createRef({
-                owner,
-                repo,
-                ref: `refs/tags/${tagName}`,
-                sha: tagData.sha,
-                object: mainBranchSHA,
-                type: "commit"
-            });
-            console.log("Tag ref created: ",createTagData.ref)
-        } catch (err) {
-            throw err
-        }
+        const { data:branchData } = await octokit.repos.getBranch({
+            owner,
+            repo,
+            branch: defaultBranch
+        });
+        const mainBranchSHA = branchData.commit.sha
+        const { data:tagData } = await octokit.git.createTag({
+            owner,
+            repo,
+            tag: tagName,
+            message: `Release ${tagName}`,
+            object: mainBranchSHA,
+            type: "commit"
+        });
+        const { data:createTagData } = await octokit.git.createRef({
+            owner,
+            repo,
+            ref: `refs/tags/${tagName}`,
+            sha: tagData.sha,
+            object: mainBranchSHA,
+            type: "commit"
+        });
+        console.log("Tag ref created: ",createTagData.ref)
     }
 
   return {
@@ -10536,25 +10514,32 @@ module.exports = function(octokit, owner, repo) {
 /***/ 4819:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
+const core = __nccwpck_require__(2619);
 const fs = __nccwpck_require__(5747);
 const yaml = __nccwpck_require__(7508);
+const path = __nccwpck_require__(5622);
+
 module.exports = function (octokit, owner, repo) {
   const readWorkflowsAndFilterByName = function (name) {
-    try {
-      const workflows = []
-      const workflowDir=".github/workflows"
-      const files = fs.readdirSync(workflowDir)
-  
-      files.forEach(async function (file) {
-        let fileContents = fs.readFileSync(`${workflowDir}/${file}`, 'utf8');
-        let data = yaml.safeLoad(fileContents);
-        workflows.push(data)
-      });
-      return workflows.find(workflow => workflow.name === name)
-    } catch (err) {
-      throw err
-    }
+    const workflows = []
+    const workflowDir=".github/workflows"
+    const files = fs.readdirSync(workflowDir)
+
+    files.forEach(function (file) {
+      if (!isYaml(file)) return
+
+      try {
+          let fileContents = fs.readFileSync(`${workflowDir}/${file}`, 'utf8');
+          let data = yaml.safeLoad(fileContents);
+          workflows.push(data)
+      } catch (e) {
+          core.warning(`failed to load yaml "${file}": ${e}`);
+      }
+    });
+    return workflows.find(workflow => workflow.name === name)
   }
+
+  const isYaml = (file) => path.extname(file) === '.yaml' || path.extname(file) === '.yml'
 
   const checkWorkflowDeps =  async function (workflows, sha) {
 
@@ -10562,12 +10547,12 @@ module.exports = function (octokit, owner, repo) {
       owner,
       repo,
     });
-  
+
     const workflowIDs = listRepoWorkflows.workflows
       .filter(repoWorkflow => workflows.includes(repoWorkflow.name))
       .map(repoWorkflow => repoWorkflow.id)
-  
-  
+
+
     const getData = async () => {
       return Promise.all(
         workflowIDs.map(async (workflowId) => {
@@ -10577,37 +10562,38 @@ module.exports = function (octokit, owner, repo) {
            workflow_id: workflowId,
            filter: 'latest'
          });
-     
+
          const commitWorkflows = workflowRunsObject.workflow_runs
            .filter(workflowRun => workflowRun.head_sha === sha)
-     
+
          const successWorkflows = commitWorkflows.filter(workflowRun => workflowRun.conclusion === "success")
          return Promise.resolve({commitWorkflows: commitWorkflows.length, successWorkflows: successWorkflows.length})
        })
       )
     }
-  
+
     let commitWorkflowsLength = 0;
     let successWorkflowsLength = 0;
-  
+
     const results = await getData()
     results.map( row => {
       commitWorkflowsLength += row.commitWorkflows
       successWorkflowsLength += row.successWorkflows
     })
-  
+
     console.log("commitWorkflowsLength",commitWorkflowsLength)
     console.log("successWorkflowsLength",successWorkflowsLength)
-  
-  
+
+
     return commitWorkflowsLength === successWorkflowsLength
   }
-  
+
   return {
     readWorkflowsAndFilterByName,
     checkWorkflowDeps
 
 }}
+
 
 /***/ }),
 
@@ -10799,138 +10785,119 @@ const currentVersion = core.getInput('current-version')
 main()
 
 async function main() {
-  try {
-    
-    const payload = JSON.stringify(github.context.payload, undefined, 2)
-    console.log(`The event payload: ${payload}`);
+  const payload = JSON.stringify(github.context.payload, undefined, 2)
+  console.log(`The event payload: ${payload}`);
 
-    console.log(`Run action with mode ${mode}`)
-    switch(mode){
-      case 'pre-release':
-        if(checkPrereleaseRequirements(core, preRelease)) await runPreRelease()
-        break
-      case 'release':
-        await runRelease(prefix,defaultBranch)
-        break
-      case 'fix':
-        await runFix()
-        break
-      case 'component-fix':
-        await runComponentFix(prefix, currentVersion)
-        break
-      case 'component-release':
-        await runReleaseComponent(prefix)
-        break
-      case 'component-get-last-version':
-        const tag = await getLastComponentReleaseTag(prefix)
-        core.setOutput("tag", tag.replace(prefix, ''))
-        break
-    }
-
-  } catch (err) {
-    console.log(err)
+  console.log(`Run action with mode ${mode}`)
+  switch(mode){
+    case 'pre-release':
+      if(checkPrereleaseRequirements(core, preRelease)) await runPreRelease()
+      break
+    case 'release':
+      await runRelease(prefix,defaultBranch)
+      break
+    case 'fix':
+      await runFix()
+      break
+    case 'component-fix':
+      await runComponentFix(prefix, currentVersion)
+      break
+    case 'component-release':
+      await runReleaseComponent(prefix)
+      break
+    case 'component-get-last-version':
+      const tag = await getLastComponentReleaseTag(prefix)
+      core.setOutput("tag", tag.replace(prefix, ''))
+      break
   }
 }
 
 async function runComponentFix(prefix, currentVersion) {
-  try {
-    if (!currentVersion) return core.setFailed('To run a fix you need to specify a currentVersion')
-
-    const regex = new RegExp(`^v(\\d+).(\\d+).(\\d+)$`, 'g')
-    const matches = regex.exec(currentVersion)
-    const major = parseInt(matches[1]);
-    const minor = parseInt(matches[2]);
-    const patch = parseInt(matches[3]);
-
-    const fixTag = `${prefix}v${major}.${minor}.${patch + 1}`
-    if (!dryRun) await createTag(fixTag, github.context.payload.ref)
-
-    core.setOutput("tag", fixTag)
-    console.log(`🚀 New component fix '${fixTag}' created`)
-  
-  } catch (err) {
-    throw err
+  if (!currentVersion) {
+    return core.setFailed('To run a fix you need to specify a currentVersion')
   }
+
+  const regex = new RegExp(`^v(\\d+).(\\d+).(\\d+)$`, 'g')
+  const matches = regex.exec(currentVersion)
+  const major = parseInt(matches[1]);
+  const minor = parseInt(matches[2]);
+  const patch = parseInt(matches[3]);
+
+  const fixTag = `${prefix}v${major}.${minor}.${patch + 1}`
+  if (!dryRun) await createTag(fixTag, github.context.payload.ref)
+
+  core.setOutput("tag", fixTag)
+  console.log(`🚀 New component fix '${fixTag}' created`)
 }
 
 async function runFix() {
-  try {
-    const release_branch = github.context.payload.workflow_run.head_branch.replace("release-", "")
-    const tag = await getLastReleaseTagFromReleaseBranch(release_branch)
-    if (!tag) return core.setFailed('There are any release yet')
-
-    const regex = new RegExp(`^v(\\d+).(\\d+).(\\d+)$`, 'g')
-    const matches = regex.exec(tag)
-    const major = parseInt(matches[1]);
-    const minor = parseInt(matches[2]);
-    const patch = parseInt(matches[3]);
-
-    const releaseBranch = `${prefix}${major}.${minor}`
-    const fixTag = `v${major}.${minor}.${patch + 1}`
-    if (!dryRun) await createTag(fixTag, releaseBranch)
-
-    core.setOutput("tag", fixTag)
-    console.log(`🚀 New fix '${fixTag}' created`)
-
-  } catch (err) {
-    throw err
+  const release_branch = github.context.payload.workflow_run.head_branch.replace("release-", "")
+  const tag = await getLastReleaseTagFromReleaseBranch(release_branch)
+  if (!tag) {
+    return core.setFailed('There are any release yet')
   }
+
+  const regex = new RegExp(`^v(\\d+).(\\d+).(\\d+)$`, 'g')
+  const matches = regex.exec(tag)
+  const major = parseInt(matches[1]);
+  const minor = parseInt(matches[2]);
+  const patch = parseInt(matches[3]);
+
+  const releaseBranch = `${prefix}${major}.${minor}`
+  const fixTag = `v${major}.${minor}.${patch + 1}`
+  if (!dryRun) {
+    await createTag(fixTag, releaseBranch)
+  }
+
+  core.setOutput("tag", fixTag)
+  console.log(`🚀 New fix '${fixTag}' created`)
 }
 
 async function runReleaseComponent(prefix) {
-  try {
-    const tag = await getLastComponentReleaseTag(prefix)
-    if(!tag) return core.setFailed('There are not any component release yet')
+  const tag = await getLastComponentReleaseTag(prefix)
+  if(!tag) return core.setFailed('There are not any component release yet')
 
-    const regex = new RegExp(`^${prefix}v(\\d+).(\\d+)`, 'g')
-    const matches = regex.exec(tag)
-    const major = parseInt(matches[1]);
-    const minor = parseInt(matches[2]);
+  const regex = new RegExp(`^${prefix}v(\\d+).(\\d+)`, 'g')
+  const matches = regex.exec(tag)
+  const major = parseInt(matches[1]);
+  const minor = parseInt(matches[2]);
 
-    const releaseTag = `${prefix}v${major}.${minor + 1}.0`
+  const releaseTag = `${prefix}v${major}.${minor + 1}.0`
 
-    if (!dryRun) {
-      await createTag(releaseTag, defaultBranch)
-    }
-
-    console.log(`🚀 New release tag '${releaseTag}' created`)
-
-    core.setOutput("tag", releaseTag)
-  } catch (err) {
-    throw err
+  if (!dryRun) {
+    await createTag(releaseTag, defaultBranch)
   }
 
+  console.log(`🚀 New release tag '${releaseTag}' created`)
+
+  core.setOutput("tag", releaseTag)
 }
 
 async function runRelease(prefix, defaultBranch) {
-  try {
+  const tag = await getLastPreReleaseTag()
+  if(!tag) return core.setFailed('There are any pre-release yet')
 
-    const tag = await getLastPreReleaseTag()
-    if(!tag) return core.setFailed('There are any pre-release yet')
-    
-    const regex = new RegExp(`^v(\\d+).(\\d+)`, 'g')
-    const matches = regex.exec(tag)
-    const major = parseInt(matches[1]);
-    const minor = parseInt(matches[2]);
+  const regex = new RegExp(`^v(\\d+).(\\d+)`, 'g')
+  const matches = regex.exec(tag)
+  const major = parseInt(matches[1]);
+  const minor = parseInt(matches[2]);
 
-    const release = `${prefix}${major}.${minor}`
-    const releaseTag = `v${major}.${minor}.0`
-    if (!dryRun) {
-      const created = await createBranch(release, github.context.sha)
+  const release = `${prefix}${major}.${minor}`
+  const releaseTag = `v${major}.${minor}.0`
+  if (!dryRun) {
+    const created = await createBranch(release, github.context.sha)
 
-      if(!created) return core.setFailed(`The release branch '${release}' already exist`)
-      
-      await createTag(releaseTag, defaultBranch)
+    if(!created) {
+      return core.setFailed(`The release branch '${release}' already exist`)
     }
 
-    console.log(`🚀 New release '${release}' created`)    
-    console.log(`🚀 New release tag '${releaseTag}' created`)
-
-    core.setOutput("tag", releaseTag)
-
-  } catch (err) {
-    throw err
+    await createTag(releaseTag, defaultBranch)
   }
+
+  console.log(`🚀 New release '${release}' created`)
+  console.log(`🚀 New release tag '${releaseTag}' created`)
+
+  core.setOutput("tag", releaseTag)
 }
 
 function checkPrereleaseRequirements (core,preRelease) {
@@ -10942,27 +10909,22 @@ function checkPrereleaseRequirements (core,preRelease) {
 }
 
 async function runPreRelease() {
-  try {    
+  let preReleaseTag
+  // TODO: (to implement) In case of increase a new major version check if the last alpha
+  // has a current release.
 
-     // TODO: (to implement) In case of increase a new major version check if the last alpha
-    // has a current release.
-
-    // TODO: Change calcPreReleaseBranch to getPreReleaseVersion
-    let preReleaseBranch = await calcPreReleaseBranch(currentMajor, prefix)
-    console.log("preReleaseBranch", preReleaseBranch)
-    if (preRelease) {
-      console.log("⚙️ Generating pre-release-tag")
-      preReleaseTag = await calcPrereleaseTag(preReleaseBranch, preRelease)
-    }
-  
-    if (!dryRun) createTag(preReleaseTag, defaultBranch)
-
-    console.log(`🚀 New pre-release tag '${preReleaseTag}' created`)
-    core.setOutput("tag", preReleaseTag)
-
-  } catch (error) {
-    core.setFailed(error.message);
+  // TODO: Change calcPreReleaseBranch to getPreReleaseVersion
+  let preReleaseBranch = await calcPreReleaseBranch(currentMajor, prefix)
+  console.log("preReleaseBranch", preReleaseBranch)
+  if (preRelease) {
+    console.log("⚙️ Generating pre-release-tag")
+    preReleaseTag = await calcPrereleaseTag(preReleaseBranch, preRelease)
   }
+
+  if (!dryRun) createTag(preReleaseTag, defaultBranch)
+
+  console.log(`🚀 New pre-release tag '${preReleaseTag}' created`)
+  core.setOutput("tag", preReleaseTag)
 }
 
 })();
