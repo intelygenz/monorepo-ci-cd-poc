@@ -7,11 +7,6 @@ on:
       - "ByeBye Component Build"
     types:
       - completed
-  push:
-    tags:
-      - 'v*.*.*'
-      - 'v*.*-rc.*'
-    branches: ["release/*"]
 
 
 env:
@@ -22,6 +17,7 @@ jobs:
 
   generate-prerelease:
     runs-on: ubuntu-latest
+    # Just after a workflow completes successfully and the workflows was triggered in main branch
     if: |
       github.event.workflow_run.conclusion == 'success' &&
       github.ref == 'refs/heads/main'
@@ -39,9 +35,37 @@ jobs:
           pre-release: 'rc'
           default-branch: 'main'
 
-  release:
+  create-fix:
     runs-on: ubuntu-latest
-    if: startsWith(github.event.ref, 'refs/tags/v')
+    # Just after a workflow completes successfully and the workflows was triggered in a release branch
+    if: |
+      github.event.workflow_run.conclusion == 'success' &&
+      startsWith(github.ref, 'ref/head/release')
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - uses: chrisdickinson/setup-yq@latest
+      - name: Get component versions
+        id: compoment_version
+        run: |
+          TAG=`yq r metaapp/values.yaml 'helloWorld.tag'`
+          echo ::set-output name=TAG::${TAG}
+          echo Component version in release branch is ${TAG}
+
+      - name: Generate a fix
+        uses: ./.github/actions
+        with:
+          prefix: "hello-"
+          current-version: ${{ steps.compoment_version.outputs.TAG }}
+          mode: 'component-fix'
+
+  release:
+    # Just for tags
+    #if: startsWith(github.event.ref, 'refs/tags/v')
+    if: always()
+    needs: [generate-prerelease, create-fix]
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -97,24 +121,4 @@ jobs:
           github_token: ${{ env.GITHUB_TOKEN }}
           branch: main
 
-  create-fix:
-    runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'ref/head/release')
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - uses: chrisdickinson/setup-yq@latest
-      - name: Get component versions
-        id: compoment_version
-        run: |
-          TAG=`yq r metaapp/values.yaml 'helloWorld.tag'`
-          echo ::set-output name=TAG::${TAG}
-          echo Component version in release branch is ${TAG}
-
-      - name: Generate a fix
-        uses: ./.github/actions
-        with:
-          prefix: "hello-"
-          current-version: ${{ steps.compoment_version.outputs.TAG }}
-          mode: 'component-fix'
+      # Publish Chart
