@@ -20,7 +20,7 @@ jobs:
     # Just after a workflow completes successfully and the workflows was triggered in main branch
     if: |
       github.event.workflow_run.conclusion == 'success' &&
-      github.ref == 'refs/heads/main' &&
+      github.event.workflow_run.head_branch == 'refs/heads/main' &&
       github.event.workflow_run.name != 'New Release'
     runs-on: ubuntu-latest
     outputs:
@@ -43,7 +43,7 @@ jobs:
     # Just after a workflow completes successfully and the workflows was triggered in a release branch
     if: |
       github.event.workflow_run.conclusion == 'success' &&
-      startsWith(github.ref, 'ref/head/release')
+      startsWith(github.event.workflow_run.head_branch, 'ref/head/release')
     runs-on: ubuntu-latest
     outputs:
       tag: ${{ steps.fix_tag.outputs.tag }}
