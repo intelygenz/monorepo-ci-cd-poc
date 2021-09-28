@@ -35,7 +35,7 @@ jobs:
       - name: flake8 Lint
         uses: py-actions/flake8@v1
 
-  tag-release-version:
+  create-release-tag:
     if: github.ref == 'refs/heads/main' # only in main branch
     needs: quality-checks
     runs-on: ubuntu-20.04
@@ -53,7 +53,7 @@ jobs:
           mode: 'component-release'
           default-branch: 'main'
 
-  tag-fix-version:
+  create-fix-tag:
     if: startsWith(github.ref, 'refs/heads/release') # only in release branches
     needs: quality-checks
     runs-on: ubuntu-20.04
@@ -81,9 +81,9 @@ jobs:
 
   build-release:
     if: |
-      ${{needs.tag-release-version.outputs.tag}} != null ||
-      ${{needs.tag-fix-version.outputs.tag}} != null
-    needs: [tag-release-version, tag-fix-version]
+      ${{needs.create-release-tag.outputs.tag}} != null ||
+      ${{needs.create-fix-tag.outputs.tag}} != null
+    needs: [create-release-tag, create-fix-tag]
     runs-on: ubuntu-latest
     steps:
       #- name: Set up QEMU
@@ -99,7 +99,7 @@ jobs:
       #    password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Store fix tag
-        run: echo Tag set to ${{needs.tag-release-version.outputs.tag}}${{needs.tag-fix-version.outputs.tag}}
+        run: echo Tag set to ${{needs.create-release-tag.outputs.tag}}${{needs.create-fix-tag.outputs.tag}}
 
       #- name: Push to Docker Hub
       #  uses: docker/build-push-action@v2
