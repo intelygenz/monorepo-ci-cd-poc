@@ -1,0 +1,24 @@
+# Creates a release branch and tag
+# Executed manually
+# Generate a branch with name 'release/v*.*' tag with 'v*.*.0'
+
+name: New Release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  generate-prerelease:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Generate a release
+        uses: ./.github/actions
+        with:
+          prefix: "release/v"
+          mode: 'release'
+          default-branch: 'main'
+        env:
+          GITHUB_TOKEN: ${{ secrets.PATNAME }}
