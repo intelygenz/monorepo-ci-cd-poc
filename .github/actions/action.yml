@@ -24,6 +24,10 @@ inputs:
     description: '"Default branch to create a version tag, e.g. "main"'
     required: false
     default: 'main'
+  current-version:
+    description: '"Current version of a component, e.g. "v0.4.0"'
+    required: false
+    default: 'v0.0.0'
 
 outputs:
   tag:
