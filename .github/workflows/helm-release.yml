@@ -5,6 +5,7 @@ on:
     workflows:
       - "Hello Component Build"
       - "ByeBye Component Build"
+      - "New Release"
     types:
       - completed
 
@@ -65,11 +66,25 @@ jobs:
           current-version: ${{ steps.compoment_version.outputs.TAG }}
           mode: 'component-fix'
 
+  create-release:
+    if: |
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.name == 'New Release'
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.release_tag.outputs.tag }}
+    steps:
+      - name: Get Release tag
+          id: release_tag
+          uses: "WyriHaximus/github-action-get-previous-tag@v1"
+          with:
+            fallback: 0.0.0
+
   release:
     # Just for tags
     #if: startsWith(github.event.ref, 'refs/tags/v')
     if: always()
-    needs: [create-rc, create-fix]
+    needs: [create-rc, create-fix, create-release]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -91,8 +106,9 @@ jobs:
 
       - name: App Version
         id: get_version
+        # When setting the version just one of the 3 vars will have a value
         run: |
-          VERSION=${{needs.create-rc.outputs.tag}}${{needs.create-fix.outputs.tag}}
+          VERSION=${{needs.create-rc.outputs.tag}}${{needs.create-fix.outputs.tag}}${{needs.create-release.outputs.tag}}
           RELEASE_VERSION=`echo "${VERSION}" | sed -e 's/v//g' | sed -e 's/-rc.*/.0/g'`
           echo ::set-output name=RELEASE_VERSION::${RELEASE_VERSION}
           echo ::set-output name=VERSION::${VERSION}
