@@ -65,7 +65,7 @@ jobs:
 
       - uses: chrisdickinson/setup-yq@latest
       - name: Get component versions
-        id: compoment_version
+        id: component_version
         run: |
           TAG=`yq r metaapp/values.yaml 'helloWorld.tag'`
           echo ::set-output name=TAG::${TAG}
@@ -76,7 +76,7 @@ jobs:
         id: fix_tag
         with:
           prefix: "hello-"
-          current-version: ${{ steps.compoment_version.outputs.TAG }}
+          current-version: ${{ steps.component_version.outputs.TAG }}
           mode: 'component-fix'
 
   build-release:

@@ -16,7 +16,7 @@ env:
 
 jobs:
 
-  create-rc:
+  create-rc-tag:
     # Just after a workflow completes successfully and the workflows was triggered in main branch
     if: |
       github.event.workflow_run.conclusion == 'success' &&
@@ -39,7 +39,8 @@ jobs:
           pre-release: 'rc'
           default-branch: 'main'
 
-  create-fix:
+
+  create-fix-tag:
     # Just after a workflow completes successfully and the workflows was triggered in a release branch
     if: |
       github.event.workflow_run.conclusion == 'success' &&
@@ -51,23 +52,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - uses: chrisdickinson/setup-yq@latest
-      - name: Get component versions
-        id: compoment_version
-        run: |
-          TAG=`yq r metaapp/values.yaml 'helloWorld.tag'`
-          echo ::set-output name=TAG::${TAG}
-          echo Component version in release branch is ${TAG}
-
-      - name: Generate a fix
-        uses: ./.github/actions
+      - name: Generate a fix tag
         id: fix_tag
+        uses: ./.github/actions
         with:
-          prefix: "hello-"
-          current-version: ${{ steps.compoment_version.outputs.TAG }}
-          mode: 'component-fix'
+          prefix: "release/v"
+          mode: 'fix'
 
-  create-release:
+
+  create-release-tag:
     if: |
       github.event.workflow_run.conclusion == 'success' &&
       github.event.workflow_run.name == 'New Release'
@@ -86,6 +79,7 @@ jobs:
         with:
           fallback: 0.0.0
 
+
   release:
 <<<<<<< Updated upstream
     # Just for tags
@@ -93,11 +87,18 @@ jobs:
     if: always()
 =======
     if: |
+<<<<<<< Updated upstream
       ${{needs.create-rc.outputs.tag}} != null ||
       ${{needs.create-fix.outputs.tag}} != null ||
       ${{needs.create-release.outputs.tag}} != null
 >>>>>>> Stashed changes
     needs: [create-rc, create-fix, create-release]
+=======
+      ${{needs.create-rc-tag.outputs.tag}} != null ||
+      ${{needs.create-fix-tag.outputs.tag}} != null ||
+      ${{needs.create-release-tag.outputs.tag}} != null
+    needs: [create-rc-tag, create-fix-tag, create-release-tag]
+>>>>>>> Stashed changes
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -121,7 +122,7 @@ jobs:
         id: get_version
         # When setting the version just one of the 3 vars will have a value
         run: |
-          VERSION=${{needs.create-rc.outputs.tag}}${{needs.create-fix.outputs.tag}}${{needs.create-release.outputs.tag}}
+          VERSION=${{needs.create-rc-tag.outputs.tag}}${{needs.create-fix-tag.outputs.tag}}${{needs.create-release-tag.outputs.tag}}
           RELEASE_VERSION=`echo "${VERSION}" | sed -e 's/v//g' | sed -e 's/-rc.*/.0/g'`
           echo ::set-output name=RELEASE_VERSION::${RELEASE_VERSION}
           echo ::set-output name=VERSION::${VERSION}
