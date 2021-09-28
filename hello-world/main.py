@@ -8,7 +8,7 @@ app = Flask(__name__)
 @app.route('/')
 def hello():
     """Return a friendly HTTP greeting."""
-    return 'Hello World 38'
+    return 'Hello World 39'
 
 
 @app.errorhandler(500)
