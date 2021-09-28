@@ -77,8 +77,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
-      - name: Get Release tag
+      - name: Get Last Release tag
         id: release_tag
         uses: "WyriHaximus/github-action-get-previous-tag@v1"
         with:
