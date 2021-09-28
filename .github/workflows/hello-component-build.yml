@@ -80,7 +80,9 @@ jobs:
           mode: 'component-fix'
 
   build-release:
-    if: always()
+    if: |
+      ${{needs.tag-release-version.outputs.tag}} != null ||
+      ${{needs.tag-fix-version.outputs.tag}} != null
     needs: [tag-release-version, tag-fix-version]
     runs-on: ubuntu-latest
     steps:
