@@ -88,8 +88,8 @@ jobs:
         run: echo Tag set to ${{needs.create-release-tag.outputs.tag}}${{needs.create-fix-tag.outputs.tag}}
 
   build-release:
-    if: ${{ 'hello' != '' || '' != '' }}
-    needs: [create-release-tag, create-fix-tag]
+    if: ${{ 'hello' != '' }}
+    needs: [create-release-tag]
     runs-on: ubuntu-latest
     steps:
       #- name: Set up QEMU
