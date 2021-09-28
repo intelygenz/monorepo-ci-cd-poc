@@ -78,15 +78,6 @@ jobs:
           mode: 'component-fix'
 
 
-  output-variables:
-    if: always()
-    needs: [create-release-tag, create-fix-tag]
-    runs-on: ubuntu-latest
-    steps:
-      - name: echo tag
-        run: echo Tag set to ${{needs.create-release-tag.outputs.tag}}${{needs.create-fix-tag.outputs.tag}}
-
-
   build-release:
     if: |
       always() &&
