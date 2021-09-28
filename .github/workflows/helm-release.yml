@@ -87,9 +87,16 @@ jobs:
           fallback: 0.0.0
 
   release:
+<<<<<<< Updated upstream
     # Just for tags
     #if: startsWith(github.event.ref, 'refs/tags/v')
     if: always()
+=======
+    if: |
+      ${{needs.create-rc.outputs.tag}} != null ||
+      ${{needs.create-fix.outputs.tag}} != null ||
+      ${{needs.create-release.outputs.tag}} != null
+>>>>>>> Stashed changes
     needs: [create-rc, create-fix, create-release]
     runs-on: ubuntu-latest
     steps:
