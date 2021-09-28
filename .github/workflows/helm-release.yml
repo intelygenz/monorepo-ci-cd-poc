@@ -15,12 +15,14 @@ env:
 
 jobs:
 
-  generate-prerelease:
-    runs-on: ubuntu-latest
+  create-rc:
     # Just after a workflow completes successfully and the workflows was triggered in main branch
     if: |
       github.event.workflow_run.conclusion == 'success' &&
       github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.rc_tag.outputs.tag }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -36,11 +38,13 @@ jobs:
           default-branch: 'main'
 
   create-fix:
-    runs-on: ubuntu-latest
     # Just after a workflow completes successfully and the workflows was triggered in a release branch
     if: |
       github.event.workflow_run.conclusion == 'success' &&
       startsWith(github.ref, 'ref/head/release')
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.fix_tag.outputs.tag }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -55,6 +59,7 @@ jobs:
 
       - name: Generate a fix
         uses: ./.github/actions
+        id: fix_tag
         with:
           prefix: "hello-"
           current-version: ${{ steps.compoment_version.outputs.TAG }}
@@ -64,7 +69,7 @@ jobs:
     # Just for tags
     #if: startsWith(github.event.ref, 'refs/tags/v')
     if: always()
-    needs: [generate-prerelease, create-fix]
+    needs: [create-rc, create-fix]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -87,10 +92,10 @@ jobs:
       - name: App Version
         id: get_version
         run: |
-          # format version X.X.X
-          RELEASE_VERSION=`echo "${GITHUB_REF#refs/tags/}" | sed -e 's/v//g' | sed -e 's/-rc.*/.0/g'`
+          VERSION=${{needs.create-rc.outputs.tag}}${{needs.create-fix.outputs.tag}}
+          RELEASE_VERSION=`echo "${VERSION}" | sed -e 's/v//g' | sed -e 's/-rc.*/.0/g'`
           echo ::set-output name=RELEASE_VERSION::${RELEASE_VERSION}
-          echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
+          echo ::set-output name=VERSION::${VERSION}
 
       - uses: chrisdickinson/setup-yq@latest
       - name: Replace component versions
