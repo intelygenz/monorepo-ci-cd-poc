@@ -17,16 +17,12 @@ env:
 
 jobs:
 
-  checkout:
-    runs-on: ubuntu-latest
+  quality-checks:
+    runs-on: ubuntu-20.04
     steps:
       - name: CheckOut
         uses: actions/checkout@v2
 
-  quality-checks:
-    needs: checkout
-    runs-on: ubuntu-20.04
-    steps:
       - name: Set up Python environment
         uses: actions/setup-python@v1
         with:
