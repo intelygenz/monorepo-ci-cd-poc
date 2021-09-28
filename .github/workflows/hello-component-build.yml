@@ -85,7 +85,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: echo tag
-        run: echo Tag set to ${{needs.create-release-tag.outputs.tag}}${{needs.create-fix-tag.outputs.tag}}
+        run: |
+          echo Release tag set to ${{needs.create-release-tag.outputs.tag}}
+          echo Fix set to ${{needs.create-fix-tag.outputs.tag}}
 
   build-release:
     if: |
