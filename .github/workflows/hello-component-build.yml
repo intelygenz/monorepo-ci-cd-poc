@@ -81,8 +81,8 @@ jobs:
 
   build-release:
     if: |
-      ${{needs.tag-release-version.outputs.tag}} != '' ||
-      ${{needs.tag-fix-version.outputs.tag}} != ''
+      ${{needs.tag-release-version.outputs.tag}} != null ||
+      ${{needs.tag-fix-version.outputs.tag}} != null
     needs: [tag-release-version, tag-fix-version]
     runs-on: ubuntu-latest
     steps:

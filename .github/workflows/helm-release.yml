@@ -88,9 +88,9 @@ jobs:
 
   release:
     if: |
-      ${{needs.create-rc.outputs.tag}} != '' ||
-      ${{needs.create-fix.outputs.tag}} != '' ||
-      ${{needs.create-release.outputs.tag}} != ''
+      ${{needs.create-rc.outputs.tag}} != null ||
+      ${{needs.create-fix.outputs.tag}} != null ||
+      ${{needs.create-release.outputs.tag}} != null
     needs: [create-rc, create-fix, create-release]
     runs-on: ubuntu-latest
     steps:
