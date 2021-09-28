@@ -89,8 +89,8 @@ jobs:
 
   build-release:
     if: |
-      ${{needs.create-release-tag.outputs.tag}} != null ||
-      ${{needs.create-fix-tag.outputs.tag}} != null
+      "hello" != null ||
+      null != null
     needs: [create-release-tag, create-fix-tag]
     runs-on: ubuntu-latest
     steps:
