@@ -82,9 +82,8 @@ jobs:
 
   release:
     if: |
-      ${{needs.create-rc-tag.outputs.tag}} != null ||
-      ${{needs.create-fix-tag.outputs.tag}} != null ||
-      ${{needs.create-release-tag.outputs.tag}} != null
+      always() &&
+      (needs.create-rc-tag.outputs.tag || needs.create-fix-tag.outputs.tag || needs.create-release-tag.outputs.tag)
     needs: [create-rc-tag, create-fix-tag, create-release-tag]
     runs-on: ubuntu-latest
     steps:
