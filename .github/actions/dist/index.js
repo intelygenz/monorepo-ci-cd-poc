@@ -10833,6 +10833,9 @@ async function runComponentFix(prefix, currentVersion) {
   try {
     if (!currentVersion) return core.setFailed('To run a fix you need to specify a currentVersion')
 
+    const payload = JSON.stringify(github.context.payload, undefined, 2)
+    console.log(`The event payload: ${payload}`);
+
     const branch = github.context.payload.workflow_run.head_branch
     const regex = new RegExp(`^v(\\d+).(\\d+).(\\d+)$`, 'g')
     const matches = regex.exec(currentVersion)
