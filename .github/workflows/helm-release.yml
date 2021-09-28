@@ -87,9 +87,10 @@ jobs:
           fallback: 0.0.0
 
   release:
-    # Just for tags
-    #if: startsWith(github.event.ref, 'refs/tags/v')
-    if: always()
+    if: |
+      ${{needs.create-rc.outputs.tag}} != '' ||
+      ${{needs.create-fix.outputs.tag}} != '' ||
+      ${{needs.create-release.outputs.tag}} != ''
     needs: [create-rc, create-fix, create-release]
     runs-on: ubuntu-latest
     steps:
