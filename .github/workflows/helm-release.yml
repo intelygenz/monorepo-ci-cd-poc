@@ -82,17 +82,10 @@ jobs:
 
   release:
     if: |
-<<<<<<< Updated upstream
-      ${{needs.create-rc.outputs.tag}} != null ||
-      ${{needs.create-fix.outputs.tag}} != null ||
-      ${{needs.create-release.outputs.tag}} != null
-    needs: [create-rc, create-fix, create-release]
-=======
       ${{needs.create-rc-tag.outputs.tag}} != null ||
       ${{needs.create-fix-tag.outputs.tag}} != null ||
       ${{needs.create-release-tag.outputs.tag}} != null
     needs: [create-rc-tag, create-fix-tag, create-release-tag]
->>>>>>> Stashed changes
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
