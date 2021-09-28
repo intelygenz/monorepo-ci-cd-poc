@@ -75,10 +75,10 @@ jobs:
       tag: ${{ steps.release_tag.outputs.tag }}
     steps:
       - name: Get Release tag
-          id: release_tag
-          uses: "WyriHaximus/github-action-get-previous-tag@v1"
-          with:
-            fallback: 0.0.0
+        id: release_tag
+        uses: "WyriHaximus/github-action-get-previous-tag@v1"
+        with:
+          fallback: 0.0.0
 
   release:
     # Just for tags
