@@ -68,65 +68,52 @@ module.exports = function(octokit, owner, repo) {
     }
 
     async function getLastReleaseTagFromReleaseBranch(release_branch) {
-      try {
         const tagNames = await searchTagNames(octokit, owner, repo)
         const tagsWithPrefix = tagNames.filter(tagName => tagName.match(`^v${release_branch}.[0-9]+$`))
         if (tagsWithPrefix.length !== 0) {
           return tagsWithPrefix[0]
         }
         return null
-      } catch (err) {
-        throw err
-      }
     }
       
     async function calcPrereleaseTag(release, preRelease) {
-        try {
-            const tagNames = await searchTagNames(octokit, owner, repo)
-            const tagsWithPrefix = tagNames.filter(tagName => tagName.match(`^${release}-${preRelease}`))
-        
-            if(tagsWithPrefix.length === 0) return `${release}-${preRelease}.0`
-            const regex = new RegExp(`^${release}-${preRelease}.(\\d+)$`, 'g')
-            const releaseTag = tagsWithPrefix[0]
-        
-            const matches = regex.exec(releaseTag)
-            bumpVersion = parseInt(matches[1]);
-            return `${release}-${preRelease}.${bumpVersion+1}`
-        
-        } catch (err) {
-            throw err
-        }
+        const tagNames = await searchTagNames(octokit, owner, repo)
+        const tagsWithPrefix = tagNames.filter(tagName => tagName.match(`^${release}-${preRelease}`))
+
+        if(tagsWithPrefix.length === 0) return `${release}-${preRelease}.0`
+        const regex = new RegExp(`^${release}-${preRelease}.(\\d+)$`, 'g')
+        const releaseTag = tagsWithPrefix[0]
+
+        const matches = regex.exec(releaseTag)
+        bumpVersion = parseInt(matches[1]);
+        return `${release}-${preRelease}.${bumpVersion+1}`
     }
       
     async function createTag(tagName, defaultBranch) {
         console.log("Creating tag")
-        try {
-            const { data:branchData } = await octokit.repos.getBranch({
-                owner,
-                repo,
-                branch: defaultBranch
-            });
-            const mainBranchSHA = branchData.commit.sha
-            const { data:tagData } = await octokit.git.createTag({
-                owner,
-                repo,
-                tag: tagName,
-                message: `Release ${tagName}`,
-                object: mainBranchSHA,
-                type: "commit"
-            });
-            const { data:createTagData } = await octokit.git.createRef({
-                owner,
-                repo,
-                ref: `refs/tags/${tagName}`,
-                sha: tagData.sha,
-                object: mainBranchSHA,
-                type: "commit"
-            });
-            console.log("Tag ref created: ",createTagData.ref)
-        } catch (err) {
-            throw err
-        }
+        const { data:branchData } = await octokit.repos.getBranch({
+            owner,
+            repo,
+            branch: defaultBranch
+        });
+        const mainBranchSHA = branchData.commit.sha
+        const { data:tagData } = await octokit.git.createTag({
+            owner,
+            repo,
+            tag: tagName,
+            message: `Release ${tagName}`,
+            object: mainBranchSHA,
+            type: "commit"
+        });
+        const { data:createTagData } = await octokit.git.createRef({
+            owner,
+            repo,
+            ref: `refs/tags/${tagName}`,
+            sha: tagData.sha,
+            object: mainBranchSHA,
+            type: "commit"
+        });
+        console.log("Tag ref created: ",createTagData.ref)
     }
 
   return {
