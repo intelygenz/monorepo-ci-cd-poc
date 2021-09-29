@@ -74,6 +74,7 @@ jobs:
           echo "BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
 
       - name: Generate a release
+        id: release_tag
         uses: ./.github/actions
         with:
           mode: 'release'
