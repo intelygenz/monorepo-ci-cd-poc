@@ -25,7 +25,6 @@ jobs:
           echo ::set-output name=TAG::${tag}
           echo Tag ${tag}
 
-      - run: echo BRANCH ${GITHUB_REF#refs/heads/}
 
       - name: Checkout
         uses: actions/checkout@v2
@@ -36,8 +35,8 @@ jobs:
       - name: Get Branch
         id: get_branch
         run: |
-          branch = $(git rev-parse tags/${steps.get_tag.outputs.TAG} | xargs git branch --contains)
-          echo origin branch for the tag ${steps.get_tag.outputs.TAG} is ${branch}
+          branch = $(git rev-parse tags/${{ steps.get_tag.outputs.TAG }} | xargs git branch --contains)
+          echo origin branch for the tag ${{ steps.get_tag.outputs.TAG }} is ${branch}
           echo ::set-output name=BRANCH::${branch}
 
 
