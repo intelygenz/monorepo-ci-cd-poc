@@ -73,7 +73,7 @@ jobs:
         uses: ./.github/actions
         with:
           mode: 'release'
-          release-branch: ${ github.ref }
+          release-branch: ${GITHUB_REF#refs/heads/}
 
 
   release:

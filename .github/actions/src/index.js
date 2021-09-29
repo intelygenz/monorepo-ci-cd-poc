@@ -153,6 +153,8 @@ async function runRelease(releaseBranch) {
   if(!tag) return core.setFailed('There are any pre-release yet')
   if(!releaseBranch) return core.setFailed('You need to specify the release branch to tag')
 
+  console.log(`Create release tag in branch ${releaseBranch}`)
+
   const regex = new RegExp(`^v(\\d+).(\\d+)`, 'g')
   const matches = regex.exec(tag)
   const major = parseInt(matches[1]);
