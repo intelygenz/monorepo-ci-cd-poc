@@ -2,7 +2,7 @@ replicaCount: 1
 helloWorld:
   repository: local/hello-world
   pullPolicy: IfNotPresent
-  tag: v0.64.0
+  tag: v0.65.0
 byebyeWorld:
   repository: local/byebye-world
   pullPolicy: IfNotPresent
