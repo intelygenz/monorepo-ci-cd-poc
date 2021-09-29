@@ -10449,9 +10449,9 @@ module.exports = function(octokit, owner, repo) {
         return getLastTag(`^v[0-9]+.[0-9]+-`)
     }
 
-    async function getLastReleaseTagFromReleaseBranch(release_branch) {
+    async function getLastReleaseTagFromReleaseBranch(releaseVersion) {
         const tagNames = await searchTagNames(octokit, owner, repo)
-        const tagsWithPrefix = tagNames.filter(tagName => tagName.match(`^v${release_branch}.[0-9]+$`))
+        const tagsWithPrefix = tagNames.filter(tagName => tagName.match(`^v${releaseVersion}.[0-9]+$`))
         if (tagsWithPrefix.length !== 0) {
           return tagsWithPrefix[0]
         }
@@ -10801,7 +10801,7 @@ async function main() {
       await runReleaseBranch(prefix)
       break
     case 'fix':
-      await runFix()
+      await runFix(prefix)
       break
     case 'component-fix':
       await runComponentFix(prefix, currentVersion)
@@ -10834,9 +10834,10 @@ async function runComponentFix(prefix, currentVersion) {
   console.log(`🚀 New component fix '${fixTag}' created`)
 }
 
-async function runFix() {
-  const release_branch = github.context.payload.workflow_run.head_branch.replace("release-", "")
-  const tag = await getLastReleaseTagFromReleaseBranch(release_branch)
+async function runFix(prefix) {
+  const releaseBranch = github.context.payload.workflow_run.head_branch
+  const releaseVersion = releaseBranch.replace(prefix, "")
+  const tag = await getLastReleaseTagFromReleaseBranch(releaseVersion)
   if (!tag) {
     return core.setFailed('There are any release yet')
   }
@@ -10847,7 +10848,6 @@ async function runFix() {
   const minor = parseInt(matches[2]);
   const patch = parseInt(matches[3]);
 
-  const releaseBranch = `${prefix}${major}.${minor}`
   const fixTag = `v${major}.${minor}.${patch + 1}`
   if (!dryRun) {
     await createTag(fixTag, releaseBranch)
@@ -10904,6 +10904,8 @@ async function runRelease(releaseBranch) {
   const tag = await getLastPreReleaseTag()
   if(!tag) return core.setFailed('There are any pre-release yet')
   if(!releaseBranch) return core.setFailed('You need to specify the release branch to tag')
+
+  console.log(`Create release tag in branch ${releaseBranch}`)
 
   const regex = new RegExp(`^v(\\d+).(\\d+)`, 'g')
   const matches = regex.exec(tag)
