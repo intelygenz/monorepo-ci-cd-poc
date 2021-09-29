@@ -27,30 +27,26 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v2
-
-
-      - name: Get Branch for tag 2
-        id: get_branch
-        run: |
-          raw=$(git branch -r --contains ${{ GITHUB_REF#refs/tags/ }})
-          branch=${raw/origin\/}
-          echo Branch for checkout ${branch}
+        with:
+          fetch-depth: 0
 
 
       - name: Get Branch
         id: get_branch
         run: |
-          RAW=$(git branch -r --contains ${{ steps.get_tag.outputs.TAG }})
-          echo RAW origin branch for the tag ${{ steps.get_tag.outputs.TAG }} is ${RAW}
-          branch=${RAW/origin\/}
+          raw=$(git branch -r --contains ${{ github.ref }})
+          echo RAW origin branch for the tag ${{ github.ref }} is ${raw}
+          branch=${raw/origin\/}
           echo ::set-output name=BRANCH::${branch}
-          echo Branch for checkout ${branch} with raw ${RAW} for tag ${{ steps.get_tag.outputs.TAG }}
+          echo Branch for checkout ${branch} with raw ${raw} for tag ${{ steps.get_tag.outputs.TAG }}
 
 
       - name: Checkout branch for the tag
         uses: actions/checkout@v2
         with:
+          fetch-depth: 0
           ref: ${{ steps.get_branch.outputs.BRANCH }}
+
 
       - name: Hello Component Version
         id: hello_version
