@@ -1,0 +1,59 @@
+name: Helm Release
+
+on:
+  workflow_run:
+    workflows:
+      - "Hello Component Build"
+      - "ByeBye Component Build"
+    types:
+      - completed
+
+
+env:
+  GITHUB_TOKEN: ${{ secrets.PATNAME }}
+
+
+jobs:
+
+  create-rc-tag:
+    # Just after a workflow completes successfully and the workflows was triggered in main branch
+    if: |
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.rc_tag.outputs.tag }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Generate a pre-release
+        id: rc_tag
+        uses: ./.github/actions
+        with:
+          current-major: 0
+          prefix: "release/v"
+          mode: 'pre-release'
+          pre-release: 'rc'
+          default-branch: 'main'
+
+
+  create-fix-tag:
+    # Just after a workflow completes successfully and the workflows was triggered in a release branch
+    if: |
+      github.event.workflow_run.conclusion == 'success' &&
+      startsWith(github.event.workflow_run.head_branch, 'release')
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.fix_tag.outputs.tag }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Generate a fix tag
+        id: fix_tag
+        uses: ./.github/actions
+        with:
+          prefix: "release/v"
+          mode: 'fix'
+
