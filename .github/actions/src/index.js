@@ -121,7 +121,7 @@ async function runReleaseComponent(prefix) {
   core.setOutput("tag", releaseTag)
 }
 
-async function runRelease(prefix, defaultBranch) {
+async function runRelease(prefix) {
   const tag = await getLastPreReleaseTag()
   if(!tag) return core.setFailed('There are any pre-release yet')
 
@@ -130,19 +130,19 @@ async function runRelease(prefix, defaultBranch) {
   const major = parseInt(matches[1]);
   const minor = parseInt(matches[2]);
 
-  const release = `${prefix}${major}.${minor}`
+  const releaseBranch = `${prefix}${major}.${minor}`
   const releaseTag = `v${major}.${minor}.0`
   if (!dryRun) {
-    const created = await createBranch(release, github.context.sha)
+    const created = await createBranch(releaseBranch, github.context.sha)
 
     if(!created) {
-      return core.setFailed(`The release branch '${release}' already exist`)
+      return core.setFailed(`The release branch '${releaseBranch}' already exist`)
     }
 
-    await createTag(releaseTag, defaultBranch)
+    await createTag(releaseTag, releaseBranch)
   }
 
-  console.log(`🚀 New release '${release}' created`)
+  console.log(`🚀 New release '${releaseBranch}' created`)
   console.log(`🚀 New release tag '${releaseTag}' created`)
 
   core.setOutput("tag", releaseTag)
