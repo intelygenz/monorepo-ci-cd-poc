@@ -1,4 +1,4 @@
-name: Helm Release
+name: Helm Tag
 
 on:
   workflow_run:
