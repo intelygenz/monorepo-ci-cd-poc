@@ -24,6 +24,9 @@ jobs:
           echo ::set-output name=TAG::${tag}
           echo Tag ${tag}
 
+      - name: Checkout
+        uses: actions/checkout@v2
+
       - name: Get Branch
         id: get_branch
         run: |
@@ -32,7 +35,7 @@ jobs:
           echo ::set-output name=BRANCH::${branch}
           echo Tag ${branch}
 
-      - name: Checkout
+      - name: Checkout branch for the tag
         uses: actions/checkout@v2
         with:
           ref: ${{ steps.get_branch.outputs.BRANCH }}
