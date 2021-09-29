@@ -1,9 +1,15 @@
 name: Helm Release
 
 on:
+  workflow_run:
+    workflows:
+      - "Hello Component Build"
+      - "ByeBye Component Build"
+    types:
+      - completed
   push:
-    tags:
-      - 'v*.*.*'
+    branches:
+      - 'release/v*'
 
 
 env:
@@ -12,41 +18,75 @@ env:
 
 jobs:
 
+  create-rc-tag:
+    # Just after a workflow completes successfully and the workflows was triggered in main branch
+    if: |
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.rc_tag.outputs.tag }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Generate a pre-release
+        id: rc_tag
+        uses: ./.github/actions
+        with:
+          current-major: 0
+          prefix: "release/v"
+          mode: 'pre-release'
+          pre-release: 'rc'
+
+
+  create-fix-tag:
+    # Just after a workflow completes successfully and the workflows was triggered in a release branch
+    if: |
+      github.event.workflow_run.conclusion == 'success' &&
+      startsWith(github.event.workflow_run.head_branch, 'release')
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.fix_tag.outputs.tag }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Generate a fix tag
+        id: fix_tag
+        uses: ./.github/actions
+        with:
+          prefix: "release/v"
+          mode: 'fix'
+
+
+  create-release-tag:
+    if: startsWith(github.ref, 'refs/heads/release') # only in release branches
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.release_tag.outputs.tag }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Generate a release
+        uses: ./.github/actions
+        with:
+          mode: 'release'
+          release-branch: ${ github.ref }
+
+
   release:
-    # Just for tags for Helm (starts with 'v')
-    # Or before a tag is created
+    if: |
+      always() &&
+      (needs.create-rc-tag.outputs.tag || needs.create-fix-tag.outputs.tag || needs.create-release-tag.outputs.tag)
+    needs: [create-rc-tag, create-fix-tag, create-release-tag]
     runs-on: ubuntu-latest
     steps:
-
-      - name: Get tag
-        id: get_tag
-        run: |
-          tag=${GITHUB_REF/refs\/tags\//}
-          echo ::set-output name=TAG::${tag}
-          echo Tag ${tag}
-
-
       - name: Checkout
         uses: actions/checkout@v2
         with:
-          fetch-depth: 0
-
-
-      - name: Get Branch
-        id: get_branch
-        run: |
-          branch=$(git branch --contains ${{ steps.get_tag.outputs.TAG }} | awk '!/HEAD/{print $1}')
-          echo $(git branch --contains ${{ steps.get_tag.outputs.TAG }} | awk '!/HEAD/{print $1}')
-          echo origin branch for the tag ${{ steps.get_tag.outputs.TAG }} is ${branch}
-          echo ::set-output name=BRANCH::${branch}
-
-
-      - name: Checkout branch for the tag
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-          ref: ${{ steps.get_branch.outputs.BRANCH }}
-
+          ref: ${{ github.event.workflow_run.head_branch }} # Checkout the branch in the original workflow
 
       - name: Hello Component Version
         id: hello_version
@@ -66,7 +106,7 @@ jobs:
         id: get_version
         # When setting the version just one of the 3 vars will have a value
         run: |
-          VERSION=${{ steps.get_tag.outputs.TAG }}
+          VERSION=${{needs.create-rc-tag.outputs.tag}}${{needs.create-fix-tag.outputs.tag}}${{needs.create-release-tag.outputs.tag}}
           RELEASE_VERSION=`echo "${VERSION}" | sed -e 's/v//g' | sed -e 's/-rc.*/.0/g'`
           echo ::set-output name=RELEASE_VERSION::${RELEASE_VERSION}
           echo ::set-output name=VERSION::${VERSION}

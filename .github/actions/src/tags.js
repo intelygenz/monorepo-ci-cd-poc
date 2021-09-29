@@ -67,9 +67,9 @@ module.exports = function(octokit, owner, repo) {
         return getLastTag(`^v[0-9]+.[0-9]+-`)
     }
 
-    async function getLastReleaseTagFromReleaseBranch(release_branch) {
+    async function getLastReleaseTagFromReleaseBranch(releaseVersion) {
         const tagNames = await searchTagNames(octokit, owner, repo)
-        const tagsWithPrefix = tagNames.filter(tagName => tagName.match(`^v${release_branch}.[0-9]+$`))
+        const tagsWithPrefix = tagNames.filter(tagName => tagName.match(`^v${releaseVersion}.[0-9]+$`))
         if (tagsWithPrefix.length !== 0) {
           return tagsWithPrefix[0]
         }

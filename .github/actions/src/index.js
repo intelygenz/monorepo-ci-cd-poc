@@ -28,13 +28,14 @@ const prefix = core.getInput('prefix')
 const preRelease = core.getInput('pre-release')
 const defaultBranch = core.getInput('default-branch')
 const currentVersion = core.getInput('current-version')
+const releaseBranch = core.getInput('release-branch')
 
 
 main()
 
 async function main() {
   const payload = JSON.stringify(github.context.payload, undefined, 2)
-  console.log(`The event payload: ${payload}`);
+  //console.log(`The event payload: ${payload}`);
 
   console.log(`Run action with mode ${mode}`)
   switch(mode){
@@ -42,10 +43,13 @@ async function main() {
       if(checkPrereleaseRequirements(core, preRelease)) await runPreRelease()
       break
     case 'release':
-      await runRelease(prefix,defaultBranch)
+      await runRelease(releaseBranch)
+      break
+    case 'release-branch':
+      await runReleaseBranch(prefix)
       break
     case 'fix':
-      await runFix()
+      await runFix(prefix)
       break
     case 'component-fix':
       await runComponentFix(prefix, currentVersion)
@@ -78,9 +82,10 @@ async function runComponentFix(prefix, currentVersion) {
   console.log(`🚀 New component fix '${fixTag}' created`)
 }
 
-async function runFix() {
-  const release_branch = github.context.payload.workflow_run.head_branch.replace("release-", "")
-  const tag = await getLastReleaseTagFromReleaseBranch(release_branch)
+async function runFix(prefix) {
+  const releaseBranch = github.context.payload.workflow_run.head_branch
+  const releaseVersion = releaseBranch.replace(prefix, "")
+  const tag = await getLastReleaseTagFromReleaseBranch(releaseVersion)
   if (!tag) {
     return core.setFailed('There are any release yet')
   }
@@ -91,7 +96,6 @@ async function runFix() {
   const minor = parseInt(matches[2]);
   const patch = parseInt(matches[3]);
 
-  const releaseBranch = `${prefix}${major}.${minor}`
   const fixTag = `v${major}.${minor}.${patch + 1}`
   if (!dryRun) {
     await createTag(fixTag, releaseBranch)
@@ -121,7 +125,7 @@ async function runReleaseComponent(prefix) {
   core.setOutput("tag", releaseTag)
 }
 
-async function runRelease(prefix) {
+async function runReleaseBranch(prefix) {
   const tag = await getLastPreReleaseTag()
   if(!tag) return core.setFailed('There are any pre-release yet')
 
@@ -131,7 +135,6 @@ async function runRelease(prefix) {
   const minor = parseInt(matches[2]);
 
   const releaseBranch = `${prefix}${major}.${minor}`
-  const releaseTag = `v${major}.${minor}.0`
   if (!dryRun) {
     const created = await createBranch(releaseBranch, github.context.sha)
 
@@ -139,10 +142,27 @@ async function runRelease(prefix) {
       return core.setFailed(`The release branch '${releaseBranch}' already exist`)
     }
 
-    await createTag(releaseTag, releaseBranch)
   }
 
   console.log(`🚀 New release '${releaseBranch}' created`)
+
+}
+
+async function runRelease(releaseBranch) {
+  const tag = await getLastPreReleaseTag()
+  if(!tag) return core.setFailed('There are any pre-release yet')
+  if(!releaseBranch) return core.setFailed('You need to specify the release branch to tag')
+
+  const regex = new RegExp(`^v(\\d+).(\\d+)`, 'g')
+  const matches = regex.exec(tag)
+  const major = parseInt(matches[1]);
+  const minor = parseInt(matches[2]);
+
+  const releaseTag = `v${major}.${minor}.0`
+  if (!dryRun) {
+    await createTag(releaseTag, releaseBranch)
+  }
+
   console.log(`🚀 New release tag '${releaseTag}' created`)
 
   core.setOutput("tag", releaseTag)

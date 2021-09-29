@@ -9,7 +9,7 @@ inputs:
     required: false
     default: 'false'
   mode:
-    description: 'Execution mode can be "pre-release" "release" "fix" "release-component"'
+    description: 'Execution mode can be "pre-release" "release" "fix" "release-component" "release-branch"'
     required: true
   current-major:
     description: 'Current major'
@@ -28,6 +28,9 @@ inputs:
     description: '"Current version of a component, e.g. "v0.4.0"'
     required: false
     default: 'v0.0.0'
+  release-branch:
+    description: '"The branch of the release to create the tag"'
+    required: false
 
 outputs:
   tag:
