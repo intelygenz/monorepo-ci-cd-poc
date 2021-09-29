@@ -5,11 +5,13 @@ on:
     workflows:
       - "Hello Component Build"
       - "ByeBye Component Build"
+      - "New Release"
     types:
       - completed
   push:
     tags:
-      - 'v*.*.*' # release tags
+      - 'v*.*.*'
+      - 'v*.*-rc.*'
 
 
 env:
@@ -62,13 +64,37 @@ jobs:
           mode: 'fix'
 
 
+  create-release-tag:
+    if: |
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.name == 'New Release'
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.release_tag.outputs.tag }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Get Last Release tag
+        id: release_tag
+        uses: "WyriHaximus/github-action-get-previous-tag@v1"
+        with:
+          fallback: 0.0.0
+
+
   release:
-    # Just for release tags
-    if: startsWith('refs/tags/v', github.ref)
+    if: |
+      always() &&
+      (needs.create-rc-tag.outputs.tag || needs.create-fix-tag.outputs.tag || needs.create-release-tag.outputs.tag)
+    needs: [create-rc-tag, create-fix-tag, create-release-tag]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.workflow_run.head_branch }} # Checkout the branch in the original workflow
 
       - name: Hello Component Version
         id: hello_version
