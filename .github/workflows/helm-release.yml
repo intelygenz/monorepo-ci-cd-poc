@@ -32,8 +32,8 @@ jobs:
         run: |
           raw=$(git branch -r --contains ${{ github.ref }})
           branch=${raw/origin\/}
-          echo ::set-output name=BRANCH::$branch
-          echo $branch
+          echo ::set-output name=BRANCH::${branch}
+          echo Branch for checkout ${branch} with raw ${raw}
 
 
       - name: Checkout branch for the tag
