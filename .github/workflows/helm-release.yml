@@ -35,9 +35,7 @@ jobs:
       - name: Get Branch
         id: get_branch
         run: |
-          tag_commit=$(git rev-parse tags/${{ steps.get_tag.outputs.TAG }})
-          echo Tag commit ${tag_commit}
-          branch=$(git branch --contains ${tag_commit})
+          branch=$(git branch --contains ${{ steps.get_tag.outputs.TAG }})
           echo origin branch for the tag ${{ steps.get_tag.outputs.TAG }} is ${branch}
           echo ::set-output name=BRANCH::${branch}
 
