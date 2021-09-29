@@ -69,11 +69,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - echo Branch ${GITHUB_REF##*/}
+
       - name: Generate a release
         uses: ./.github/actions
         with:
           mode: 'release'
-          release-branch: ${GITHUB_REF#refs/heads/}
+          release-branch: ${GITHUB_REF##*/}
 
 
   release:
