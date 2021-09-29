@@ -69,13 +69,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - run: echo Branch ${GITHUB_REF##*/}
+      - name: Get branch name
+        run: |
+          echo "BRANCH=${GITHUB_REF##*/}" >> $GITHUB_ENV
 
       - name: Generate a release
         uses: ./.github/actions
         with:
           mode: 'release'
-          release-branch: ${{GITHUB_REF##*/}}
+          release-branch: ${BRANCH}
 
 
   release:
