@@ -10891,13 +10891,13 @@ async function runRelease(prefix) {
       return core.setFailed(`The release branch '${releaseBranch}' already exist`)
     }
 
-    await createTag(releaseTag, releaseBranch)
+    //await createTag(releaseTag, releaseBranch)
   }
 
-  console.log(`🚀 New release '${releaseBranch}' created`)
-  console.log(`🚀 New release tag '${releaseTag}' created`)
+  console.log(`🚀 New release branch '${releaseBranch}' created`)
+  //console.log(`🚀 New release tag '${releaseTag}' created`)
 
-  core.setOutput("tag", releaseTag)
+  //core.setOutput("tag", releaseTag)
 }
 
 function checkPrereleaseRequirements (core,preRelease) {

@@ -1,0 +1,106 @@
+name: Helm Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+
+env:
+  GITHUB_TOKEN: ${{ secrets.PATNAME }}
+
+
+jobs:
+
+  release:
+    # Just for tags for Helm (starts with 'v')
+    # Or before a tag is created
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Get tag
+        id: get_tag
+        run: |
+          tag=${GITHUB_REF/refs\/tags\//}
+          echo ::set-output name=TAG::${tag}
+          echo Tag ${tag}
+
+      - run: echo BRANCH ${GITHUB_REF#refs/heads/}
+
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          ref: ${GITHUB_REF#refs/heads/}
+
+
+      - name: Get Branch
+        id: get_branch
+        run: |
+          raw=$(git branch -r --contains ${{ github.ref }})
+          echo RAW origin branch for the tag ${{ github.ref }} is ${raw}
+          branch=${raw/origin\/}
+          echo ::set-output name=BRANCH::${branch}
+          echo Branch for checkout ${branch} with raw ${raw} for tag ${{ steps.get_tag.outputs.TAG }}
+
+
+      - name: Checkout branch for the tag
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          ref: ${{ steps.get_branch.outputs.BRANCH }}
+
+
+      - name: Hello Component Version
+        id: hello_version
+        uses: ./.github/actions
+        with:
+          prefix: "hello-"
+          mode: 'component-get-last-version'
+
+      - name: ByeBye Component Version
+        id: byebye_version
+        uses: ./.github/actions
+        with:
+          prefix: "byebye-"
+          mode: 'component-get-last-version'
+
+      - name: App Version
+        id: get_version
+        # When setting the version just one of the 3 vars will have a value
+        run: |
+          VERSION=${{ steps.get_tag.outputs.TAG }}
+          RELEASE_VERSION=`echo "${VERSION}" | sed -e 's/v//g' | sed -e 's/-rc.*/.0/g'`
+          echo ::set-output name=RELEASE_VERSION::${RELEASE_VERSION}
+          echo ::set-output name=VERSION::${VERSION}
+
+      - uses: chrisdickinson/setup-yq@latest
+      - name: Replace component versions
+        run: |
+          # set image tags on kdl
+          yq w -i metaapp/values.yaml 'helloWorld.tag' ${{ steps.hello_version.outputs.tag }}
+          yq w -i metaapp/values.yaml 'byebyeWorld.tag' ${{ steps.byebye_version.outputs.tag }}
+
+          # set app version and chart version for kdl
+          yq w -i metaapp/Chart.yaml 'appVersion' --style=double ${{ steps.get_version.outputs.VERSION }}
+          yq w -i metaapp/Chart.yaml 'version' ${{ steps.get_version.outputs.RELEASE_VERSION }}
+
+          # debug output
+          echo 'helloWorld.tag' ${{ steps.hello_version.outputs.tag }}
+          echo 'byebyeWorld.tag' ${{ steps.byebye_version.outputs.tag }}
+          echo 'appVersion' ${{ steps.get_version.outputs.VERSION }}
+          echo 'version' ${{ steps.get_version.outputs.RELEASE_VERSION }}
+
+      - name: Commit files
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+          git commit -m "Update chart to version ${{ steps.get_version.outputs.RELEASE_VERSION }} [skip-ci]" -a
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ env.GITHUB_TOKEN }}
+          branch: main
+
+      # Publish Chart
