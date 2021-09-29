@@ -2,9 +2,6 @@ name: Helm Release
 
 on:
   push:
-    branches:
-      - main
-      - 'release/*'
     tags:
       - 'v*.*.*'
 
@@ -28,11 +25,13 @@ jobs:
           echo ::set-output name=TAG::${tag}
           echo Tag ${tag}
 
+      - run: echo BRANCH ${GITHUB_REF#refs/heads/}
 
       - name: Checkout
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
+          ref: ${GITHUB_REF#refs/heads/}
 
 
       - name: Get Branch
