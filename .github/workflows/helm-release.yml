@@ -19,10 +19,23 @@ jobs:
     steps:
       - name: Get tag
         id: get_tag
-        run: echo ::set-output name=TAG::${GITHUB_REF/refs\/tags\//}
+        run: |
+          tag=${GITHUB_REF/refs\/tags\//}
+          echo ::set-output name=TAG::${tag}
+          echo Tag ${tag}
+
+      - name: Get Branch
+        id: get_branch
+        run: |
+          raw=$(git branch -r --contains ${{ github.ref }})
+          branch=${raw/origin\/}
+          echo ::set-output name=BRANCH::${branch}
+          echo Tag ${branch}
 
       - name: Checkout
         uses: actions/checkout@v2
+        with:
+          ref: ${{ steps.get_branch.outputs.BRANCH }}
 
       - name: Hello Component Version
         id: hello_version
