@@ -33,7 +33,7 @@ jobs:
         id: get_branch
         run: |
           RAW=$(git branch -r --contains ${{ steps.get_tag.outputs.TAG }})
-          echo RAW origin branch for the tag ${{ steps.get_tag.outputs.TAG }}) is ${RAW}
+          echo RAW origin branch for the tag ${{ steps.get_tag.outputs.TAG }} is ${RAW}
           branch=${RAW/origin\/}
           echo ::set-output name=BRANCH::${branch}
           echo Branch for checkout ${branch} with raw ${RAW} for tag ${{ steps.get_tag.outputs.TAG }}
