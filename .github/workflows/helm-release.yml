@@ -29,6 +29,14 @@ jobs:
         uses: actions/checkout@v2
 
 
+      - name: Get Branch for tag 2
+        id: get_branch
+        run: |
+          raw=$(git branch -r --contains ${{ GITHUB_REF#refs/tags/ }})
+          branch=${raw/origin\/}
+          echo Branch for checkout ${branch}
+
+
       - name: Get Branch
         id: get_branch
         run: |
