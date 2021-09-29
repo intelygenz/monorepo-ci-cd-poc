@@ -48,7 +48,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-            ref: ${{ steps.get_branch.outputs.BRANCH }}
+          ref: ${{ steps.get_branch.outputs.BRANCH }}
 
 
       - name: Hello Component Version
