@@ -36,8 +36,8 @@ jobs:
       - name: Get Branch
         id: get_branch
         run: |
-          branch = $(git rev-parse tags/${GITHUB_REF/refs\/tags\//} | xargs git branch --contains)
-          echo origin branch for the tag ${GITHUB_REF/refs\/tags\//} is ${branch}
+          branch = $(git rev-parse tags/${steps.get_tag.outputs.TAG} | xargs git branch --contains)
+          echo origin branch for the tag ${steps.get_tag.outputs.TAG} is ${branch}
           echo ::set-output name=BRANCH::${branch}
 
 
