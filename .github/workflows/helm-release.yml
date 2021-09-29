@@ -24,16 +24,18 @@ jobs:
           echo ::set-output name=TAG::${tag}
           echo Tag ${tag}
 
+
       - name: Checkout
         uses: actions/checkout@v2
+
 
       - name: Get Branch
         id: get_branch
         run: |
-          raw=$(git branch -r --contains ${{ github.ref }})
+          raw=$(git branch -r --contains ${GITHUB_REF/refs\/tags\//})
           branch=${raw/origin\/}
           echo ::set-output name=BRANCH::${branch}
-          echo Branch for checkout ${branch} with raw ${raw}
+          echo Branch for checkout ${branch} with raw ${raw} for tag ${steps.get_branch.outputs.TAG}
 
 
       - name: Checkout branch for the tag
