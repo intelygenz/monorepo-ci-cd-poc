@@ -35,7 +35,7 @@ jobs:
       - name: Get Branch
         id: get_branch
         run: |
-          branch=$(git branch --contains ${{ steps.get_tag.outputs.TAG }})
+          branch=$(git branch --contains ${{ steps.get_tag.outputs.TAG }} | awk '!/HEAD/{print $1}')
           echo origin branch for the tag ${{ steps.get_tag.outputs.TAG }} is ${branch}
           echo ::set-output name=BRANCH::${branch}
 
