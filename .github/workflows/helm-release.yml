@@ -22,8 +22,7 @@ jobs:
     # Just after a workflow completes successfully and the workflows was triggered in main branch
     if: |
       github.event.workflow_run.conclusion == 'success' &&
-      github.event.workflow_run.head_branch == 'main' &&
-      github.event.workflow_run.name != 'New Release'
+      github.event.workflow_run.head_branch == 'main'
     runs-on: ubuntu-latest
     outputs:
       tag: ${{ steps.rc_tag.outputs.tag }}
@@ -63,11 +62,11 @@ jobs:
 
 
   release:
-    # Just for release tags not -rc
-    # Or before a component build
+    # Just for tags for Helm (starts with 'v')
+    # Or before a tag is created
     if: |
       always() &&
-      ((startsWith(github.ref, 'refs/tags/v') && !contains(github.ref, '-rc')) ||
+      (startsWith(github.ref, 'refs/tags/v') ||
       (needs.create-rc-tag.outputs.tag || needs.create-fix-tag.outputs.tag ))
     runs-on: ubuntu-latest
     steps:
