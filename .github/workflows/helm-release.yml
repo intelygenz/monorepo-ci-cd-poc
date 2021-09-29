@@ -87,8 +87,8 @@ jobs:
   release:
     if: |
       always() &&
-      (needs.create-rc-tag.outputs.tag || needs.create-fix-tag.outputs.tag || needs.create-release-tag.outputs.tag)
-    needs: [create-rc-tag, create-fix-tag, create-release-tag]
+      (needs.calculate-rc-tag.outputs.tag || needs.calculate-fix-tag.outputs.tag || needs.calculate-release-tag.outputs.tag)
+    needs: [calculate-rc-tag, calculate-fix-tag, calculate-release-tag]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
