@@ -72,13 +72,12 @@ jobs:
       - name: Get branch name
         run: |
           echo "BRANCH=${GITHUB_REF##*/}" >> $GITHUB_ENV
-          echo ${BRANCH}
 
       - name: Generate a release
         uses: ./.github/actions
         with:
           mode: 'release'
-          release-branch: ${{ BRANCH }}
+          release-branch: ${{ env.BRANCH }}
 
 
   release:
