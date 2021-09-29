@@ -31,17 +31,14 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-          ref: ${GITHUB_REF#refs/heads/}
 
 
       - name: Get Branch
         id: get_branch
         run: |
-          raw=$(git branch -r --contains ${{ github.ref }})
-          echo RAW origin branch for the tag ${{ github.ref }} is ${raw}
-          branch=${raw/origin\/}
+          branch = $(git rev-parse tags/${GITHUB_REF/refs\/tags\//} | xargs git branch --contains)
+          echo origin branch for the tag ${GITHUB_REF/refs\/tags\//} is ${branch}
           echo ::set-output name=BRANCH::${branch}
-          echo Branch for checkout ${branch} with raw ${raw} for tag ${{ steps.get_tag.outputs.TAG }}
 
 
       - name: Checkout branch for the tag
