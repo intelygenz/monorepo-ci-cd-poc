@@ -78,7 +78,7 @@ jobs:
         uses: ./.github/actions
         with:
           mode: 'release'
-          release-branch: ${{ GITHUB_REF##*/ }}
+          release-branch: ${{ BRANCH }}
 
 
   release:
