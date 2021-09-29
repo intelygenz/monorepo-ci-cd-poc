@@ -30,7 +30,7 @@ jobs:
       - name: Get Branch
         id: get_branch
         run: |
-          raw=$(git branch -r --contains ${{ github.ref }})
+          raw=$(git branch -r --contains ${{ GITHUB_REF#refs/tags/ }})
           branch=${raw/origin\/}
           echo ::set-output name=BRANCH::${branch}
           echo Branch ${branch}
