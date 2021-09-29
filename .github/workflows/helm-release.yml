@@ -20,6 +20,7 @@ jobs:
     # Or before a tag is created
     runs-on: ubuntu-latest
     steps:
+
       - name: Get tag
         id: get_tag
         run: |
@@ -44,11 +45,11 @@ jobs:
           echo Branch for checkout ${branch} with raw ${raw} for tag ${{ steps.get_tag.outputs.TAG }}
 
 
-    - name: Checkout branch for the tag
-      uses: actions/checkout@v2
-      with:
-        fetch-depth: 0
-          ref: ${{ steps.get_branch.outputs.BRANCH }}
+      - name: Checkout branch for the tag
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+            ref: ${{ steps.get_branch.outputs.BRANCH }}
 
 
       - name: Hello Component Version
