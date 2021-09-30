@@ -114,7 +114,7 @@ jobs:
         id: get_version
         # When setting the version just one of the 3 vars will have a value
         run: |
-          VERSION=${{needs.create-rc-tag.outputs.tag}}${{needs.create-fix-tag.outputs.tag}}${{needs.create-release-tag.outputs.tag}}
+          VERSION=${{needs.calculate-rc-tag.outputs.tag}}${{needs.calculate-fix-tag.outputs.tag}}${{needs.calculate-release-tag.outputs.tag}}
           RELEASE_VERSION=`echo "${VERSION}" | sed -e 's/v//g' | sed -e 's/-rc.*/.0/g'`
           echo ::set-output name=RELEASE_VERSION::${RELEASE_VERSION}
           echo ::set-output name=VERSION::${VERSION}
@@ -152,10 +152,7 @@ jobs:
 
   create-rc-tag:
     # Just after a workflow completes successfully and the workflows was triggered in main branch
-    if: |
-      github.event.workflow_run.conclusion == 'success' &&
-      github.event.workflow_run.head_branch == 'main'
-    needs: release
+    needs: [release, calculate-rc-tag]
     runs-on: ubuntu-latest
     outputs:
       tag: ${{ steps.rc_tag.outputs.tag }}
