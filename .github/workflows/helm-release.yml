@@ -85,15 +85,9 @@ jobs:
 
 
   release:
-    if: |
-      always() &&
-      (needs.calculate-rc-tag.outputs.tag || needs.calculate-fix-tag.outputs.tag || needs.calculate-release-tag.outputs.tag)
+    if: always()
     needs: [calculate-rc-tag, calculate-fix-tag, calculate-release-tag]
     runs-on: ubuntu-latest
-    outputs:
-      rc: needs.calculate-rc-tag.outputs.tag != null
-      fix: needs.calculate-fix-tag.outputs.tag != null
-      release: needs.calculate-release-tag.outputs.tag != null
     steps:
       - name: Checkout
         uses: actions/checkout@v2
