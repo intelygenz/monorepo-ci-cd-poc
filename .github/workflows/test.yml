@@ -1,4 +1,4 @@
-name: Helm Release
+name: Test workflow
 
 on:
   workflow_run:
