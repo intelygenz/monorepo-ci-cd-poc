@@ -1,20 +1,21 @@
 {
-  "name": "action-product-version-tags",
-  "description": "Generate version tags on a product lifecycle",
+  "name": "action-monorepo-version-tags-lifecycle",
+  "description": "Generate version tags on a monorepo with multiple components",
   "main": "index.js",
   "dependencies": {
-    "@actions/core": "^1.2.6",
-    "@actions/github": "^4.0.0",
-    "@vercel/ncc": "0.25.0",
-    "js-yaml": "^3.14.0",
-    "ncc": "^0.3.6"
+    "@actions/core": "1.6.0",
+    "@actions/github": "5.0.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@vercel/ncc": "0.25.0"
+  },
   "scripts": {
     "build": "ncc build src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "monorepo", "version-tags"
+  ],
+  "author": "Inteygenz",
   "license": "ISC"
 }
