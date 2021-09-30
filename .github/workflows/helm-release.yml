@@ -156,7 +156,6 @@ jobs:
 
 
   create-rc-tag:
-    if: needs.release.outputs.rc
     needs: release
     runs-on: ubuntu-latest
     steps:
