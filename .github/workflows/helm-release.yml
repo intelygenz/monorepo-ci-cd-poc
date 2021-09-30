@@ -154,6 +154,7 @@ jobs:
 
       # Publish Chart
 
+
   test:
     needs: release
     runs-on: ubuntu.latest
@@ -161,53 +162,53 @@ jobs:
       - run: echo "test job"
 
 
-  create-rc-tag:
-    needs: release
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+  #create-rc-tag:
+  #  needs: release
+  #  runs-on: ubuntu-latest
+  #  steps:
+  #    - name: Checkout
+  #      uses: actions/checkout@v2
+#
+  #    - name: Generate a pre-release
+  #      uses: ./.github/actions
+  #      with:
+  #        current-major: 0
+  #        prefix: "release/v"
+  #        mode: 'pre-release'
+  #        pre-release: 'rc'
+#
 
-      - name: Generate a pre-release
-        uses: ./.github/actions
-        with:
-          current-major: 0
-          prefix: "release/v"
-          mode: 'pre-release'
-          pre-release: 'rc'
-
-
-  create-fix-tag:
-    if: needs.release.outputs.fix
-    needs: release
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Generate a fix tag
-        id: fix_tag
-        uses: ./.github/actions
-        with:
-          prefix: "release/v"
-          mode: 'fix'
-
-
-  create-release-tag:
-    if: needs.release.outputs.release
-    needs: release
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Get branch name
-        run: |
-          echo "BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
-
-      - name: Generate a release
-        id: release_tag
-        uses: ./.github/actions
-        with:
-          mode: 'release'
-          release-branch: ${{ env.BRANCH }}
+  #create-fix-tag:
+  #  if: needs.release.outputs.fix
+  #  needs: release
+  #  runs-on: ubuntu-latest
+  #  steps:
+  #    - name: Checkout
+  #      uses: actions/checkout@v2
+#
+  #    - name: Generate a fix tag
+  #      id: fix_tag
+  #      uses: ./.github/actions
+  #      with:
+  #        prefix: "release/v"
+  #        mode: 'fix'
+#
+#
+  #create-release-tag:
+  #  if: needs.release.outputs.release
+  #  needs: release
+  #  runs-on: ubuntu-latest
+  #  steps:
+  #    - name: Checkout
+  #      uses: actions/checkout@v2
+#
+  #    - name: Get branch name
+  #      run: |
+  #        echo "BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
+#
+  #    - name: Generate a release
+  #      id: release_tag
+  #      uses: ./.github/actions
+  #      with:
+  #        mode: 'release'
+  #        release-branch: ${{ env.BRANCH }}
