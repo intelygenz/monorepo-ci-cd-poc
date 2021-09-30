@@ -1,4 +1,4 @@
-name: Helm Release
+name: Test Workflow
 
 on:
   push:
@@ -17,12 +17,14 @@ jobs:
 
 
   job2:
+    if: cancelled()
     runs-on: ubuntu-latest
     steps:
       - run: echo Job2
 
 
   job3:
+    if: always()
     needs: [job1, job2]
     runs-on: ubuntu-latest
     steps:
