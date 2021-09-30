@@ -97,69 +97,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-        with:
-          ref: ${{ github.event.workflow_run.head_branch }} # Checkout the branch in the original workflow
-
-      - name: Hello Component Version
-        id: hello_version
-        uses: ./.github/actions
-        with:
-          prefix: "hello-"
-          mode: 'component-get-last-version'
-
-      - name: ByeBye Component Version
-        id: byebye_version
-        uses: ./.github/actions
-        with:
-          prefix: "byebye-"
-          mode: 'component-get-last-version'
-
-      - name: App Version
-        id: get_version
-        # When setting the version just one of the 3 vars will have a value
-        run: |
-          VERSION=${{needs.calculate-rc-tag.outputs.tag}}${{needs.calculate-fix-tag.outputs.tag}}${{needs.calculate-release-tag.outputs.tag}}
-          RELEASE_VERSION=`echo "${VERSION}" | sed -e 's/v//g' | sed -e 's/-rc.*/.0/g'`
-          echo ::set-output name=RELEASE_VERSION::${RELEASE_VERSION}
-          echo ::set-output name=VERSION::${VERSION}
-
-      - uses: chrisdickinson/setup-yq@latest
-      - name: Replace component versions
-        run: |
-          # set image tags on kdl
-          yq w -i metaapp/values.yaml 'helloWorld.tag' ${{ steps.hello_version.outputs.tag }}
-          yq w -i metaapp/values.yaml 'byebyeWorld.tag' ${{ steps.byebye_version.outputs.tag }}
-
-          # set app version and chart version for kdl
-          yq w -i metaapp/Chart.yaml 'appVersion' --style=double ${{ steps.get_version.outputs.VERSION }}
-          yq w -i metaapp/Chart.yaml 'version' ${{ steps.get_version.outputs.RELEASE_VERSION }}
-
-          # debug output
-          echo 'helloWorld.tag' ${{ steps.hello_version.outputs.tag }}
-          echo 'byebyeWorld.tag' ${{ steps.byebye_version.outputs.tag }}
-          echo 'appVersion' ${{ steps.get_version.outputs.VERSION }}
-          echo 'version' ${{ steps.get_version.outputs.RELEASE_VERSION }}
-
-      - name: Commit files
-        run: |
-          git config user.name "$GITHUB_ACTOR"
-          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
-          git commit -m "Update chart to version ${{ steps.get_version.outputs.RELEASE_VERSION }} [skip-ci]" -a
-
-      - name: Push changes
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ env.GITHUB_TOKEN }}
-          branch: main
-
-      # Publish Chart
 
 
   test:
     needs: release
     runs-on: ubuntu-latest
     steps:
-      - run: echo "test job"
+      - run: echo Test after release
 
 
   #create-rc-tag:
