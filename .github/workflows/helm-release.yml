@@ -90,6 +90,10 @@ jobs:
       (needs.calculate-rc-tag.outputs.tag || needs.calculate-fix-tag.outputs.tag || needs.calculate-release-tag.outputs.tag)
     needs: [calculate-rc-tag, calculate-fix-tag, calculate-release-tag]
     runs-on: ubuntu-latest
+    outputs:
+      rc: needs.calculate-rc-tag.outputs.tag != null
+      fix: needs.calculate-fix-tag.outputs.tag != null
+      release: needs.calculate-release-tag.outputs.tag != null
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -152,7 +156,8 @@ jobs:
 
 
   create-rc-tag:
-    needs: [release, calculate-rc-tag]
+    if: needs.release.outputs.rc
+    needs: release
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -169,7 +174,8 @@ jobs:
 
 
   create-fix-tag:
-    needs: [release, calculate-fix-tag]
+    if: needs.release.outputs.fix
+    needs: release
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -184,8 +190,8 @@ jobs:
 
 
   create-release-tag:
-    needs: [release, calculate-release-tag]
-    runs-on: ubuntu-latest
+    if: needs.release.outputs.release
+    needs: release
     steps:
       - name: Checkout
         uses: actions/checkout@v2
