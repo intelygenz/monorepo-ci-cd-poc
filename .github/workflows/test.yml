@@ -1,0 +1,36 @@
+name: Helm Release
+
+on:
+  push:
+
+
+env:
+  GITHUB_TOKEN: ${{ secrets.PATNAME }}
+
+
+jobs:
+
+  job1:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo Job1
+
+
+  job2:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo Job2
+
+
+  job3:
+    needs: [job1, job2]
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo Job3
+
+
+  job4:
+    needs: job3
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo Job4
