@@ -1,0 +1,38 @@
+name: Test Workflow
+
+on:
+  push:
+
+
+env:
+  GITHUB_TOKEN: ${{ secrets.PATNAME }}
+
+
+jobs:
+
+  job1:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo Job1
+
+
+  job2:
+    if: cancelled()
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo Job2
+
+
+  job3:
+    if: always()
+    needs: [job1, job2]
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo Job3
+
+
+  job4:
+    needs: job3
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo Job4
