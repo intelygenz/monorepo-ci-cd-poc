@@ -157,7 +157,7 @@ jobs:
 
   test:
     needs: release
-    runs-on: ubuntu.latest
+    runs-on: ubuntu-latest
     steps:
       - run: echo "test job"
 

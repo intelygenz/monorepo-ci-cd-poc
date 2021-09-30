@@ -1,0 +1,34 @@
+name: Helm Release
+
+on:
+  workflow_run:
+    workflows:
+      - "Hello Component Build"
+      - "ByeBye Component Build"
+    types:
+      - completed
+
+env:
+  GITHUB_TOKEN: ${{ secrets.PATNAME }}
+
+
+jobs:
+
+  calculate-rc-tag:
+    runs-on: ubuntu-latest
+    steps:
+      - run: Calculate rc tag
+
+
+  release:
+    needs: calculate-rc-tag
+    runs-on: ubuntu-latest
+    steps:
+      - run: Release
+
+
+  test:
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - run: Test after release
