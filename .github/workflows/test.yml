@@ -17,18 +17,18 @@ jobs:
   calculate-rc-tag:
     runs-on: ubuntu-latest
     steps:
-      - run: Calculate rc tag
+      - run: echo Calculate rc tag
 
 
   release:
     needs: calculate-rc-tag
     runs-on: ubuntu-latest
     steps:
-      - run: Release
+      - run: echo Release
 
 
   test:
     needs: release
     runs-on: ubuntu-latest
     steps:
-      - run: Test after release
+      - run: echo Test after release
