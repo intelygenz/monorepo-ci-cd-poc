@@ -85,8 +85,7 @@ jobs:
 
 
   release:
-    if: always()
-    needs: [calculate-rc-tag, calculate-fix-tag, calculate-release-tag]
+    needs: calculate-rc-tag
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
