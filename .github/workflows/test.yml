@@ -12,6 +12,8 @@ jobs:
 
   job1:
     runs-on: ubuntu-latest
+    outputs:
+      tag: true
     steps:
       - run: echo Job1
 
@@ -32,7 +34,8 @@ jobs:
 
 
   job4:
-    needs: job3
+    if: always() && needs.job1.outputs.tag
+    needs: [job1, job2, job3]
     runs-on: ubuntu-latest
     steps:
       - run: echo Job4
