@@ -7,9 +7,7 @@ on:
       - "ByeBye Component Build"
     types:
       - completed
-  push:
-    branches:
-      - 'release/v*'
+  create:
 
 
 env:
