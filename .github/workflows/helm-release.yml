@@ -154,8 +154,6 @@ jobs:
   create-rc-tag:
     needs: [release, calculate-rc-tag]
     runs-on: ubuntu-latest
-    outputs:
-      tag: ${{ steps.rc_tag.outputs.tag }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -173,8 +171,6 @@ jobs:
   create-fix-tag:
     needs: [release, calculate-fix-tag]
     runs-on: ubuntu-latest
-    outputs:
-      tag: ${{ steps.fix_tag.outputs.tag }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -190,8 +186,6 @@ jobs:
   create-release-tag:
     needs: [release, calculate-release-tag]
     runs-on: ubuntu-latest
-    outputs:
-      tag: ${{ steps.release_tag.outputs.tag }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
