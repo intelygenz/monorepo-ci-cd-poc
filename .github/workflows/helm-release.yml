@@ -145,13 +145,8 @@ jobs:
           git config user.name "$GITHUB_ACTOR"
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
           git commit -m "Update chart to version ${{ steps.get_version.outputs.RELEASE_VERSION }} [skip-ci]" -a
-
-      - name: Push changes
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ env.GITHUB_TOKEN }}
-          branch: main
-
+          git push
+      
       # Publish Chart
 
 
