@@ -155,13 +155,6 @@ jobs:
       # Publish Chart
 
 
-  test:
-    needs: release
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo Test after release
-
-
   create-rc-tag:
     if: always() && needs.calculate-rc-tag.outputs.tag
     needs: [release, calculate-rc-tag]
