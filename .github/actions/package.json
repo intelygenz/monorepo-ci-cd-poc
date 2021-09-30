@@ -15,8 +15,8 @@
     "build": "ncc build src/index.js",
     "test": "jest",
     "lint": "npm run lint:check",
-    "lint:check": "prettier --check .",
-    "lint:write": "prettier --write ."
+    "lint:check": "prettier --check src",
+    "lint:write": "prettier --write src"
   },
   "keywords": [
     "monorepo",

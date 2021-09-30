@@ -46,9 +46,9 @@ jobs:
         uses: ./.github/actions
         id: release_tag
         with:
+          mode: 'component'
+          type: 'release'
           prefix: "hello-"
-          mode: 'component-release'
-          default-branch: 'main'
 
 
   create-fix-tag:
@@ -73,9 +73,10 @@ jobs:
         uses: ./.github/actions
         id: fix_tag
         with:
+          mode: 'component'
+          type: 'fix'
           prefix: "hello-"
           current-version: ${{ steps.component_version.outputs.TAG }}
-          mode: 'component-fix'
 
 
   build-release:
