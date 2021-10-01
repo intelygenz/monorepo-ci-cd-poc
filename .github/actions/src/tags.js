@@ -9,7 +9,7 @@ module.exports = function (octokit, owner, repo) {
   }
 
   async function getLastTag(regex) {
-    const tagNames = await getAllTagsNames(octokit, owner, repo);
+    const tagNames = await getAllTagsNames();
     const tagsWithComponent = tagNames.filter((tagName) => {
       return tagName.match(regex);
     });
@@ -44,7 +44,9 @@ module.exports = function (octokit, owner, repo) {
     const tagNames = await getAllTagsNames();
     const tagsWithPrefix = tagNames.filter((tagName) => tagName.match(`^${preReleaseVersion}-${preReleaseName}`));
 
-    if (tagsWithPrefix.length === 0) return `${preReleaseVersion}-${preReleaseName}.0`;
+    if (tagsWithPrefix.length === 0) {
+      return `${preReleaseVersion}-${preReleaseName}.0`;
+    }
     const regex = new RegExp(`^${preReleaseVersion}-${preReleaseName}.(\\d+)$`, 'g');
     const releaseTag = tagsWithPrefix[0];
 
@@ -87,7 +89,6 @@ module.exports = function (octokit, owner, repo) {
     if (!dryRun) {
       await createTag(releaseTag, branch);
     }
-
     return releaseTag;
   }
 

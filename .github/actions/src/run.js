@@ -4,7 +4,7 @@ const newComponents = require('./components');
 const newProduct = require('./product');
 const { MODE_COMPONENT, MODE_PRODUCT } = require('./types');
 
-export async function run(
+async function run(
   octokit,
   owner,
   repo,
@@ -48,3 +48,7 @@ export async function run(
       return core.setFailed(`Unknown mode "${mode}"`);
   }
 }
+
+module.exports = {
+  run,
+};

@@ -31,16 +31,15 @@ module.exports = function (octokit, owner, repo) {
    * @returns {Promise<string>}
    */
   async function calcPreReleaseVersionBasedOnReleaseBranches(currentMajor, releaseBranchPrefix) {
-    const branches = await getAllBranchesNames(octokit, owner, repo);
+    const branches = await getAllBranchesNames();
     let major = currentMajor;
     let minor = 0;
 
     const regex = new RegExp(`^${releaseBranchPrefix}(\\d+).(\\d+)$`, 'g');
 
     // search for release branches with a greater major version, to return an error if any is found
-    const greaterReleaseBranches = branchNames.filter((branchName) => {
-      if (branchName.match(`^${prefix}${major + 1}.[0-9]+$`)) return true;
-      return false;
+    const greaterReleaseBranches = branches.filter((branchName) => {
+      return branchName.match(`^${prefix}${major + 1}.[0-9]+$`);
     });
     if (greaterReleaseBranches.length > 0) {
       throw new Error('Branch with greater major version already exist');
@@ -48,8 +47,7 @@ module.exports = function (octokit, owner, repo) {
 
     // search for release branches with current major version
     const releaseBranchesForCurrentManjor = branches.filter((branchName) => {
-      if (branchName.match(`^${releaseBranchPrefix}${major}.[0-9]+$`)) return true;
-      return false;
+      return branchName.match(`^${releaseBranchPrefix}${major}.[0-9]+$`);
     });
 
     // if no branches with the current major version is found, then the next pre-release cycle

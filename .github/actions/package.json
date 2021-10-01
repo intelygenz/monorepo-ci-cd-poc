@@ -8,6 +8,12 @@
   },
   "devDependencies": {
     "@vercel/ncc": "0.25.0",
+    "eslint": "7.32.0",
+    "eslint-config-prettier": "8.3.0",
+    "eslint-config-sonar": "0.0.8",
+    "eslint-plugin-jest": "24.5.0",
+    "eslint-plugin-node": "11.1.0",
+    "eslint-plugin-prettier": "4.0.0",
     "jest": "27.2.4",
     "prettier": "2.4.1"
   },
@@ -15,8 +21,8 @@
     "build": "ncc build src/index.js",
     "test": "jest",
     "lint": "npm run lint:check",
-    "lint:check": "prettier --check src",
-    "lint:write": "prettier --write src"
+    "lint:check": "eslint src",
+    "lint:write": "eslint src --fix"
   },
   "keywords": [
     "monorepo",
