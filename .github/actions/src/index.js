@@ -5,7 +5,9 @@ const { run } = require('./run');
 
 // Input variables
 const dryRun = core.getInput('dry-run') === 'true';
-const prefix = core.getInput('prefix');
+const componentPrefix = core.getInput('component-prefix');
+const releaseBranchPrefix = core.getInput('release-branch-prefix');
+const preReleaseName = core.getInput('preReleaseName');
 const type = core.getInput('type');
 const mode = core.getInput('mode');
 const defaultBranch = core.getInput('default-branch');
@@ -16,10 +18,12 @@ const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
 const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
 
 run(octokit, owner, repo, {
-  prefix,
+  componentPrefix,
+  releaseBranchPrefix,
   mode,
   type,
   dryRun,
   defaultBranch,
   currentVersion,
+  preReleaseName,
 });

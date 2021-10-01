@@ -1,12 +1,15 @@
 const { parseVersion } = require('./strings');
+const newBranches = require('./branches');
 
 module.exports = function (octokit, owner, repo) {
+  const branches = newBranches(octokit, owner, repo);
+
   async function getLastComponentReleaseTag(prefix) {
     return getLastTag(`^${prefix}`);
   }
 
   async function getLastTag(regex) {
-    const tagNames = await searchTagNames(octokit, owner, repo);
+    const tagNames = await getAllTagsNames(octokit, owner, repo);
     const tagsWithComponent = tagNames.filter((tagName) => {
       return tagName.match(regex);
     });
@@ -17,7 +20,7 @@ module.exports = function (octokit, owner, repo) {
     return null;
   }
 
-  async function searchTagNames() {
+  async function getAllTagsNames() {
     let tagNames = [];
     let data_length = 0;
     let page = 0;
@@ -35,6 +38,19 @@ module.exports = function (octokit, owner, repo) {
     } while (data_length === 100);
 
     return tagNames;
+  }
+
+  async function calcPrereleaseTag(preReleaseVersion, preReleaseName) {
+    const tagNames = await getAllTagsNames();
+    const tagsWithPrefix = tagNames.filter((tagName) => tagName.match(`^${preReleaseVersion}-${preReleaseName}`));
+
+    if (tagsWithPrefix.length === 0) return `${preReleaseVersion}-${preReleaseName}.0`;
+    const regex = new RegExp(`^${preReleaseVersion}-${preReleaseName}.(\\d+)$`, 'g');
+    const releaseTag = tagsWithPrefix[0];
+
+    const matches = regex.exec(releaseTag);
+    const bumpVersion = parseInt(matches[1]);
+    return `${preReleaseVersion}-${preReleaseName}.${bumpVersion + 1}`;
   }
 
   async function createTag(tagName, branch) {
@@ -64,7 +80,7 @@ module.exports = function (octokit, owner, repo) {
     console.log('Tag ref created: ', createTagData.ref);
   }
 
-  async function createComponentFixTag(prefix, type, branch, version, dryRun) {
+  async function createComponentFixTag(prefix, branch, version, dryRun) {
     const { major, minor, patch } = parseVersion(version);
     const releaseTag = `${prefix}v${major}.${minor}.${patch + 1}`;
 
@@ -75,7 +91,7 @@ module.exports = function (octokit, owner, repo) {
     return releaseTag;
   }
 
-  async function createComponentFinalTag(prefix, type, branch, version, dryRun) {
+  async function createComponentFinalTag(prefix, branch, version, dryRun) {
     const { major, minor } = parseVersion(version);
     const releaseTag = `${prefix}v${major}.${minor + 1}.0`;
 
@@ -85,9 +101,22 @@ module.exports = function (octokit, owner, repo) {
 
     return releaseTag;
   }
+
+  async function createProductPreReleaseTag(releaseBranchPrefix, preReleaseName, branch, dryRun) {
+    const preReleaseVersion = branches.calcPreReleaseVersionBasedOnReleaseBranches(0, releaseBranchPrefix);
+    const preReleaseTag = await calcPrereleaseTag(preReleaseVersion, preReleaseName);
+
+    if (!dryRun) {
+      await createTag(preReleaseTag, branch);
+    }
+
+    return preReleaseTag;
+  }
+
   return {
     getLastComponentReleaseTag, // TODO: remove from export and fix tests
     createComponentFixTag,
     createComponentFinalTag,
+    createProductPreReleaseTag,
   };
 };
