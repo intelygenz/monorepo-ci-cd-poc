@@ -2,6 +2,7 @@ const core = require('@actions/core');
 const newTagger = require('./tags');
 const newComponents = require('./components');
 const newProduct = require('./product');
+const { MODE_COMPONENT, MODE_PRODUCT } = require('./types');
 
 export async function run(
   octokit,
@@ -18,7 +19,7 @@ export async function run(
   let tag;
 
   switch (mode) {
-    case 'component':
+    case MODE_COMPONENT:
       tag = await components.processComponent({
         componentPrefix,
         type,
@@ -34,7 +35,7 @@ export async function run(
       core.setOutput('tag', tag);
       break;
 
-    case 'product':
+    case MODE_PRODUCT:
       tag = await product.processProduct({
         releaseBranchPrefix,
         type,
