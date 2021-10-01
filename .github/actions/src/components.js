@@ -1,7 +1,7 @@
 const { TYPE_FIX, TYPE_FINAL } = require('./types');
 
 module.exports = function (tags) {
-  async function processComponent({ prefix, type, version, branch, dryRun }) {
+  async function createComponentTag({ prefix, type, version, branch, dryRun }) {
     if (type === TYPE_FIX) {
       return tags.createComponentFixTag(prefix, version, branch, dryRun);
     }
@@ -13,6 +13,6 @@ module.exports = function (tags) {
   }
 
   return {
-    processComponent,
+    createComponentTag,
   };
 };

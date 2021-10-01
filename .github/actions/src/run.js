@@ -20,7 +20,7 @@ async function run(
 
   switch (mode) {
     case MODE_COMPONENT:
-      tag = await components.processComponent({
+      tag = await components.createComponentTag({
         componentPrefix,
         type,
         version: currentVersion,
