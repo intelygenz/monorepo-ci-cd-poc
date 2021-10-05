@@ -1,4 +1,4 @@
-name: Hello Component Build
+name: Test Echo Action
 
 on:
   push:
