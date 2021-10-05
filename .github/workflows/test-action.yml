@@ -1,0 +1,24 @@
+name: Hello Component Build
+
+on:
+  push:
+    branches-ignore:
+      - "v*"
+    tags-ignore:
+      - "**"
+    paths:
+      - "hello-world/**/*"
+      - ".github/hello-quality*"
+      - ".github/test-action*"
+
+
+env:
+  GITHUB_TOKEN: ${{ secrets.PATNAME }}
+
+
+jobs:
+
+  test:
+    runs-on: ubuntu-20.04
+    steps:
+      - run: echo "test step"
