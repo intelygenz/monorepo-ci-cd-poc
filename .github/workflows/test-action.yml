@@ -2,6 +2,7 @@ name: Test Echo Action
 
 on:
   push:
+  workflow_dispatch:
 
 env:
   GITHUB_TOKEN: ${{ secrets.PATNAME }}
