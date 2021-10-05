@@ -2,15 +2,6 @@ name: Hello Component Build
 
 on:
   push:
-    branches-ignore:
-      - "v*"
-    tags-ignore:
-      - "**"
-    paths:
-      - "hello-world/**/*"
-      - ".github/hello-quality*"
-      - ".github/test-action*"
-
 
 env:
   GITHUB_TOKEN: ${{ secrets.PATNAME }}
