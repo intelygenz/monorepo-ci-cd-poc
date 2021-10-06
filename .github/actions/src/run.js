@@ -16,7 +16,19 @@ async function run(
   const components = newComponents(tags);
   const product = newProduct(tags, branches);
 
-  console.log(`Run action with mode ${mode} and type ${type}`);
+  console.log(`Run action with params: mode ${mode} and type ${type}`);
+  console.log(`mode ${mode} and type ${type}`);
+  const options = {
+    componentPrefix,
+    releaseBranchPrefix,
+    mode,
+    type,
+    dryRun,
+    defaultBranch,
+    currentVersion,
+    preReleaseName,
+  };
+  console.log(`options: ${options}`);
 
   let tag;
 
