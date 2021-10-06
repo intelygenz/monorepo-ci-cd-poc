@@ -105,7 +105,7 @@ module.exports = function (octokit, owner, repo) {
 
   async function createComponentFinalTag(prefix, branch, version, dryRun) {
     const { major, minor } = parseVersion(version);
-    if (!major || !minor) {
+    if (major === null || minor === null) {
       throw Error("can't parse version");
     }
     const releaseTag = `${prefix}v${major}.${minor + 1}.0`;

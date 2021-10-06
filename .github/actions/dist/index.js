@@ -8587,7 +8587,8 @@ module.exports = function (tags) {
       const lastTag = await tags.getLastComponentReleaseTag(prefix);
 
       console.log(`prefix: ${prefix} => Last tag: "${lastTag}"`);
-      return tags.createComponentFinalTag(prefix, branch, lastTag, dryRun);
+      version = lastTag.replace(prefix, '');
+      return tags.createComponentFinalTag(prefix, branch, version, dryRun);
     }
   }
 
@@ -8778,7 +8779,7 @@ async function run(
   switch (mode) {
     case MODE_COMPONENT:
       tag = await components.createComponentTag({
-        componentPrefix,
+        prefix: componentPrefix,
         type,
         version: currentVersion,
         branch: defaultBranch,
@@ -8821,7 +8822,7 @@ function parseVersion(tag) {
   const regex = new RegExp(`^v(\\d+).(\\d+).(\\d+)$`, 'g');
   const matches = regex.exec(tag);
 
-  if (!matches || !matches.length) {
+  if (!matches || matches.length <= 0) {
     return {};
   }
   const major = parseInt(matches[1]);
@@ -8948,7 +8949,7 @@ module.exports = function (octokit, owner, repo) {
 
   async function createComponentFinalTag(prefix, branch, version, dryRun) {
     const { major, minor } = parseVersion(version);
-    if (!major || !minor) {
+    if (major === null || minor === null) {
       throw Error("can't parse version");
     }
     const releaseTag = `${prefix}v${major}.${minor + 1}.0`;
