@@ -28,7 +28,7 @@ async function run(
     currentVersion,
     preReleaseName,
   };
-  console.log(`options: ${options}`);
+  console.log(options);
 
   let tag;
 
