@@ -17,13 +17,17 @@ const currentVersion = core.getInput('current-version');
 const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
 const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
 
-run(octokit, owner, repo, {
-  componentPrefix,
-  releaseBranchPrefix,
-  mode,
-  type,
-  dryRun,
-  defaultBranch,
-  currentVersion,
-  preReleaseName,
-});
+try {
+  run(octokit, owner, repo, {
+    componentPrefix,
+    releaseBranchPrefix,
+    mode,
+    type,
+    dryRun,
+    defaultBranch,
+    currentVersion,
+    preReleaseName,
+  });
+} catch (e) {
+  core.setFailed(`Error: ${e}`);
+}

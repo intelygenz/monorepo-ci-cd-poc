@@ -8,6 +8,8 @@ module.exports = function (tags) {
 
     if (type === TYPE_FINAL) {
       const lastTag = await tags.getLastComponentReleaseTag(prefix);
+
+      console.log(`Last tag: ${lastTag}`);
       return tags.createComponentFinalTag(prefix, lastTag, branch, dryRun);
     }
   }

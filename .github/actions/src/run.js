@@ -16,7 +16,7 @@ async function run(
   const components = newComponents(tags);
   const product = newProduct(tags, branches);
 
-  console.log(`Run action with mode ${mode}`);
+  console.log(`Run action with mode ${mode} and type ${type}`);
 
   let tag;
 

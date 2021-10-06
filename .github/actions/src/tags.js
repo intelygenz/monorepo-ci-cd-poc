@@ -108,6 +108,8 @@ module.exports = function (octokit, owner, repo) {
     const releaseTag = `${prefix}v${major}.${minor + 1}.0`;
 
     if (!dryRun) {
+      console.log(`Creating tag ${releaseTag} on branch: ${branch}`);
+
       await createTag(releaseTag, branch);
     }
 
