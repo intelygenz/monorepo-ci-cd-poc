@@ -4,6 +4,29 @@ branding:
   icon: 'tag'
   color: 'gray-dark'
 inputs:
+  mode:
+    description: 'Execution mode can be "product" "component"'
+    required: true
+  type:
+    description: 'Execution type can be "pre-release" "release" "fix" "final" "new-release-branch"'
+    required: true
+  current-version:
+    description: '"Current version of a component, e.g. "v0.4.0"'
+    required: false
+    default: 'v0.0.0'
+  component-prefix:
+    description: 'Release prefix, e.g. "hello-"'
+    required: false
+  release-branch-prefix:
+    description: 'Release branch prefix, e.g. "release-"'
+    required: false
+  pre-release-name:
+    description: 'A prerelease, e.g. "alpha"'
+    required: false
+  default-branch:
+    description: '"Default branch to create a version tag, e.g. "main"'
+    required: false
+    default: 'main'
   dry-run:
     description: 'Enable dry run mode, expected "true" "false"'
     required: false
