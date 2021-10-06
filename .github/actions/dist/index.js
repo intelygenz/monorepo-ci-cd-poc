@@ -8437,6 +8437,8 @@ module.exports = function (tags) {
 
     if (type === TYPE_FINAL) {
       const lastTag = await tags.getLastComponentReleaseTag(prefix);
+
+      console.log(`Last tag: ${lastTag}`);
       return tags.createComponentFinalTag(prefix, lastTag, branch, dryRun);
     }
   }
@@ -8471,16 +8473,20 @@ const currentVersion = core.getInput('current-version');
 const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
 const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
 
-run(octokit, owner, repo, {
-  componentPrefix,
-  releaseBranchPrefix,
-  mode,
-  type,
-  dryRun,
-  defaultBranch,
-  currentVersion,
-  preReleaseName,
-});
+try {
+  run(octokit, owner, repo, {
+    componentPrefix,
+    releaseBranchPrefix,
+    mode,
+    type,
+    dryRun,
+    defaultBranch,
+    currentVersion,
+    preReleaseName,
+  });
+} catch (e) {
+  core.setFailed(`Error: ${e}`);
+}
 
 
 /***/ }),
@@ -8605,7 +8611,7 @@ async function run(
   const components = newComponents(tags);
   const product = newProduct(tags, branches);
 
-  console.log(`Run action with mode ${mode}`);
+  console.log(`Run action with mode ${mode} and type ${type}`);
 
   let tag;
 
@@ -8785,6 +8791,8 @@ module.exports = function (octokit, owner, repo) {
     const releaseTag = `${prefix}v${major}.${minor + 1}.0`;
 
     if (!dryRun) {
+      console.log(`Creating tag ${releaseTag} on branch: ${branch}`);
+
       await createTag(releaseTag, branch);
     }
 

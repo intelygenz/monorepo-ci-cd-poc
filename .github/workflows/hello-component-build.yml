@@ -48,7 +48,7 @@ jobs:
         with:
           mode: 'component'
           type: 'release'
-          prefix: "hello-"
+          component-prefix: "hello-"
 
 
   create-fix-tag:
@@ -75,7 +75,7 @@ jobs:
         with:
           mode: 'component'
           type: 'fix'
-          prefix: "hello-"
+          component-prefix: "hello-"
           current-version: ${{ steps.component_version.outputs.TAG }}
 
 
