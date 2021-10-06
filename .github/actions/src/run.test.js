@@ -99,7 +99,7 @@ describe('component', () => {
     core.setFailed = jest.fn();
 
     const params = {
-      componentPrefix: 'hello-',
+      componentPrefix: '',
       releaseBranchPrefix: 'release/v',
       mode: 'product',
       type: 'new-release-branch',

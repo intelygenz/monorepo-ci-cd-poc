@@ -8505,6 +8505,7 @@ module.exports = function (octokit, owner, repo) {
 
     // TODO: Review return on error
     try {
+      console.log(`Creating ref "refs/heads/${branchName}" with sha: ${github.context.sha}`);
       await octokit.git.createRef({
         owner,
         repo,
@@ -8513,6 +8514,7 @@ module.exports = function (octokit, owner, repo) {
       });
       return true;
     } catch (err) {
+      console.error(err);
       return false;
     }
   }
@@ -8586,7 +8588,6 @@ module.exports = function (tags) {
     if (type === TYPE_FINAL) {
       const lastTag = await tags.getLastComponentReleaseTag(prefix);
 
-      console.log(`prefix: ${prefix} => Last tag: "${lastTag}"`);
       version = lastTag.replace(prefix, '');
       return tags.createComponentFinalTag(prefix, branch, version, dryRun);
     }
@@ -8713,12 +8714,12 @@ module.exports = function (tags, branches) {
 
   async function processProduct({ releaseBranchPrefix, type, preReleaseName, branch, dryRun }) {
     if (type === TYPE_PRE_RELEASE) {
-      const preReleaseVersion = branches.calcPreReleaseVersionBasedOnReleaseBranches(0, releaseBranchPrefix);
+      const preReleaseVersion = await branches.calcPreReleaseVersionBasedOnReleaseBranches(0, releaseBranchPrefix);
       return tags.createProductPreReleaseTag(releaseBranchPrefix, preReleaseVersion, preReleaseName, branch, dryRun);
     }
 
     if (type === TYPE_NEW_RELEASE_BRANCH) {
-      return createNewReleaseBranch(releaseBranchPrefix);
+      return createNewReleaseBranch(releaseBranchPrefix, dryRun);
     }
 
     if (type === TYPE_FIX) {
@@ -8819,7 +8820,7 @@ module.exports = {
 /***/ ((module) => {
 
 function parseVersion(tag) {
-  const regex = new RegExp(`^v(\\d+).(\\d+).(\\d+)$`, 'g');
+  const regex = new RegExp(`^v(\\d+).(\\d+)(?:.(\\d+))?`, 'g');
   const matches = regex.exec(tag);
 
   if (!matches || matches.length <= 0) {
@@ -8827,7 +8828,7 @@ function parseVersion(tag) {
   }
   const major = parseInt(matches[1]);
   const minor = parseInt(matches[2]);
-  const patch = parseInt(matches[3]);
+  const patch = parseInt(matches[3]) || null;
 
   return { major, minor, patch };
 }
