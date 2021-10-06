@@ -1,11 +1,12 @@
 const { parseVersion } = require('./strings');
-const newBranches = require('./branches');
 
 module.exports = function (octokit, owner, repo) {
-  const branches = newBranches(octokit, owner, repo);
-
   async function getLastComponentReleaseTag(prefix) {
     return getLastTag(`^${prefix}`);
+  }
+
+  async function getLastPreReleaseTag() {
+    return getLastTag(`^v[0-9]+.[0-9]+-`);
   }
 
   async function getLastTag(regex) {
@@ -17,6 +18,15 @@ module.exports = function (octokit, owner, repo) {
       return tagsWithComponent[0];
     }
 
+    return null;
+  }
+
+  async function getLatestTagFromReleaseVersion(releaseVersion) {
+    const tagNames = await getAllTagsNames();
+    const tagsWithPrefix = tagNames.filter((tagName) => tagName.match(`^v${releaseVersion}.[0-9]+$`));
+    if (tagsWithPrefix.length !== 0) {
+      return tagsWithPrefix[0];
+    }
     return null;
   }
 
@@ -47,6 +57,7 @@ module.exports = function (octokit, owner, repo) {
     if (tagsWithPrefix.length === 0) {
       return `${preReleaseVersion}-${preReleaseName}.0`;
     }
+
     const regex = new RegExp(`^${preReleaseVersion}-${preReleaseName}.(\\d+)$`, 'g');
     const releaseTag = tagsWithPrefix[0];
 
@@ -103,8 +114,7 @@ module.exports = function (octokit, owner, repo) {
     return releaseTag;
   }
 
-  async function createProductPreReleaseTag(releaseBranchPrefix, preReleaseName, branch, dryRun) {
-    const preReleaseVersion = branches.calcPreReleaseVersionBasedOnReleaseBranches(0, releaseBranchPrefix);
+  async function createProductPreReleaseTag(releaseBranchPrefix, preReleaseVersion, preReleaseName, branch, dryRun) {
     const preReleaseTag = await calcPrereleaseTag(preReleaseVersion, preReleaseName);
 
     if (!dryRun) {
@@ -115,6 +125,9 @@ module.exports = function (octokit, owner, repo) {
   }
 
   return {
+    createTag,
+    getLastPreReleaseTag,
+    getLatestTagFromReleaseVersion,
     getLastComponentReleaseTag, // TODO: remove from export and fix tests
     createComponentFixTag,
     createComponentFinalTag,

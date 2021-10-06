@@ -8327,7 +8327,9 @@ function wrappy (fn, cb) {
 /***/ }),
 
 /***/ 7972:
-/***/ ((module) => {
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+const github = __webpack_require__(5438);
 
 module.exports = function (octokit, owner, repo) {
   async function getAllBranchesNames() {
@@ -8350,6 +8352,23 @@ module.exports = function (octokit, owner, repo) {
     return branchNames.reverse();
   }
 
+  async function createBranch(branchName) {
+    console.log('branchName', branchName);
+
+    // TODO: Review return on error
+    try {
+      await octokit.git.createRef({
+        owner,
+        repo,
+        ref: `refs/heads/${branchName}`,
+        sha: github.context.sha,
+      });
+      return true;
+    } catch (err) {
+      return false;
+    }
+  }
+
   /**
    * Calculates and return the version of the next pre-release based on existing release branches.
    *
@@ -8370,7 +8389,7 @@ module.exports = function (octokit, owner, repo) {
 
     // search for release branches with a greater major version, to return an error if any is found
     const greaterReleaseBranches = branches.filter((branchName) => {
-      return branchName.match(`^${prefix}${major + 1}.[0-9]+$`);
+      return branchName.match(`^${releaseBranchPrefix}${major + 1}.[0-9]+$`);
     });
     if (greaterReleaseBranches.length > 0) {
       throw new Error('Branch with greater major version already exist');
@@ -8385,18 +8404,19 @@ module.exports = function (octokit, owner, repo) {
     // is v${major}.${minor}
     if (releaseBranchesForCurrentManjor.length === 0) {
       return `v${major}.${minor}`;
-    } else {
-      // else take the greatest minor and sum one
-      const releaseBranch = releaseBranchesForCurrentManjor[0];
-      const matches = regex.exec(releaseBranch);
-      major = parseInt(matches[1]);
-      minor = parseInt(matches[2]);
-
-      return `v${major}.${minor + 1}`;
     }
+
+    // take the greatest minor and sum one
+    const releaseBranch = releaseBranchesForCurrentManjor[0];
+    const matches = regex.exec(releaseBranch);
+    major = parseInt(matches[1]);
+    minor = parseInt(matches[2]);
+
+    return `v${major}.${minor + 1}`;
   }
 
   return {
+    createBranch,
     calcPreReleaseVersionBasedOnReleaseBranches,
   };
 };
@@ -8441,7 +8461,7 @@ const { run } = __webpack_require__(2475);
 const dryRun = core.getInput('dry-run') === 'true';
 const componentPrefix = core.getInput('component-prefix');
 const releaseBranchPrefix = core.getInput('release-branch-prefix');
-const preReleaseName = core.getInput('preReleaseName');
+const preReleaseName = core.getInput('pre-release-name');
 const type = core.getInput('type');
 const mode = core.getInput('mode');
 const defaultBranch = core.getInput('default-branch');
@@ -8468,12 +8488,91 @@ run(octokit, owner, repo, {
 /***/ 9031:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-const { TYPE_PRE_RELEASE } = __webpack_require__(8154);
+const core = __webpack_require__(2186);
+const github = __webpack_require__(5438);
 
-module.exports = function (tags) {
+const { TYPE_PRE_RELEASE, TYPE_NEW_RELEASE_BRANCH, TYPE_FIX, TYPE_FINAL } = __webpack_require__(8154);
+const { parseVersion } = __webpack_require__(1153);
+
+module.exports = function (tags, branches) {
+  async function createNewReleaseBranch(releaseBranchPrefix, dryRun) {
+    const tag = await tags.getLastPreReleaseTag();
+    if (!tag) {
+      return core.setFailed('There are any pre-release yet');
+    }
+
+    const { major, minor } = parseVersion(tag);
+
+    const releaseBranch = `${releaseBranchPrefix}${major}.${minor}`;
+    if (!dryRun) {
+      const created = await branches.createBranch(releaseBranch);
+
+      if (!created) {
+        return core.setFailed(`The release branch '${releaseBranch}' already exist`);
+      }
+    }
+
+    console.log(`🚀 New release '${releaseBranch}' created`);
+    return releaseBranch;
+  }
+
+  async function createProductFinalTag(releaseBranch, dryRun) {
+    if (!releaseBranch) {
+      return core.setFailed('You need to specify the release branch to tag');
+    }
+
+    const tag = await tags.getLastPreReleaseTag();
+    if (!tag) {
+      return core.setFailed('There are any pre-release yet');
+    }
+    console.log(`Create release tag in branch ${releaseBranch}`);
+
+    const { major, minor } = parseVersion(tag);
+
+    const releaseTag = `v${major}.${minor}.0`;
+    if (!dryRun) {
+      await tags.createTag(releaseTag, releaseBranch);
+    }
+
+    console.log(`🚀 New release tag '${releaseTag}' created`);
+
+    return releaseTag;
+  }
+  async function createProductFixTag(releaseBranchPrefix, currentBranchName, dryRun) {
+    const releaseVersion = currentBranchName.replace(releaseBranchPrefix, '');
+    const tag = await tags.getLatestTagFromReleaseVersion(releaseVersion);
+    if (!tag) {
+      return core.setFailed('There are any release yet');
+    }
+
+    const { major, minor, patch } = parseVersion(tag);
+
+    const fixTag = `v${major}.${minor}.${patch + 1}`;
+    if (!dryRun) {
+      await tags.createTag(fixTag, currentBranchName);
+    }
+
+    console.log(`🚀 New fix '${fixTag}' created`);
+    return fixTag;
+  }
+
   async function processProduct({ releaseBranchPrefix, type, preReleaseName, branch, dryRun }) {
     if (type === TYPE_PRE_RELEASE) {
-      return tags.createProductPreReleaseTag(releaseBranchPrefix, preReleaseName, branch, dryRun);
+      const preReleaseVersion = branches.calcPreReleaseVersionBasedOnReleaseBranches(0, releaseBranchPrefix);
+      return tags.createProductPreReleaseTag(releaseBranchPrefix, preReleaseVersion, preReleaseName, branch, dryRun);
+    }
+
+    if (type === TYPE_NEW_RELEASE_BRANCH) {
+      return createNewReleaseBranch(releaseBranchPrefix);
+    }
+
+    if (type === TYPE_FIX) {
+      const currentBranchName = github.context.ref;
+      return createProductFixTag(releaseBranchPrefix, currentBranchName, dryRun);
+    }
+
+    if (type === TYPE_FINAL) {
+      return createProductFinalTag(branch, dryRun);
     }
   }
 
@@ -8490,6 +8589,7 @@ module.exports = function (tags) {
 
 const core = __webpack_require__(2186);
 const newTagger = __webpack_require__(1123);
+const newBranches = __webpack_require__(7972);
 const newComponents = __webpack_require__(1212);
 const newProduct = __webpack_require__(9031);
 const { MODE_COMPONENT, MODE_PRODUCT } = __webpack_require__(8154);
@@ -8501,8 +8601,9 @@ async function run(
   { componentPrefix, releaseBranchPrefix, mode, type, dryRun, defaultBranch, currentVersion, preReleaseName }
 ) {
   const tags = newTagger(octokit, owner, repo);
+  const branches = newBranches(octokit, owner, repo);
   const components = newComponents(tags);
-  const product = newProduct(tags);
+  const product = newProduct(tags, branches);
 
   console.log(`Run action with mode ${mode}`);
 
@@ -8522,7 +8623,7 @@ async function run(
         return core.setFailed('Tag creation failed');
       }
       console.log(`🚀 New component tag '${tag}' created`);
-      core.setOutput('tag', tag);
+
       break;
 
     case MODE_PRODUCT:
@@ -8537,6 +8638,7 @@ async function run(
     default:
       return core.setFailed(`Unknown mode "${mode}"`);
   }
+  core.setOutput('tag', tag);
 }
 
 module.exports = {
@@ -8574,13 +8676,14 @@ module.exports = {
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 const { parseVersion } = __webpack_require__(1153);
-const newBranches = __webpack_require__(7972);
 
 module.exports = function (octokit, owner, repo) {
-  const branches = newBranches(octokit, owner, repo);
-
   async function getLastComponentReleaseTag(prefix) {
     return getLastTag(`^${prefix}`);
+  }
+
+  async function getLastPreReleaseTag() {
+    return getLastTag(`^v[0-9]+.[0-9]+-`);
   }
 
   async function getLastTag(regex) {
@@ -8592,6 +8695,15 @@ module.exports = function (octokit, owner, repo) {
       return tagsWithComponent[0];
     }
 
+    return null;
+  }
+
+  async function getLatestTagFromReleaseVersion(releaseVersion) {
+    const tagNames = await getAllTagsNames();
+    const tagsWithPrefix = tagNames.filter((tagName) => tagName.match(`^v${releaseVersion}.[0-9]+$`));
+    if (tagsWithPrefix.length !== 0) {
+      return tagsWithPrefix[0];
+    }
     return null;
   }
 
@@ -8622,6 +8734,7 @@ module.exports = function (octokit, owner, repo) {
     if (tagsWithPrefix.length === 0) {
       return `${preReleaseVersion}-${preReleaseName}.0`;
     }
+
     const regex = new RegExp(`^${preReleaseVersion}-${preReleaseName}.(\\d+)$`, 'g');
     const releaseTag = tagsWithPrefix[0];
 
@@ -8678,8 +8791,7 @@ module.exports = function (octokit, owner, repo) {
     return releaseTag;
   }
 
-  async function createProductPreReleaseTag(releaseBranchPrefix, preReleaseName, branch, dryRun) {
-    const preReleaseVersion = branches.calcPreReleaseVersionBasedOnReleaseBranches(0, releaseBranchPrefix);
+  async function createProductPreReleaseTag(releaseBranchPrefix, preReleaseVersion, preReleaseName, branch, dryRun) {
     const preReleaseTag = await calcPrereleaseTag(preReleaseVersion, preReleaseName);
 
     if (!dryRun) {
@@ -8690,6 +8802,9 @@ module.exports = function (octokit, owner, repo) {
   }
 
   return {
+    createTag,
+    getLastPreReleaseTag,
+    getLatestTagFromReleaseVersion,
     getLastComponentReleaseTag, // TODO: remove from export and fix tests
     createComponentFixTag,
     createComponentFinalTag,
@@ -8707,6 +8822,7 @@ module.exports = {
   TYPE_FIX: 'fix',
   TYPE_FINAL: 'final',
   TYPE_PRE_RELEASE: 'pre-release',
+  TYPE_NEW_RELEASE_BRANCH: 'new-release-branch',
   MODE_COMPONENT: 'component',
   MODE_PRODUCT: 'product',
 };

@@ -33,9 +33,10 @@ jobs:
         uses: ./.github/actions
         with:
           current-major: 0
-          prefix: "release/v"
-          mode: 'pre-release'
-          pre-release: 'rc'
+          mode: 'product'
+          type: 'pre-release'
+          release-branch-prefix: "release/v"
+          pre-release-name: 'rc'
           dry-run: true
 
 
@@ -55,8 +56,9 @@ jobs:
         id: fix_tag
         uses: ./.github/actions
         with:
-          prefix: "release/v"
-          mode: 'fix'
+          mode: 'product'
+          type: 'fix'
+          release-branch-prefix: "release/v"
           dry-run: true
 
 

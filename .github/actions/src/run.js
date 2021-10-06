@@ -1,5 +1,6 @@
 const core = require('@actions/core');
 const newTagger = require('./tags');
+const newBranches = require('./branches');
 const newComponents = require('./components');
 const newProduct = require('./product');
 const { MODE_COMPONENT, MODE_PRODUCT } = require('./types');
@@ -11,8 +12,9 @@ async function run(
   { componentPrefix, releaseBranchPrefix, mode, type, dryRun, defaultBranch, currentVersion, preReleaseName }
 ) {
   const tags = newTagger(octokit, owner, repo);
+  const branches = newBranches(octokit, owner, repo);
   const components = newComponents(tags);
-  const product = newProduct(tags);
+  const product = newProduct(tags, branches);
 
   console.log(`Run action with mode ${mode}`);
 
@@ -32,7 +34,7 @@ async function run(
         return core.setFailed('Tag creation failed');
       }
       console.log(`🚀 New component tag '${tag}' created`);
-      core.setOutput('tag', tag);
+
       break;
 
     case MODE_PRODUCT:
@@ -47,6 +49,7 @@ async function run(
     default:
       return core.setFailed(`Unknown mode "${mode}"`);
   }
+  core.setOutput('tag', tag);
 }
 
 module.exports = {

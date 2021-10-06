@@ -13,7 +13,8 @@ jobs:
       - name: Generate a release
         uses: ./.github/actions
         with:
-          prefix: "release/v"
-          mode: 'release-branch'
+          release-branch-prefix: "release/v"
+          mode: 'product'
+          type: 'new-release-branch'
         env:
           GITHUB_TOKEN: ${{ secrets.PATNAME }}

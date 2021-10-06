@@ -1,3 +1,5 @@
+const github = require('@actions/github');
+
 module.exports = function (octokit, owner, repo) {
   async function getAllBranchesNames() {
     let branchNames = [];
@@ -17,6 +19,23 @@ module.exports = function (octokit, owner, repo) {
     } while (data_length == 100);
 
     return branchNames.reverse();
+  }
+
+  async function createBranch(branchName) {
+    console.log('branchName', branchName);
+
+    // TODO: Review return on error
+    try {
+      await octokit.git.createRef({
+        owner,
+        repo,
+        ref: `refs/heads/${branchName}`,
+        sha: github.context.sha,
+      });
+      return true;
+    } catch (err) {
+      return false;
+    }
   }
 
   /**
@@ -39,7 +58,7 @@ module.exports = function (octokit, owner, repo) {
 
     // search for release branches with a greater major version, to return an error if any is found
     const greaterReleaseBranches = branches.filter((branchName) => {
-      return branchName.match(`^${prefix}${major + 1}.[0-9]+$`);
+      return branchName.match(`^${releaseBranchPrefix}${major + 1}.[0-9]+$`);
     });
     if (greaterReleaseBranches.length > 0) {
       throw new Error('Branch with greater major version already exist');
@@ -54,18 +73,19 @@ module.exports = function (octokit, owner, repo) {
     // is v${major}.${minor}
     if (releaseBranchesForCurrentManjor.length === 0) {
       return `v${major}.${minor}`;
-    } else {
-      // else take the greatest minor and sum one
-      const releaseBranch = releaseBranchesForCurrentManjor[0];
-      const matches = regex.exec(releaseBranch);
-      major = parseInt(matches[1]);
-      minor = parseInt(matches[2]);
-
-      return `v${major}.${minor + 1}`;
     }
+
+    // take the greatest minor and sum one
+    const releaseBranch = releaseBranchesForCurrentManjor[0];
+    const matches = regex.exec(releaseBranch);
+    major = parseInt(matches[1]);
+    minor = parseInt(matches[2]);
+
+    return `v${major}.${minor + 1}`;
   }
 
   return {
+    createBranch,
     calcPreReleaseVersionBasedOnReleaseBranches,
   };
 };

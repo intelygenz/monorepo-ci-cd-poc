@@ -7,7 +7,7 @@ const { run } = require('./run');
 const dryRun = core.getInput('dry-run') === 'true';
 const componentPrefix = core.getInput('component-prefix');
 const releaseBranchPrefix = core.getInput('release-branch-prefix');
-const preReleaseName = core.getInput('preReleaseName');
+const preReleaseName = core.getInput('pre-release-name');
 const type = core.getInput('type');
 const mode = core.getInput('mode');
 const defaultBranch = core.getInput('default-branch');
