@@ -47,7 +47,7 @@ jobs:
         id: release_tag
         with:
           mode: 'component'
-          type: 'release'
+          type: 'final'
           component-prefix: "hello-"
 
 
