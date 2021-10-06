@@ -26,6 +26,7 @@ module.exports = function (octokit, owner, repo) {
 
     // TODO: Review return on error
     try {
+      console.log(`Creating ref "refs/heads/${branchName}" with sha: ${github.context.sha}`);
       await octokit.git.createRef({
         owner,
         repo,
@@ -34,6 +35,7 @@ module.exports = function (octokit, owner, repo) {
       });
       return true;
     } catch (err) {
+      console.error(err);
       return false;
     }
   }

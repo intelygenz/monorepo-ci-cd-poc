@@ -68,12 +68,12 @@ module.exports = function (tags, branches) {
 
   async function processProduct({ releaseBranchPrefix, type, preReleaseName, branch, dryRun }) {
     if (type === TYPE_PRE_RELEASE) {
-      const preReleaseVersion = branches.calcPreReleaseVersionBasedOnReleaseBranches(0, releaseBranchPrefix);
+      const preReleaseVersion = await branches.calcPreReleaseVersionBasedOnReleaseBranches(0, releaseBranchPrefix);
       return tags.createProductPreReleaseTag(releaseBranchPrefix, preReleaseVersion, preReleaseName, branch, dryRun);
     }
 
     if (type === TYPE_NEW_RELEASE_BRANCH) {
-      return createNewReleaseBranch(releaseBranchPrefix);
+      return createNewReleaseBranch(releaseBranchPrefix, dryRun);
     }
 
     if (type === TYPE_FIX) {
