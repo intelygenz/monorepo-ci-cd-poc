@@ -3,7 +3,7 @@ function parseVersion(tag) {
   const matches = regex.exec(tag);
 
   if (!matches || !matches.length) {
-    return null;
+    return {};
   }
   const major = parseInt(matches[1]);
   const minor = parseInt(matches[2]);

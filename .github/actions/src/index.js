@@ -17,8 +17,6 @@ const currentVersion = core.getInput('current-version');
 const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
 const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
 
-console.log('octokit: ', octokit.repos);
-
 try {
   run(octokit, owner, repo, {
     componentPrefix,

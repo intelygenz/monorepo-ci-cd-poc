@@ -8586,8 +8586,8 @@ module.exports = function (tags) {
     if (type === TYPE_FINAL) {
       const lastTag = await tags.getLastComponentReleaseTag(prefix);
 
-      console.log(`Last tag: ${lastTag}`);
-      return tags.createComponentFinalTag(prefix, lastTag, branch, dryRun);
+      console.log(`prefix: ${prefix} => Last tag: "${lastTag}"`);
+      return tags.createComponentFinalTag(prefix, branch, lastTag, dryRun);
     }
   }
 
@@ -8620,8 +8620,6 @@ const currentVersion = core.getInput('current-version');
 // Initialize Octokit
 const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
 const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
-
-console.log('octokit: ', octokit.repos);
 
 try {
   run(octokit, owner, repo, {
@@ -8812,7 +8810,7 @@ function parseVersion(tag) {
   const matches = regex.exec(tag);
 
   if (!matches || !matches.length) {
-    return null;
+    return {};
   }
   const major = parseInt(matches[1]);
   const minor = parseInt(matches[2]);
@@ -8938,6 +8936,9 @@ module.exports = function (octokit, owner, repo) {
 
   async function createComponentFinalTag(prefix, branch, version, dryRun) {
     const { major, minor } = parseVersion(version);
+    if (!major || !minor) {
+      throw Error("can't parse version");
+    }
     const releaseTag = `${prefix}v${major}.${minor + 1}.0`;
 
     if (!dryRun) {

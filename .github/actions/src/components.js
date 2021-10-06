@@ -9,8 +9,8 @@ module.exports = function (tags) {
     if (type === TYPE_FINAL) {
       const lastTag = await tags.getLastComponentReleaseTag(prefix);
 
-      console.log(`Last tag: ${lastTag}`);
-      return tags.createComponentFinalTag(prefix, lastTag, branch, dryRun);
+      console.log(`prefix: ${prefix} => Last tag: "${lastTag}"`);
+      return tags.createComponentFinalTag(prefix, branch, lastTag, dryRun);
     }
   }
 
