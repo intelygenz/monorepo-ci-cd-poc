@@ -35,7 +35,7 @@ async function run(
   switch (mode) {
     case MODE_COMPONENT:
       tag = await components.createComponentTag({
-        componentPrefix,
+        prefix: componentPrefix,
         type,
         version: currentVersion,
         branch: defaultBranch,
