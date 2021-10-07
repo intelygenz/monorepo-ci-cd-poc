@@ -7,6 +7,9 @@ module.exports = function (tags) {
     if (type === TYPE_FIX) {
       version = version.replace(`${prefix}`, '');
       const releaseBranch = github.context.payload.ref.replace('refs/heads/', '');
+      console.log(
+        `Creating fix for version ${version} on branch ${releaseBranch} (ref: ${github.context.payload.ref})`
+      );
       return tags.createComponentFixTag(prefix, version, releaseBranch, dryRun);
     }
 
