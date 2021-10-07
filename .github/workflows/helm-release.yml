@@ -182,8 +182,9 @@ jobs:
         id: fix_tag
         uses: ./.github/actions
         with:
-          prefix: "release/v"
-          mode: 'fix'
+          mode: 'product'
+          type: 'fix'
+          release-branch-prefix: "release/v"
 
 
   create-release-tag:
