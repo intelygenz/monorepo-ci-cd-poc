@@ -3,7 +3,7 @@ const github = require('@actions/github');
 
 const { run } = require('./run');
 
-jest.setTimeout(100000); // TODO: remove
+// jest.setTimeout(100000); // NOTE: uncomment for test debugging
 
 describe('component', () => {
   test('create-release-tag', async () => {
