@@ -120,10 +120,10 @@ jobs:
         id: get_version
         # When setting the version just one of the 3 vars will have a value
         run: |
-          VERSION=${{needs.calculate-rc-tag.outputs.tag}}${{needs.calculate-fix-tag.outputs.tag}}${{needs.calculate-release-tag.outputs.tag}}
-          RELEASE_VERSION=`echo "${VERSION}" | sed -e 's/v//g' | sed -e 's/-rc.*/.0/g'`
-          echo ::set-output name=RELEASE_VERSION::${RELEASE_VERSION}
-          echo ::set-output name=VERSION::${VERSION}
+          APP_VERSION=${{needs.calculate-rc-tag.outputs.tag}}${{needs.calculate-fix-tag.outputs.tag}}${{needs.calculate-release-tag.outputs.tag}}
+          CHART_VERSION=`echo "${APP_VERSION}" | sed -e 's/v//g' | sed -e 's/-rc.*/.0/g'`
+          echo ::set-output name=CHART_VERSION::${CHART_VERSION}
+          echo ::set-output name=APP_VERSION::${APP_VERSION}
 
       - uses: chrisdickinson/setup-yq@latest
       - name: Replace component versions
@@ -133,20 +133,20 @@ jobs:
           yq w -i metaapp/values.yaml 'byebyeWorld.tag' ${{ steps.byebye_version.outputs.tag }}
 
           # set app version and chart version for kdl
-          yq w -i metaapp/Chart.yaml 'appVersion' --style=double ${{ steps.get_version.outputs.VERSION }}
-          yq w -i metaapp/Chart.yaml 'version' ${{ steps.get_version.outputs.RELEASE_VERSION }}
+          yq w -i metaapp/Chart.yaml 'appVersion' --style=double ${{ steps.get_version.outputs.APP_VERSION }}
+          yq w -i metaapp/Chart.yaml 'version' ${{ steps.get_version.outputs.CHART_VERSION }}
 
           # debug output
           echo 'helloWorld.tag' ${{ steps.hello_version.outputs.tag }}
           echo 'byebyeWorld.tag' ${{ steps.byebye_version.outputs.tag }}
-          echo 'appVersion' ${{ steps.get_version.outputs.VERSION }}
-          echo 'version' ${{ steps.get_version.outputs.RELEASE_VERSION }}
+          echo 'appVersion' ${{ steps.get_version.outputs.APP_VERSION }}
+          echo 'version' ${{ steps.get_version.outputs.CHART_VERSION }}
 
       - name: Commit files
         run: |
           git config user.name "$GITHUB_ACTOR"
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
-          git commit -m "Update chart to version ${{ steps.get_version.outputs.VERSION }} [skip-ci]" -a
+          git commit -m "Update chart to version ${{ steps.get_version.outputs.APP_VERSION }} [skip-ci]" -a
           git push
 
       # Publish Chart

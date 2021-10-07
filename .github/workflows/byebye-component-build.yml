@@ -17,16 +17,13 @@ env:
 
 jobs:
 
-  checkout:
-    runs-on: ubuntu-latest
-    steps:
-      - name: CheckOut
-        uses: actions/checkout@v2
-
   quality-checks:
     needs: checkout
     runs-on: ubuntu-20.04
     steps:
+      - name: CheckOut
+        uses: actions/checkout@v2
+
       - name: Set up Python environment
         uses: actions/setup-python@v1
         with:
@@ -35,7 +32,8 @@ jobs:
       - name: flake8 Lint
         uses: py-actions/flake8@v1
 
-  tag-release-version:
+
+  create-release-tag:
     if: github.ref == 'refs/heads/main' # only in main branch
     needs: quality-checks
     runs-on: ubuntu-20.04
@@ -49,23 +47,24 @@ jobs:
         uses: ./.github/actions
         id: release_tag
         with:
-          prefix: "byebye-"
-          mode: 'component-release'
-          default-branch: 'main'
+          mode: 'component'
+          type: 'final'
+          component-prefix: "byebye-"
 
-  tag-fix-version:
+
+  create-fix-tag:
     if: startsWith(github.ref, 'refs/heads/release') # only in release branches
     needs: quality-checks
     runs-on: ubuntu-20.04
     outputs:
-      tag: ${{ steps.fix_tag.outputs.tag }}
+       tag: ${{ steps.fix_tag.outputs.tag }}
     steps:
       - name: CheckOut
         uses: actions/checkout@v2
 
       - uses: chrisdickinson/setup-yq@latest
       - name: Get component versions
-        id: compoment_version
+        id: component_version
         run: |
           TAG=`yq r metaapp/values.yaml 'byebyeWorld.tag'`
           echo ::set-output name=TAG::${TAG}
@@ -75,13 +74,17 @@ jobs:
         uses: ./.github/actions
         id: fix_tag
         with:
-          prefix: "byebye-"
-          current-version: ${{ steps.compoment_version.outputs.TAG }}
-          mode: 'component-fix'
+          mode: 'component'
+          type: 'fix'
+          component-prefix: "byebye-"
+          current-version: ${{ steps.component_version.outputs.TAG }}
+
 
   build-release:
-    if: always()
-    needs: [tag-release-version, tag-fix-version]
+    if: |
+      always() &&
+      (needs.create-release-tag.outputs.tag || needs.create-fix-tag.outputs.tag)
+    needs: [create-release-tag, create-fix-tag]
     runs-on: ubuntu-latest
     steps:
       #- name: Set up QEMU
@@ -97,7 +100,7 @@ jobs:
       #    password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Store fix tag
-        run: echo Tag set to ${{needs.tag-release-version.outputs.tag}}${{needs.tag-fix-version.outputs.tag}}
+        run: echo Tag set to ${{needs.create-release-tag.outputs.tag}}${{needs.create-fix-tag.outputs.tag}}
 
       #- name: Push to Docker Hub
       #  uses: docker/build-push-action@v2
