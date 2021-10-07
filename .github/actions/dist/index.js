@@ -8808,7 +8808,6 @@ async function run(
 
       console.log(`Found tag '${tag}'.`);
 
-      core.setOutput('tag', tag);
       break;
 
     case MODE_COMPONENT:

@@ -104,7 +104,7 @@ jobs:
         id: hello_version
         uses: ./.github/actions
         with:
-          prefix: "hello-"
+          component-prefix: "hello-"
           mode: 'query'
           type: 'component-last-version'
 
@@ -112,7 +112,7 @@ jobs:
         id: byebye_version
         uses: ./.github/actions
         with:
-          prefix: "byebye-"
+          component-prefix: "byebye-"
           mode: 'query'
           type: 'component-last-version'
 
@@ -167,6 +167,7 @@ jobs:
           type: 'pre-release'
           release-branch-prefix: "release/v"
           current-major: 0
+          pre-release-name: 'rc'
 
 
   create-fix-tag:
