@@ -8577,12 +8577,15 @@ module.exports = function (octokit, owner, repo) {
 /***/ 1212:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
+const github = __webpack_require__(5438);
+
 const { TYPE_FIX, TYPE_FINAL } = __webpack_require__(8154);
 
 module.exports = function (tags) {
   async function createComponentTag({ prefix, type, version, branch, dryRun }) {
     if (type === TYPE_FIX) {
-      return tags.createComponentFixTag(prefix, version, branch, dryRun);
+      const releaseBranch = github.context.payload.workflow_run.head_branch;
+      return tags.createComponentFixTag(prefix, version, releaseBranch, dryRun);
     }
 
     if (type === TYPE_FINAL) {
@@ -8618,6 +8621,7 @@ const type = core.getInput('type');
 const mode = core.getInput('mode');
 const defaultBranch = core.getInput('default-branch');
 const currentVersion = core.getInput('current-version');
+const currentMajor = core.getInput('current-major');
 
 // Initialize Octokit
 const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
@@ -8632,6 +8636,7 @@ try {
     dryRun,
     defaultBranch,
     currentVersion,
+    currentMajor,
     preReleaseName,
   });
 } catch (e) {
@@ -8712,9 +8717,12 @@ module.exports = function (tags, branches) {
     return fixTag;
   }
 
-  async function processProduct({ releaseBranchPrefix, type, preReleaseName, branch, dryRun }) {
+  async function processProduct({ releaseBranchPrefix, type, preReleaseName, currentMajor, branch, dryRun }) {
     if (type === TYPE_PRE_RELEASE) {
-      const preReleaseVersion = await branches.calcPreReleaseVersionBasedOnReleaseBranches(0, releaseBranchPrefix);
+      const preReleaseVersion = await branches.calcPreReleaseVersionBasedOnReleaseBranches(
+        currentMajor,
+        releaseBranchPrefix
+      );
       return tags.createProductPreReleaseTag(releaseBranchPrefix, preReleaseVersion, preReleaseName, branch, dryRun);
     }
 
@@ -8748,13 +8756,23 @@ const newTagger = __webpack_require__(1123);
 const newBranches = __webpack_require__(7972);
 const newComponents = __webpack_require__(1212);
 const newProduct = __webpack_require__(9031);
-const { MODE_COMPONENT, MODE_PRODUCT } = __webpack_require__(8154);
+const { MODE_COMPONENT, MODE_PRODUCT, MODE_QUERY } = __webpack_require__(8154);
 
 async function run(
   octokit,
   owner,
   repo,
-  { componentPrefix, releaseBranchPrefix, mode, type, dryRun, defaultBranch, currentVersion, preReleaseName }
+  {
+    componentPrefix,
+    releaseBranchPrefix,
+    mode,
+    type,
+    dryRun,
+    defaultBranch,
+    currentVersion,
+    currentMajor,
+    preReleaseName,
+  }
 ) {
   const tags = newTagger(octokit, owner, repo);
   const branches = newBranches(octokit, owner, repo);
@@ -8771,6 +8789,7 @@ async function run(
     dryRun,
     defaultBranch,
     currentVersion,
+    currentMajor,
     preReleaseName,
   };
   console.log(options);
@@ -8778,6 +8797,20 @@ async function run(
   let tag;
 
   switch (mode) {
+    case MODE_QUERY:
+      // component-last-version
+      tag = components.getLastComponentReleaseTag(componentPrefix);
+
+      if (!tag) {
+        core.setFailed('Tag not found');
+        return;
+      }
+
+      console.log(`Found tag '${tag}'.`);
+
+      core.setOutput('tag', tag);
+      break;
+
     case MODE_COMPONENT:
       tag = await components.createComponentTag({
         prefix: componentPrefix,
@@ -8799,6 +8832,7 @@ async function run(
         releaseBranchPrefix,
         type,
         preReleaseName,
+        currentMajor,
         branch: defaultBranch,
         dryRun,
       });
@@ -8938,7 +8972,7 @@ module.exports = function (octokit, owner, repo) {
     console.log('Tag ref created: ', createTagData.ref);
   }
 
-  async function createComponentFixTag(prefix, branch, version, dryRun) {
+  async function createComponentFixTag(prefix, version, branch, dryRun) {
     const { major, minor, patch } = parseVersion(version);
     const releaseTag = `${prefix}v${major}.${minor}.${patch + 1}`;
 
@@ -8978,7 +9012,7 @@ module.exports = function (octokit, owner, repo) {
     createTag,
     getLastPreReleaseTag,
     getLatestTagFromReleaseVersion,
-    getLastComponentReleaseTag, // TODO: remove from export and fix tests
+    getLastComponentReleaseTag,
     createComponentFixTag,
     createComponentFinalTag,
     createProductPreReleaseTag,
@@ -8998,6 +9032,7 @@ module.exports = {
   TYPE_NEW_RELEASE_BRANCH: 'new-release-branch',
   MODE_COMPONENT: 'component',
   MODE_PRODUCT: 'product',
+  MODE_QUERY: 'query',
 };
 
 

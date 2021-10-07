@@ -93,7 +93,7 @@ module.exports = function (octokit, owner, repo) {
     console.log('Tag ref created: ', createTagData.ref);
   }
 
-  async function createComponentFixTag(prefix, branch, version, dryRun) {
+  async function createComponentFixTag(prefix, version, branch, dryRun) {
     const { major, minor, patch } = parseVersion(version);
     const releaseTag = `${prefix}v${major}.${minor}.${patch + 1}`;
 
@@ -133,7 +133,7 @@ module.exports = function (octokit, owner, repo) {
     createTag,
     getLastPreReleaseTag,
     getLatestTagFromReleaseVersion,
-    getLastComponentReleaseTag, // TODO: remove from export and fix tests
+    getLastComponentReleaseTag,
     createComponentFixTag,
     createComponentFinalTag,
     createProductPreReleaseTag,

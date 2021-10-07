@@ -12,6 +12,7 @@ const type = core.getInput('type');
 const mode = core.getInput('mode');
 const defaultBranch = core.getInput('default-branch');
 const currentVersion = core.getInput('current-version');
+const currentMajor = core.getInput('current-major');
 
 // Initialize Octokit
 const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
@@ -26,6 +27,7 @@ try {
     dryRun,
     defaultBranch,
     currentVersion,
+    currentMajor,
     preReleaseName,
   });
 } catch (e) {

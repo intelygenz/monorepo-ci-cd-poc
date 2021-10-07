@@ -79,8 +79,8 @@ jobs:
         id: release_tag
         uses: ./.github/actions
         with:
-          mode: 'release'
-          release-branch: ${{ env.BRANCH }}
+          mode: 'product'
+          type: 'final'
           dry-run: true
 
 
@@ -105,14 +105,16 @@ jobs:
         uses: ./.github/actions
         with:
           prefix: "hello-"
-          mode: 'component-get-last-version'
+          mode: 'query'
+          type: 'component-last-version'
 
       - name: ByeBye Component Version
         id: byebye_version
         uses: ./.github/actions
         with:
           prefix: "byebye-"
-          mode: 'component-get-last-version'
+          mode: 'query'
+          type: 'component-last-version'
 
       - name: App Version
         id: get_version
@@ -161,10 +163,10 @@ jobs:
       - name: Generate a pre-release
         uses: ./.github/actions
         with:
+          mode: 'product'
+          type: 'pre-release'
+          release-branch-prefix: "release/v"
           current-major: 0
-          prefix: "release/v"
-          mode: 'pre-release'
-          pre-release: 'rc'
 
 
   create-fix-tag:
@@ -191,13 +193,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Get branch name
-        run: |
-          echo "BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
-
       - name: Generate a release
         id: release_tag
         uses: ./.github/actions
         with:
-          mode: 'release'
-          release-branch: ${{ env.BRANCH }}
+          mode: 'product'
+          type: 'final'

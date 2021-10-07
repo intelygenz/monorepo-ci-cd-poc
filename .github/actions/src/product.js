@@ -66,9 +66,12 @@ module.exports = function (tags, branches) {
     return fixTag;
   }
 
-  async function processProduct({ releaseBranchPrefix, type, preReleaseName, branch, dryRun }) {
+  async function processProduct({ releaseBranchPrefix, type, preReleaseName, currentMajor, branch, dryRun }) {
     if (type === TYPE_PRE_RELEASE) {
-      const preReleaseVersion = await branches.calcPreReleaseVersionBasedOnReleaseBranches(0, releaseBranchPrefix);
+      const preReleaseVersion = await branches.calcPreReleaseVersionBasedOnReleaseBranches(
+        currentMajor,
+        releaseBranchPrefix
+      );
       return tags.createProductPreReleaseTag(releaseBranchPrefix, preReleaseVersion, preReleaseName, branch, dryRun);
     }
 
