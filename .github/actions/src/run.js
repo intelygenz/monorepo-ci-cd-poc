@@ -46,7 +46,7 @@ async function run(
   switch (mode) {
     case MODE_QUERY:
       // component-last-version
-      tag = components.getLastComponentReleaseTag(componentPrefix);
+      tag = tags.getLastComponentReleaseTag(componentPrefix);
 
       if (!tag) {
         core.setFailed('Tag not found');
