@@ -6,7 +6,7 @@ helloWorld:
 byebyeWorld:
   repository: local/byebye-world
   pullPolicy: IfNotPresent
-  tag: byebye-v0.10.0
+  tag: byebye-v0.11.0
 ingress:
   enabled: false
   className: ''
