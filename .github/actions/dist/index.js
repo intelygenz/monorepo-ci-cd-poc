@@ -8586,6 +8586,9 @@ module.exports = function (tags) {
     if (type === TYPE_FIX) {
       version = version.replace(`${prefix}`, '');
       const releaseBranch = github.context.payload.ref.replace('refs/heads/', '');
+      console.log(
+        `Creating fix for version ${version} on branch ${releaseBranch} (ref: ${github.context.payload.ref})`
+      );
       return tags.createComponentFixTag(prefix, version, releaseBranch, dryRun);
     }
 
@@ -8732,7 +8735,9 @@ module.exports = function (tags, branches) {
     }
 
     if (type === TYPE_FIX) {
-      const currentBranchName = github.context.ref;
+      const currentBranchName = github.context.ref.replace('refs/heads/', '');
+      console.log(`ref: ${currentBranchName}`);
+      console.log(`payload: ${github.context.payload}`);
       return createProductFixTag(releaseBranchPrefix, currentBranchName, dryRun);
     }
 
