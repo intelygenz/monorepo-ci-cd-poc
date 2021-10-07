@@ -81,9 +81,10 @@ module.exports = function (tags, branches) {
     }
 
     if (type === TYPE_FIX) {
-      const currentBranchName = github.context.ref.replace('refs/heads/', '');
-      console.log(`ref: ${currentBranchName}`);
-      console.log('payload:', github.context.payload);
+      let currentBranchName = github.context.ref.replace('refs/heads/', '');
+      if (github.context.payload) {
+        currentBranchName = github.context.payload.workflow_run.head_branch;
+      }
       return createProductFixTag(releaseBranchPrefix, currentBranchName, dryRun);
     }
 

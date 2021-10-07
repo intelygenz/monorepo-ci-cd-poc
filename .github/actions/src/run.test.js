@@ -411,7 +411,12 @@ describe('product', () => {
       preReleaseName: '',
     };
 
-    github.context.ref = 'refs/heads/release/v0.23';
+    github.context.ref = 'refs/heads/main';
+    github.context.payload = {
+      workflow_run: {
+        head_branch: 'release/v0.23',
+      },
+    };
 
     await run(octokitMock, owner, repo, params);
 
