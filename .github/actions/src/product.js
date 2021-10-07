@@ -48,6 +48,7 @@ module.exports = function (tags, branches) {
 
     return releaseTag;
   }
+
   async function createProductFixTag(releaseBranchPrefix, currentBranchName, dryRun) {
     const releaseVersion = currentBranchName.replace(releaseBranchPrefix, '');
     const tag = await tags.getLatestTagFromReleaseVersion(releaseVersion);

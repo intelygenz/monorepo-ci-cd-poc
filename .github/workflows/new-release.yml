@@ -4,13 +4,13 @@ on:
   workflow_dispatch:
 
 jobs:
-  generate-prerelease:
+  create-release-branch:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Generate a release
+      - name: Generate a new release branch
         uses: ./.github/actions
         with:
           release-branch-prefix: "release/v"
