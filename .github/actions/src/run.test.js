@@ -334,13 +334,13 @@ describe('component', () => {
       type: 'fix',
       dryRun: false,
       defaultBranch: 'main',
-      currentVersion: 'v0.98.0',
-      currentMajor: 0,
+      currentVersion: 'hello-v0.98.0',
+      currentMajor: '0',
       preReleaseName: '',
     };
 
     github.context.payload = {
-      workflow_run: { head_branch: 'release/v0.22' },
+      ref: 'refs/heads/release/v0.22',
     };
 
     await run(octokitMock, owner, repo, params);
