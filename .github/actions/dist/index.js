@@ -8584,8 +8584,7 @@ const { TYPE_FIX, TYPE_FINAL } = __webpack_require__(8154);
 module.exports = function (tags) {
   async function createComponentTag({ prefix, type, version, branch, dryRun }) {
     if (type === TYPE_FIX) {
-      console.log('github.context.payload', github.context.payload);
-      const releaseBranch = github.context.payload.workflow_run.head_branch;
+      const releaseBranch = github.context.payload.ref.replace('refs/heads/');
       return tags.createComponentFixTag(prefix, version, releaseBranch, dryRun);
     }
 

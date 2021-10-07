@@ -5,8 +5,7 @@ const { TYPE_FIX, TYPE_FINAL } = require('./types');
 module.exports = function (tags) {
   async function createComponentTag({ prefix, type, version, branch, dryRun }) {
     if (type === TYPE_FIX) {
-      console.log('github.context.payload', github.context.payload);
-      const releaseBranch = github.context.payload.workflow_run.head_branch;
+      const releaseBranch = github.context.payload.ref.replace('refs/heads/');
       return tags.createComponentFixTag(prefix, version, releaseBranch, dryRun);
     }
 
