@@ -8799,7 +8799,7 @@ async function run(
   switch (mode) {
     case MODE_QUERY:
       // component-last-version
-      tag = tags.getLastComponentReleaseTag(componentPrefix);
+      tag = await tags.getLastComponentReleaseTag(componentPrefix);
 
       if (!tag) {
         core.setFailed('Tag not found');
