@@ -2,11 +2,11 @@ replicaCount: 1
 helloWorld:
   repository: local/hello-world
   pullPolicy: IfNotPresent
-  tag: '{}'
+  tag: v0.24-.1
 byebyeWorld:
   repository: local/byebye-world
   pullPolicy: IfNotPresent
-  tag: '{}'
+  tag: v0.24-.1
 ingress:
   enabled: false
   className: ''
