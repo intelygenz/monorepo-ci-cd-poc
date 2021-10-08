@@ -8,6 +8,13 @@ on:
     paths:
       - "byebye-world/**/*"
       - ".github/byebye-quality*"
+  push:
+    branches:
+      - main
+      - "release/v*"
+    paths:
+      - "byebye-world/**/*"
+      - ".github/byebye-quality*"
 
 
 env:

@@ -8,6 +8,13 @@ on:
     paths:
       - "hello-world/**/*"
       - ".github/hello-quality*"
+  push:
+    branches:
+      - main
+      - "release/v*"
+    paths:
+      - "hello-world/**/*"
+      - ".github/hello-quality*"
 
 
 env:
