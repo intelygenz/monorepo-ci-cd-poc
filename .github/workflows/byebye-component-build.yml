@@ -1,11 +1,10 @@
 name: ByeBye Component Build
 
 on:
-  push:
-    branches-ignore:
-      - "v*"
-    tags-ignore:
-      - "**"
+  pull_request:
+    branches:
+      - main
+      - "release/v*"
     paths:
       - "byebye-world/**/*"
       - ".github/byebye-quality*"
