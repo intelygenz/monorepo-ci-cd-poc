@@ -48,6 +48,7 @@ module.exports = function (tags, branches) {
 
     return releaseTag;
   }
+
   async function createProductFixTag(releaseBranchPrefix, currentBranchName, dryRun) {
     const releaseVersion = currentBranchName.replace(releaseBranchPrefix, '');
     const tag = await tags.getLatestTagFromReleaseVersion(releaseVersion);
@@ -80,7 +81,10 @@ module.exports = function (tags, branches) {
     }
 
     if (type === TYPE_FIX) {
-      const currentBranchName = github.context.ref;
+      let currentBranchName = github.context.ref.replace('refs/heads/', '');
+      if (github.context.payload) {
+        currentBranchName = github.context.payload.workflow_run.head_branch;
+      }
       return createProductFixTag(releaseBranchPrefix, currentBranchName, dryRun);
     }
 

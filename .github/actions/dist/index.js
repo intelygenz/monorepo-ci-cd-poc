@@ -8584,7 +8584,11 @@ const { TYPE_FIX, TYPE_FINAL } = __webpack_require__(8154);
 module.exports = function (tags) {
   async function createComponentTag({ prefix, type, version, branch, dryRun }) {
     if (type === TYPE_FIX) {
-      const releaseBranch = github.context.payload.workflow_run.head_branch;
+      version = version.replace(`${prefix}`, '');
+      const releaseBranch = github.context.payload.ref.replace('refs/heads/', '');
+      console.log(
+        `Creating fix for version ${version} on branch ${releaseBranch} (ref: ${github.context.payload.ref})`
+      );
       return tags.createComponentFixTag(prefix, version, releaseBranch, dryRun);
     }
 
@@ -8699,6 +8703,7 @@ module.exports = function (tags, branches) {
 
     return releaseTag;
   }
+
   async function createProductFixTag(releaseBranchPrefix, currentBranchName, dryRun) {
     const releaseVersion = currentBranchName.replace(releaseBranchPrefix, '');
     const tag = await tags.getLatestTagFromReleaseVersion(releaseVersion);
@@ -8731,7 +8736,10 @@ module.exports = function (tags, branches) {
     }
 
     if (type === TYPE_FIX) {
-      const currentBranchName = github.context.ref;
+      let currentBranchName = github.context.ref.replace('refs/heads/', '');
+      if (github.context.payload) {
+        currentBranchName = github.context.payload.workflow_run.head_branch;
+      }
       return createProductFixTag(releaseBranchPrefix, currentBranchName, dryRun);
     }
 
