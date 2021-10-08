@@ -1,11 +1,10 @@
 name: Hello Component Build
 
 on:
-  push:
-    branches-ignore:
-      - "v*"
-    tags-ignore:
-      - "**"
+  pull_request:
+    branches:
+      - main
+      - "release/v*"
     paths:
       - "hello-world/**/*"
       - ".github/hello-quality*"
