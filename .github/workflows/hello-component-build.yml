@@ -19,6 +19,6 @@ on:
 
 jobs:
   build:
-    uses: ./.github/workflows/components-build.yml@${{ github.sha }}
+    uses: intelygenz/monorepo-ci-cd-poc/.github/actions/components-build.yml@${{ github.sha }}
     with:
       component: "hello"
