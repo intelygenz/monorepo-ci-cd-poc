@@ -18,6 +18,6 @@ on:
 
 jobs:
   build:
-    uses: intelygenz/monorepo-ci-cd-poc/.github/workflows/components-build.yml@${{ github.sha }}
+    uses: intelygenz/monorepo-ci-cd-poc/.github/workflows/components-build.yml@feature/hello-1
     with:
       component: "byebye"
