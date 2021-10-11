@@ -17,11 +17,8 @@ on:
       - ".github/hello-quality*"
 
 
-env:
-  GITHUB_TOKEN: ${{ secrets.PATNAME }}
-
 jobs:
   build:
-    uses: ./.github/workflows/components-build.yml
+    uses: ./.github/workflows/components-build.yml@${{ github.sha }}
     with:
       component: "hello"
