@@ -47,9 +47,9 @@ module.exports = function (octokit, owner, repo) {
    * - If there aren't any then the next release version is v{currentMajor}.0.
    * - If there are any, sum one to the greatest minor version
    *
-   * @param currentMajor Current major version of the release cycle
-   * @param releaseBranchPrefix The release branch refix (eg. release/)
-   * @returns {Promise<string>}
+   * @param currentMajor Current major version of the release cycle.
+   * @param releaseBranchPrefix The release branch refix (eg. release/).
+   * @returns {String} The calculated pre-release version.
    */
   async function calcPreReleaseVersionBasedOnReleaseBranches(currentMajor, releaseBranchPrefix) {
     const branches = await getAllBranchesNames();
@@ -74,7 +74,7 @@ module.exports = function (octokit, owner, repo) {
     // if no branches with the current major version is found, then the next pre-release cycle
     // is v${major}.${minor}
     if (releaseBranchesForCurrentManjor.length === 0) {
-      return `v${major}.${minor}`;
+      return `${major}.${minor}`;
     }
 
     // take the greatest minor and sum one
@@ -83,7 +83,7 @@ module.exports = function (octokit, owner, repo) {
     major = parseInt(matches[1]);
     minor = parseInt(matches[2]);
 
-    return `v${major}.${minor + 1}`;
+    return `${major}.${minor + 1}`;
   }
 
   return {

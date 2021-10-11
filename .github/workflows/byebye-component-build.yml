@@ -82,7 +82,7 @@ jobs:
           mode: 'component'
           type: 'fix'
           component-prefix: "byebye-"
-          current-version: ${{ steps.component_version.outputs.TAG }}
+          current-tag: ${{ steps.component_version.outputs.TAG }}
 
 
   build-release:

@@ -5,6 +5,9 @@ const newComponents = require('./components');
 const newProduct = require('./product');
 const { MODE_COMPONENT, MODE_PRODUCT, MODE_QUERY } = require('./types');
 
+/**
+ * Runs an action based on the mode and the type.
+ **/
 async function run(
   octokit,
   owner,
@@ -16,7 +19,7 @@ async function run(
     type,
     dryRun,
     defaultBranch,
-    currentVersion,
+    currentComponentTag,
     currentMajor,
     preReleaseName,
   }
@@ -27,7 +30,7 @@ async function run(
   const product = newProduct(tags, branches);
 
   console.log(`Run action with params: mode ${mode} and type ${type}`);
-  console.log(`mode ${mode} and type ${type}`);
+
   const options = {
     componentPrefix,
     releaseBranchPrefix,
@@ -35,18 +38,18 @@ async function run(
     type,
     dryRun,
     defaultBranch,
-    currentVersion,
+    currentComponentTag,
     currentMajor,
     preReleaseName,
   };
-  console.log(options);
+
+  console.log('Options for the action', options);
 
   let tag;
 
   switch (mode) {
     case MODE_QUERY:
-      // component-last-version
-      tag = await tags.getLastComponentReleaseTag(componentPrefix);
+      tag = await tags.getLastTagWithPrefix(componentPrefix);
 
       if (!tag) {
         core.setFailed('Tag not found');
@@ -58,10 +61,10 @@ async function run(
       break;
 
     case MODE_COMPONENT:
-      tag = await components.createComponentTag({
+      tag = await components.processComponent({
         prefix: componentPrefix,
         type,
-        version: currentVersion,
+        currentTag: currentComponentTag,
         branch: defaultBranch,
         dryRun,
       });
@@ -82,7 +85,15 @@ async function run(
         branch: defaultBranch,
         dryRun,
       });
+
+      if (!tag) {
+        return core.setFailed('Tag creation failed');
+      }
+
+      console.log(`🚀 New product tag '${tag}' created`);
+
       break;
+
     default:
       return core.setFailed(`Unknown mode "${mode}"`);
   }

@@ -1,14 +1,31 @@
-const { parseVersion } = require('./strings');
 
 module.exports = function (octokit, owner, repo) {
-  async function getLastComponentReleaseTag(prefix) {
+
+  /**
+   * Returns the last tag with a prefix.
+   *
+   * @param prefix The prefix to search tags on.
+   * @returns {String} The last tag found with the given prefix.
+   */
+  async function getLastTagWithPrefix(prefix) {
     return getLastTag(`^${prefix}`);
   }
 
+  /**
+   * Returns the last pre-release tag.
+   *
+   * @returns {String} The last pre-release tag found.
+   */
   async function getLastPreReleaseTag() {
     return getLastTag(`^v[0-9]+.[0-9]+-`);
   }
 
+  /**
+   * Returns the last tag matching a given regex.
+   *
+   * @param regex The regex.
+   * @returns {String} The last tag matching the given regex.
+   */
   async function getLastTag(regex) {
     const tagNames = await getAllTagsNames();
     const tagsWithComponent = tagNames.filter((tagName) => {
@@ -21,6 +38,12 @@ module.exports = function (octokit, owner, repo) {
     return null;
   }
 
+  /**
+   * Returns the last tag created for the given release version.
+   *
+   * @param releaseVersion The release version (eg. 3.4).
+   * @returns {String} The last tag created for the given {releaseVersion}.
+   */
   async function getLatestTagFromReleaseVersion(releaseVersion) {
     const tagNames = await getAllTagsNames();
     const tagsWithPrefix = tagNames.filter((tagName) => tagName.match(`^v${releaseVersion}.[0-9]+$`));
@@ -30,6 +53,11 @@ module.exports = function (octokit, owner, repo) {
     return null;
   }
 
+  /**
+   * Returns all tags names in the repo.
+   *
+   * @returns {List} List with all existing tags names.
+   */
   async function getAllTagsNames() {
     let tagNames = [];
     let data_length = 0;
@@ -50,22 +78,37 @@ module.exports = function (octokit, owner, repo) {
     return tagNames;
   }
 
+  /**
+   * Calculates and return the next pre-release tag.
+   *
+   * The tag is calculated checking for the next pre-release number in the given pre-release version.
+   *
+   * @param preReleaseVersion The pre-release version to calculate the next tag. (eg. 3.4)
+   * @param preReleaseName The name of the pre-release (eg. rc)
+   * @returns {String} The calculated tag.
+   */
   async function calcPrereleaseTag(preReleaseVersion, preReleaseName) {
     const tagNames = await getAllTagsNames();
-    const tagsWithPrefix = tagNames.filter((tagName) => tagName.match(`^${preReleaseVersion}-${preReleaseName}`));
+    const tagsWithPrefix = tagNames.filter((tagName) => tagName.match(`^v${preReleaseVersion}-${preReleaseName}`));
 
     if (tagsWithPrefix.length === 0) {
-      return `${preReleaseVersion}-${preReleaseName}.0`;
+      return `v${preReleaseVersion}-${preReleaseName}.0`;
     }
 
-    const regex = new RegExp(`^${preReleaseVersion}-${preReleaseName}.(\\d+)$`, 'g');
+    const regex = new RegExp(`^v${preReleaseVersion}-${preReleaseName}.(\\d+)$`, 'g');
     const releaseTag = tagsWithPrefix[0];
 
     const matches = regex.exec(releaseTag);
     const bumpVersion = parseInt(matches[1]);
-    return `${preReleaseVersion}-${preReleaseName}.${bumpVersion + 1}`;
+    return `v${preReleaseVersion}-${preReleaseName}.${bumpVersion + 1}`;
   }
 
+  /**
+   * Creates a tag in a given branch.
+   *
+   * @param tagName The tag name to create.
+   * @param branch The branch in which to create the tag.
+   */
   async function createTag(tagName, branch) {
     console.log('Creating tag');
     const { data: branchData } = await octokit.repos.getBranch({
@@ -93,49 +136,11 @@ module.exports = function (octokit, owner, repo) {
     console.log('Tag ref created: ', createTagData.ref);
   }
 
-  async function createComponentFixTag(prefix, version, branch, dryRun) {
-    const { major, minor, patch } = parseVersion(version);
-    const releaseTag = `${prefix}v${major}.${minor}.${patch + 1}`;
-
-    if (!dryRun) {
-      await createTag(releaseTag, branch);
-    }
-    return releaseTag;
-  }
-
-  async function createComponentFinalTag(prefix, branch, version, dryRun) {
-    const { major, minor } = parseVersion(version);
-    if (major === null || minor === null) {
-      throw Error("can't parse version");
-    }
-    const releaseTag = `${prefix}v${major}.${minor + 1}.0`;
-
-    if (!dryRun) {
-      console.log(`Creating tag ${releaseTag} on branch: ${branch}`);
-
-      await createTag(releaseTag, branch);
-    }
-
-    return releaseTag;
-  }
-
-  async function createProductPreReleaseTag(releaseBranchPrefix, preReleaseVersion, preReleaseName, branch, dryRun) {
-    const preReleaseTag = await calcPrereleaseTag(preReleaseVersion, preReleaseName);
-
-    if (!dryRun) {
-      await createTag(preReleaseTag, branch);
-    }
-
-    return preReleaseTag;
-  }
-
   return {
     createTag,
     getLastPreReleaseTag,
     getLatestTagFromReleaseVersion,
-    getLastComponentReleaseTag,
-    createComponentFixTag,
-    createComponentFinalTag,
-    createProductPreReleaseTag,
+    getLastTagWithPrefix,
+    calcPrereleaseTag,
   };
 };

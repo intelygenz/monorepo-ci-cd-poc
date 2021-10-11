@@ -11,7 +11,7 @@ const preReleaseName = core.getInput('pre-release-name');
 const type = core.getInput('type');
 const mode = core.getInput('mode');
 const defaultBranch = core.getInput('default-branch');
-const currentVersion = core.getInput('current-version');
+const currentComponentTag = core.getInput('current-tag');
 const currentMajor = core.getInput('current-major');
 
 // Initialize Octokit
@@ -26,7 +26,7 @@ try {
     type,
     dryRun,
     defaultBranch,
-    currentVersion,
+    currentComponentTag,
     currentMajor,
     preReleaseName,
   });

@@ -4,47 +4,56 @@ const github = require('@actions/github');
 
 describe('components module', () => {
   const tags = {
-    createComponentFixTag: jest.fn(),
-    createComponentFinalTag: jest.fn(),
-    getLastComponentReleaseTag: jest.fn(),
+    createTag: jest.fn(),
+    getLastTagWithPrefix: jest.fn(),
   };
 
   test('createComponentTag FIX', async () => {
     const components = componentsMod(tags);
 
+    // GIVEN an execution for a fix component with current tag 'test-component-v1.0.0'
     const prefix = 'test-component-';
     const type = TYPE_FIX;
-    const version = 'test-component-v1.0.0';
-    const branch = 'release/v0.1';
+    const currentTag = 'test-component-v1.0.0';
+    // AND the execution branch is a release/v0.1
     github.context.payload = {
       ref: 'refs/heads/release/v0.1',
     };
-    tags.createComponentFixTag.mockReturnValue('v1.0.1');
+    // AND the tag creation returns the exepected tag
+    const expectedTag = 'test-component-v1.0.1'
+    tags.createTag.mockReturnValue(expectedTag);
 
-    const tag = await components.createComponentTag({ prefix, type, version, branch, dryRun: false });
+    // WHEN the component action is processed
+    const tag = await components.processComponent({ prefix, type, currentTag, branch: null, dryRun: false });
 
-    expect(tag).toBe('v1.0.1');
-    expect(tags.createComponentFixTag).toHaveBeenCalledTimes(1);
-    expect(tags.createComponentFixTag).toHaveBeenCalledWith(prefix, 'v1.0.0', branch, false);
+    // THEN the created tag is expectedTag
+    expect(tag).toBe(expectedTag);
+    expect(tags.createTag).toHaveBeenCalledTimes(1);
+    expect(tags.createTag).toHaveBeenCalledWith(expectedTag, 'release/v0.1');
   });
 
   test('createComponentTag FINAL', async () => {
     const components = componentsMod(tags);
 
+    // GIVEN an execution for a final component tag
     const prefix = 'test-component-';
     const type = TYPE_FINAL;
     const branch = 'main';
-    const dryRun = false;
+    // AND the last tag for the component is test-component-v1.0.0
+    tags.getLastTagWithPrefix.mockReturnValue('test-component-v1.0.0');
 
-    tags.createComponentFinalTag.mockReturnValue('v1.1.0');
-    tags.getLastComponentReleaseTag.mockReturnValue('v1.0.0');
+    // AND the tag creation returns the exepected tag
+    const expectedTag = 'test-component-v1.1.0'
+    tags.createTag.mockReturnValue(expectedTag);
 
-    const tag = await components.createComponentTag({ prefix, type, branch, dryRun });
+    // WHEN the component action is processed
+    const tag = await components.processComponent({ prefix, type, branch, dryRun: false });
 
-    expect(tag).toBe('v1.1.0');
-    expect(tags.getLastComponentReleaseTag).toHaveBeenCalledTimes(1);
-    expect(tags.getLastComponentReleaseTag).toHaveBeenCalledWith(prefix);
-    expect(tags.createComponentFinalTag).toHaveBeenCalledTimes(1);
-    expect(tags.createComponentFinalTag).toHaveBeenCalledWith(prefix, branch, 'v1.0.0', false);
+    // THEN the tag is as expected
+    expect(tag).toBe(expectedTag);
+    expect(tags.getLastTagWithPrefix).toHaveBeenCalledTimes(1);
+    expect(tags.getLastTagWithPrefix).toHaveBeenCalledWith(prefix);
+    expect(tags.createTag).toHaveBeenCalledTimes(1);
+    expect(tags.createTag).toHaveBeenCalledWith(expectedTag, branch);
   });
 });
