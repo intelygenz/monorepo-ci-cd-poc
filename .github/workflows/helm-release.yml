@@ -5,6 +5,9 @@ on:
     workflows:
       - "Hello Component Build"
       - "ByeBye Component Build"
+    branches:
+      - main
+      - "release/v*"
     types:
       - completed
   create:
