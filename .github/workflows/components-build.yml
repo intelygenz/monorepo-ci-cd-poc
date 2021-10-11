@@ -1,12 +1,13 @@
 name: Reusable workflow example
 
-env:
-  GITHUB_TOKEN: ${{ secrets.PATNAME }}
-
 on:
   workflow_call:
     inputs:
       component:
+        required: true
+        type: string
+    secrets:
+      github_token:
         required: true
         type: string
 
@@ -14,8 +15,7 @@ jobs:
   quality-checks:
     runs-on: ubuntu-20.04
     steps:
-      - name: CheckOut
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
       - name: Set up Python environment
         uses: actions/setup-python@v1
@@ -43,6 +43,8 @@ jobs:
           mode: 'component'
           type: 'final'
           component-prefix: "${{ inputs.component }}-"
+        env:
+          GITHUB_TOKEN: ${{ secrets.github_token }}
 
 
   create-fix-tag:
@@ -71,6 +73,8 @@ jobs:
           type: 'fix'
           component-prefix: "${{ inputs.component }}-"
           current-version: ${{ steps.component_version.outputs.TAG }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.github_token }}
 
 
   build-release:

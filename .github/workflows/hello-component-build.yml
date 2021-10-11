@@ -22,3 +22,4 @@ jobs:
     uses: intelygenz/monorepo-ci-cd-poc/.github/workflows/components-build.yml@feature/hello-1
     with:
       component: "hello"
+      github_token: ${{ secrets.PATNAME }}
