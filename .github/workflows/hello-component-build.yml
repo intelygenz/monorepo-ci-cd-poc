@@ -118,6 +118,9 @@ jobs:
       #      konstellation/hello-world:${{ steps.version.outputs.tag }}
       #      konstellation/hello-world:latest
 
+      - name: CheckOut
+        uses: actions/checkout@v2
+
       - name: Changelog
         uses: ./.github/actions/git-chglog
         id: Changelog

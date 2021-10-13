@@ -118,11 +118,14 @@ jobs:
       #      konstellation/byebye-world:${{ steps.version.outputs.tag }}
       #      konstellation/byebye-world:latest
 
+      - name: CheckOut
+        uses: actions/checkout@v2
+
       - name: Changelog
         uses: ./.github/actions/git-chglog
         id: Changelog
         with:
-          path: hello-world
+          path: byebye-world
           tag: ${{needs.create-release-tag.outputs.tag}}${{needs.create-fix-tag.outputs.tag}}
 
       - name: Create Release
