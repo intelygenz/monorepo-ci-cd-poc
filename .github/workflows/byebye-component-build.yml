@@ -119,16 +119,18 @@ jobs:
       #      konstellation/byebye-world:latest
 
       - name: Changelog
-        uses: Bullrich/generate-release-changelog@master
+        uses: ./.github/actions/git-chglog
         id: Changelog
-        env:
-          REPO: ${{ github.repository }}
+        with:
+          path: hello-world
+          tag: ${{needs.create-release-tag.outputs.tag}}${{needs.create-fix-tag.outputs.tag}}
+
       - name: Create Release
         id: create_release
         uses: actions/create-release@latest
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          tag_name: ${{needs.create-release-tag.outputs.tag}}${{needs.create-fix-tag.outputs.tag}}
+          release_name: Release ${{needs.create-release-tag.outputs.tag}}${{needs.create-fix-tag.outputs.tag}}
           body: |
             ${{ steps.Changelog.outputs.changelog }}
           draft: false
