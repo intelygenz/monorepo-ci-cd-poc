@@ -1,12 +1,160 @@
-# Workflows
+# Monorepo Tagger Action POC
 
-These workflows are responsible for generating tags and new release branches. The flow is as follows:
+This repository is a POC for using the action located at: https://github.com/marketplace/actions/action-monorepo-version-tags-lifecycle
 
-1. Push changes to `main` branch
-2. The quality workflow for the component that was changed is triggered
-3. A component is tagged on successfully completed quality workflows
-4. A component is built on component tag creation
-5. The helm chart is updated with new pre-release version and component versions on successfully completed 
-component built workflows
-6. A new final release for the helm chart can be manually triggered (new branch + final tag is created)
-7. The helm chart is released on final tags
+## Structure
+
+The repository holds a product with two components.
+
+| | Description |
+| --- | --- |
+| product | Helm chart with two components. Located at `metaapp/` folder |
+| component | Hello Component python app. Located at `hello-world/` folder |
+| component | ByeBye Component python app. Located at `byebye-world/` folder |
+
+## Workflows
+
+There are one workflow for each component, one workflow for the product and another one to create release branches.
+
+### Component Workflow
+
+The workflow runs on:
+ ```yaml
+on:
+  pull_request:
+    branches:
+      - main
+      - "release/v*"
+    paths:
+      - "hello-world/**/*"
+      - ".github/hello-quality*"
+  push:
+    branches:
+      - main
+      - "release/v*"
+    paths:
+      - "hello-world/**/*"
+      - ".github/hello-quality*"
+ ```
+
+<table>
+    <tr><td>Job</td><td>Description></td><td>Conditional on</td></tr>
+    <tr>
+        <td><pre>quality-checks</pre></td>
+        <td>Run all quality checks for the component. Linter & Tests.</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><pre>create-release-tag</pre></td>
+        <td>Creates a new tag for the component.</td>
+        <td>
+            <pre>
+if: github.ref == 'refs/heads/main' # only in main branch
+            </pre>
+        </td>
+    </tr>
+    <tr>
+        <td><pre>create-fix-tag</pre></td>
+        <td>Creates a new tag for the component.</td>
+        <td>
+            <pre>
+if: startsWith(github.ref, 'refs/heads/release') # only in release branches
+            </pre>
+        </td>
+    </tr>
+    <tr>
+        <td><pre>build-release</pre></td>
+        <td>Create a new build artifact for the component.</td>
+        <td>
+            <pre>
+if: |
+  always() &&
+  (needs.create-release-tag.outputs.tag || needs.create-fix-tag.outputs.tag)
+            </pre>
+        </td>
+    </tr>
+</table>
+
+
+### Product Workflow
+
+The workflow runs on:
+ ```yaml
+on:
+  workflow_run:
+    workflows:
+      - "Hello Component Build"
+      - "ByeBye Component Build"
+    types:
+      - completed
+  create:
+ ```
+
+<table>
+    <tr><td>Job</td><td>Description></td><td>Conditional on</td></tr>
+    <tr>
+        <td><pre>[calculate|create]-rc-tag</pre></td>
+        <td>Calculates or creates the next pre-release tag.</td>
+        <td>
+        <pre>
+# Just after a workflow completes successfully and the workflows was triggered in main branch
+if: |
+  github.event.workflow_run.conclusion == 'success' &&
+  github.event.workflow_run.head_branch == 'main'
+        </pre>
+        </td>
+    </tr>
+    <tr>
+        <td><pre>[calculate|create]-fix-tag</pre></td>
+        <td>Calculates or creates the next fix tag.</td>
+        <td>
+        <pre>
+# Just after a workflow completes successfully and the workflows was triggered in a release branch
+if: |
+  github.event.workflow_run.conclusion == 'success' &&
+  startsWith(github.event.workflow_run.head_branch, 'release')
+        </pre>
+        </td>
+    </tr>
+    <tr>
+        <td><pre>[calculate|create]-release-tag</pre></td>
+        <td>Calculates or creates the next release tag</td>
+        <td>
+        <pre>
+if: startsWith(github.ref, 'refs/heads/release') # only in release branches
+        </pre>
+        </td>
+    </tr>
+    <tr>
+        <td><pre>release</pre></td>
+        <td>Release a new version of the product Chart with new versions.</td>
+        <td>
+        <pre>
+if: |
+  always() &&
+  (needs.calculate-rc-tag.outputs.tag || 
+   needs.calculate-fix-tag.outputs.tag || 
+   needs.calculate-release-tag.outputs.tag)
+        </pre>
+        </td>
+    </tr>
+
+</table>
+
+
+### New Release Workflow
+
+The workflow runs on:
+ ```yaml
+on:
+  workflow_dispatch:
+ ```
+
+<table>
+    <tr><td>Job</td><td>Description></td><td>Conditional on</td></tr>
+    <tr>
+        <td><pre>create-release-branch</pre></td>
+        <td>Creates a new release branch.</td>
+        <td></td>
+    </tr>
+</table>
