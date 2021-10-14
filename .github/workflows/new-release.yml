@@ -11,7 +11,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Generate a new release branch
-        uses: ./.github/actions
+        uses: intelygenz/monorepo-tagger-action@v1.0-rc.1
         with:
           release-branch-prefix: "release/v"
           mode: 'product'
