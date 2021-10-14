@@ -19,7 +19,7 @@ echo "${CHANGELOG}"
 echo "----------------------------------------------------------"
 
 CHANGELOG="${CHANGELOG//'%'/'%25'}"
-CHANGELOG="${CHANGELOG//$'\n'/'%0A' - }"
-CHANGELOG=" - ${CHANGELOG//$'\r'/'%0D'}"
+CHANGELOG="${CHANGELOG//$'\n'/'%0A'}"
+CHANGELOG="${CHANGELOG//$'\r'/'%0D'}"
 
 echo "::set-output name=changelog::${CHANGELOG}"
