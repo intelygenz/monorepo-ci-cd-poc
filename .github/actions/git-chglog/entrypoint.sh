@@ -11,11 +11,15 @@ fi
 
 cd $REPO_PATH
 
-echo "::info ::git-chglog executing command: /bin/git-chglog $@"
+echo "::info ::git-chglog executing command: /bin/git-chglog --path $FILTER_PATH $TAG $@"
 CHANGELOG=$(git-chglog --path $FILTER_PATH $TAG $@)
 
 echo "----------------------------------------------------------"
 echo "${CHANGELOG}"
 echo "----------------------------------------------------------"
 
-echo "::set-output name=changelog::$( echo "${CHANGELOG}" | jq -sRr @uri )"
+CHANGELOG="${CHANGELOG//'%'/'%25'}"
+CHANGELOG="${CHANGELOG//$'\n'/'%0A' - }"
+CHANGELOG=" - ${CHANGELOG//$'\r'/'%0D'}"
+
+echo "::set-output name=changelog::${CHANGELOG}"
