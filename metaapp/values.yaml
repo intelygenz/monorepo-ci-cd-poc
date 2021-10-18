@@ -1,4 +1,8 @@
 replicaCount: 1
+app:
+  repository: local/app
+  pullPolicy: IfNotPresent
+  tag: app-v0.0.1
 helloWorld:
   repository: local/hello-world
   pullPolicy: IfNotPresent

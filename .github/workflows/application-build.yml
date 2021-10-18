@@ -90,7 +90,7 @@ jobs:
     needs: [create-release-tag, create-fix-tag]
     runs-on: ubuntu-latest
     outputs:
-      app-version: ${{ steps.set_tag.outputs.APP_VERSION }}
+      app-version: ${{ steps.set_tag.outputs.VERSION }}
     steps:
       #- name: Set up QEMU
       #  uses: docker/setup-qemu-action@v1
@@ -107,9 +107,9 @@ jobs:
       - name: Store tag
         id: set_tag
         run: |
-          APP_VERSION=${{needs.create-release-tag.outputs.tag}}${{needs.create-fix-tag.outputs.tag}}
-          echo Tag set to ${APP_VERSION}
-          echo ::set-output name=APP_VERSION::${APP_VERSION}
+          VERSION=${{needs.create-release-tag.outputs.tag}}${{needs.create-fix-tag.outputs.tag}}
+          echo Tag set to ${VERSION}
+          echo ::set-output name=APP_VERSION::${VERSION}
 
       #- name: Push to Docker Hub
       #  uses: docker/build-push-action@v2
@@ -144,8 +144,8 @@ jobs:
           prerelease: false
 
 
-  chart-update-app-version:
-    needs: build-release
+  chart-update:
+    needs: always() && needs.build-release.outputs.app-version
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -155,6 +155,7 @@ jobs:
       - name: Replace component versions
         run: |
           # set app version and chart version for kdl
+          yq w -i metaapp/values.yaml 'app.tag' ${{ needs.build-release.outputs.app-version }}
           yq w -i metaapp/Chart.yaml 'appVersion' ${{ needs.build-release.outputs.app-version }}
           echo 'appVersion' ${{ needs.build-release.outputs.app-version }}
 

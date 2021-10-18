@@ -5,6 +5,7 @@ on:
     workflows:
       - "Hello Component Build"
       - "ByeBye Component Build"
+      - "App Component Build"
     types:
       - completed
   create:
@@ -100,46 +101,28 @@ jobs:
         with:
           ref: ${{ github.event.workflow_run.head_branch }} # Checkout the branch in the original workflow
 
-      - name: Hello Component Version
-        id: hello_version
-        uses: intelygenz/monorepo-tagger-action@v1.0-rc.1
-        with:
-          component-prefix: "hello-"
-          mode: 'query'
-          type: 'component-last-version'
-
-      - name: ByeBye Component Version
-        id: byebye_version
-        uses: intelygenz/monorepo-tagger-action@v1.0-rc.1
-        with:
-          component-prefix: "byebye-"
-          mode: 'query'
-          type: 'component-last-version'
-
       - name: App Version
         id: get_version
         # When setting the version just one of the 3 vars will have a value
         run: |
-          CHART_VERSION=${{needs.calculate-rc-tag.outputs.tag}}${{needs.calculate-fix-tag.outputs.tag}}${{needs.calculate-release-tag.outputs.tag}}
-          echo ::set-output name=CHART_VERSION::${CHART_VERSION}
+          VERSION=${{needs.calculate-rc-tag.outputs.tag}}${{needs.calculate-fix-tag.outputs.tag}}${{needs.calculate-release-tag.outputs.tag}}
+          echo ::set-output name=VERSION::${VERSION}
 
       - uses: chrisdickinson/setup-yq@latest
       - name: Replace component versions
         run: |
           # set app version and chart version for kdl
-          yq w -i metaapp/Chart.yaml 'version' ${{ steps.get_version.outputs.CHART_VERSION }}
+          yq w -i metaapp/Chart.yaml 'version' ${{ steps.get_version.outputs.VERSION }}
 
           # debug output
-          echo 'version' ${{ steps.get_version.outputs.CHART_VERSION }}
+          echo 'version' ${{ steps.get_version.outputs.VERSION }}
 
       - name: Commit files
         run: |
           git config user.name "$GITHUB_ACTOR"
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
-          git commit -m "Update chart to version ${{ steps.get_version.outputs.CHART_VERSION }} [skip-ci]" -a
+          git commit -m "Update chart to version ${{ steps.get_version.outputs.VERSION }} [skip-ci]" -a
           git push
-
-      # Publish Chart
 
 
   create-rc-tag:
