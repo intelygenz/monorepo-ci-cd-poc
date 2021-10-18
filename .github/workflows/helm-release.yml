@@ -120,8 +120,7 @@ jobs:
         id: get_version
         # When setting the version just one of the 3 vars will have a value
         run: |
-          APP_VERSION=${{needs.calculate-rc-tag.outputs.tag}}${{needs.calculate-fix-tag.outputs.tag}}${{needs.calculate-release-tag.outputs.tag}}
-          CHART_VERSION=`echo "${APP_VERSION}" | sed -e 's/v//g' | sed -e 's/-rc.*/.0/g'`
+          CHART_VERSION=${{needs.calculate-rc-tag.outputs.tag}}${{needs.calculate-fix-tag.outputs.tag}}${{needs.calculate-release-tag.outputs.tag}}
           echo ::set-output name=CHART_VERSION::${CHART_VERSION}
 
       - uses: chrisdickinson/setup-yq@latest
