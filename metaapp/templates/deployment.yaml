@@ -15,17 +15,24 @@ spec:
         app.kubernetes.io/name: metaapp
     spec:
       containers:
+        - name: app
+          image: "{{ .Values.app.repository }}:{{ .Values.app.tag }}"
+          imagePullPolicy: {{ .Values.app.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
         - name: hello-world
           image: "{{ .Values.helloWorld.repository }}:{{ .Values.helloWorld.tag }}"
           imagePullPolicy: {{ .Values.helloWorld.pullPolicy }}
           ports:
             - name: http
-              containerPort: 8080
+              containerPort: 8081
               protocol: TCP
         - name: byebye-world
           image: "{{ .Values.byebyeWorld.repository }}:{{ .Values.byebyeWorld.tag }}"
           imagePullPolicy: {{ .Values.byebyeWorld.pullPolicy }}
           ports:
             - name: http
-              containerPort: 8081
+              containerPort: 8082
               protocol: TCP

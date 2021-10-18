@@ -1,4 +1,4 @@
-name: Hello Component Build
+name: App Application Build
 
 on:
   pull_request:
@@ -6,15 +6,13 @@ on:
       - main
       - "release/v*"
     paths:
-      - "hello-world/**/*"
-      - ".github/hello-quality*"
+      - "app/**/*"
   push:
     branches:
       - main
       - "release/v*"
     paths:
-      - "hello-world/**/*"
-      - ".github/hello-quality*"
+      - "app/**/*"
 
 
 env:
@@ -54,7 +52,7 @@ jobs:
         with:
           mode: 'component'
           type: 'final'
-          component-prefix: "hello-"
+          component-prefix: "app-"
 
 
   create-fix-tag:
@@ -64,14 +62,14 @@ jobs:
     outputs:
        tag: ${{ steps.fix_tag.outputs.tag }}
     steps:
-      - name: CheckOutversion
+      - name: CheckOut
         uses: actions/checkout@v2
 
       - uses: chrisdickinson/setup-yq@latest
       - name: Get component versions
         id: component_version
         run: |
-          TAG=`yq r metaapp/values.yaml 'helloWorld.tag'`
+          TAG=`yq r metaapp/values.yaml 'app.tag'`
           echo ::set-output name=TAG::${TAG}
           echo Component version in release branch is ${TAG}
 
@@ -81,7 +79,7 @@ jobs:
         with:
           mode: 'component'
           type: 'fix'
-          component-prefix: "hello-"
+          component-prefix: "app-"
           current-tag: ${{ steps.component_version.outputs.TAG }}
 
 
@@ -92,7 +90,7 @@ jobs:
     needs: [create-release-tag, create-fix-tag]
     runs-on: ubuntu-latest
     outputs:
-      component-version: ${{ steps.set_tag.outputs.VERSION }}
+      app-version: ${{ steps.set_tag.outputs.APP_VERSION }}
     steps:
       #- name: Set up QEMU
       #  uses: docker/setup-qemu-action@v1
@@ -109,31 +107,29 @@ jobs:
       - name: Store tag
         id: set_tag
         run: |
-          VERSION=${{needs.create-release-tag.outputs.tag}}${{needs.create-fix-tag.outputs.tag}}
-          echo Tag set to ${VERSION}
-          echo ::set-output name=VERSION::${VERSION}
+          APP_VERSION=${{needs.create-release-tag.outputs.tag}}${{needs.create-fix-tag.outputs.tag}}
+          echo Tag set to ${APP_VERSION}
+          echo ::set-output name=APP_VERSION::${APP_VERSION}
 
       #- name: Push to Docker Hub
       #  uses: docker/build-push-action@v2
       #  with:
-      #    context: ./hello-world
-      #    file: ./hello-world/Dockerfile
+      #    context: ./app
+      #    file: ./app/Dockerfile
       #    platforms: linux/amd64
       #    push: true
       #    tags: |
-      #      konstellation/hello-world:${{ steps.version.outputs.tag }}
-      #      konstellation/hello-world:latest
+      #      konstellation/app:${{ steps.version.outputs.tag }}
+      #      konstellation/app:latest
 
       - name: CheckOut
         uses: actions/checkout@v2
-        with:
-          ref: ${{needs.create-release-tag.outputs.tag}}${{needs.create-fix-tag.outputs.tag}}
 
       - name: Changelog
         uses: ./.github/actions/git-chglog
         id: Changelog
         with:
-          path: hello-world
+          path: app
           tag: ${{needs.create-release-tag.outputs.tag}}${{needs.create-fix-tag.outputs.tag}}
 
       - name: Create Release
@@ -148,7 +144,7 @@ jobs:
           prerelease: false
 
 
-  chart-update-values:
+  chart-update-app-version:
     needs: build-release
     runs-on: ubuntu-latest
     steps:
@@ -159,12 +155,12 @@ jobs:
       - name: Replace component versions
         run: |
           # set app version and chart version for kdl
-          yq w -i metaapp/values.yaml 'helloWorld.tag' ${{ needs.build-release.outputs.app-version }}
-          echo 'component version' ${{ needs.build-release.outputs.app-version }}
+          yq w -i metaapp/Chart.yaml 'appVersion' ${{ needs.build-release.outputs.app-version }}
+          echo 'appVersion' ${{ needs.build-release.outputs.app-version }}
 
       - name: Commit files
         run: |
           git config user.name "$GITHUB_ACTOR"
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
-          git commit -m "Update hello component to ${{ needs.build-release.outputs.app-version }} [skip-ci]" -a
+          git commit -m "Update chart app version to ${{ needs.build-release.outputs.app-version }} [skip-ci]" -a
           git push
