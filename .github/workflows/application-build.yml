@@ -109,7 +109,7 @@ jobs:
         run: |
           VERSION=${{needs.create-release-tag.outputs.tag}}${{needs.create-fix-tag.outputs.tag}}
           echo Tag set to ${VERSION}
-          echo ::set-output name=APP_VERSION::${VERSION}
+          echo ::set-output name=VERSION::${VERSION}
 
       #- name: Push to Docker Hub
       #  uses: docker/build-push-action@v2
@@ -130,14 +130,14 @@ jobs:
         id: Changelog
         with:
           path: app
-          tag: ${{needs.create-release-tag.outputs.tag}}${{needs.create-fix-tag.outputs.tag}}
+          tag: ${{ steps.set_tag.outputs.VERSION }}
 
       - name: Create Release
         id: create_release
         uses: actions/create-release@latest
         with:
-          tag_name: ${{needs.create-release-tag.outputs.tag}}${{needs.create-fix-tag.outputs.tag}}
-          release_name: Release ${{needs.create-release-tag.outputs.tag}}${{needs.create-fix-tag.outputs.tag}}
+          tag_name: ${{ steps.set_tag.outputs.VERSION }}
+          release_name: Release ${{ steps.set_tag.outputs.VERSION }}
           body: |
             ${{ steps.Changelog.outputs.changelog }}
           draft: false
