@@ -10,7 +10,7 @@ on:
     workflows:
       - "Hello Component Build"
       - "ByeBye Component Build"
-      - "App Component Build"
+      - "App Application Build"
     types:
       - completed
   create:
