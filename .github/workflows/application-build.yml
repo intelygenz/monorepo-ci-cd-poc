@@ -145,7 +145,8 @@ jobs:
 
 
   chart-update:
-    needs: always() && needs.build-release.outputs.app-version
+    if: always() && needs.build-release.outputs.app-version
+    needs: build-release
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
