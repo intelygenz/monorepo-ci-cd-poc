@@ -1,3 +1,8 @@
+# This workflow is responsible for releasing the helm chart:
+# - Updates the version attribute in the Chart.yml file
+# - Commit the changes
+# - Creates a new product tag for the release
+
 name: Helm Release
 
 on:
