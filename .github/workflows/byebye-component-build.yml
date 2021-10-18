@@ -7,14 +7,14 @@ on:
       - "release/v*"
     paths:
       - "byebye-world/**/*"
-      - ".github/byebye-quality*"
+      - ".github/workflows/byebye-*"
   push:
     branches:
       - main
       - "release/v*"
     paths:
       - "byebye-world/**/*"
-      - ".github/byebye-quality*"
+      - ".github/workflows/byebye-*"
 
 
 env:

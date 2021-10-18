@@ -6,11 +6,12 @@ This repository is a POC for using the action located at: https://github.com/mar
 
 The repository holds a product with two components.
 
-| | Description |
-| --- | --- |
-| product | Helm chart with two components. Located at `metaapp/` folder |
-| component | Hello Component python app. Located at `hello-world/` folder |
-| component | ByeBye Component python app. Located at `byebye-world/` folder |
+| | Description | Location |
+| --- | --- | --- |
+| product | Main application in python. | `app` folder |
+| product deploy | Helm chart with two components. | `metaapp/` folder |
+| component | Hello Component python app. | `hello-world/` folder |
+| component | ByeBye Component python app. | `byebye-world/` folder |
 
 ## Workflows
 
@@ -27,14 +28,14 @@ on:
       - "release/v*"
     paths:
       - "hello-world/**/*"
-      - ".github/hello-quality*"
+      - ".github/workflows/hello-*"
   push:
     branches:
       - main
       - "release/v*"
     paths:
       - "hello-world/**/*"
-      - ".github/hello-quality*"
+      - ".github/workflows/hello-*"
  ```
 
 <table>
@@ -85,9 +86,9 @@ on:
     workflows:
       - "Hello Component Build"
       - "ByeBye Component Build"
+      - "App Application Build"
     types:
       - completed
-  create:
  ```
 
 <table>
@@ -113,15 +114,6 @@ if: |
 if: |
   github.event.workflow_run.conclusion == 'success' &&
   startsWith(github.event.workflow_run.head_branch, 'release')
-        </pre>
-        </td>
-    </tr>
-    <tr>
-        <td><pre>[calculate|create]-release-tag</pre></td>
-        <td>Calculates or creates the next release tag</td>
-        <td>
-        <pre>
-if: startsWith(github.ref, 'refs/heads/release') # only in release branches
         </pre>
         </td>
     </tr>
@@ -155,6 +147,16 @@ on:
     <tr>
         <td><pre>create-release-branch</pre></td>
         <td>Creates a new release branch.</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><pre>[calculate/create]-release-tag</pre></td>
+        <td>Calculates the next release tag.</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><pre>release</pre></td>
+        <td>Generates a new release of the chart.</td>
         <td></td>
     </tr>
 </table>

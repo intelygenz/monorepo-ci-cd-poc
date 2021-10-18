@@ -7,14 +7,14 @@ on:
       - "release/v*"
     paths:
       - "hello-world/**/*"
-      - ".github/hello-quality*"
+      - ".github/workflows/hello-*"
   push:
     branches:
       - main
       - "release/v*"
     paths:
       - "hello-world/**/*"
-      - ".github/hello-quality*"
+      - ".github/workflows/hello-*"
 
 
 env:
