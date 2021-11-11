@@ -31715,7 +31715,7 @@ const yaml = __webpack_require__(1917);
 const path = __webpack_require__(5622);
 const lodash = __webpack_require__(250);
 const core = __webpack_require__(2186);
-const { exec } = __webpack_require__(1514);
+const actions = __webpack_require__(1514);
 
 
 module.exports = function () {
@@ -31734,6 +31734,7 @@ module.exports = function () {
     core.debug("parsed files are ", versionFiles);
 
     let updatedContent;
+    let filesUpdated = 0;
 
     versionFiles.forEach((file) => {
       core.debug("file ", file);
@@ -31744,27 +31745,31 @@ module.exports = function () {
       }
 
       const ymlObj = yaml.load(fs.readFileSync(file.file, 'utf8'));
-      core.debug(`YML file ${file.file} contents: `, doc)
+      core.debug(`YML file ${file.file} contents: `, ymlObj)
 
       core.debug(`Parsed JSON: ${JSON.stringify(ymlObj)}`);
 
       // update the object property with the version
-      lodash.update(ymlObj, property, () => version);
+      lodash.update(ymlObj, file.property, () => version);
 
       // write to actual file
-      writeToFile(yaml.dump(ymlObj), filePath);
+      writeToFile(yaml.dump(ymlObj), file.file);
+      filesUpdated ++
     });
 
     // commit the files
-    return await commitChanges(branch, commitMessage, author, authorEmail);
+    if (filesUpdated > 0 ){
+      return await commitChanges(branch, commitMessage, author, authorEmail);
+    }
   }
 
   async function commitChanges (branch, commitMessage, authorName, authorEmail) {
-    await exec('git', [ 'checkout', branch ]);
-    await exec('git', [ 'add', '-A' ])
-    await exec('git', [ 'config', '--local', 'user.name', authorName ])
-    await exec('git', [ 'config', '--local', 'user.email', authorEmail ])
-    await exec('git', [ 'commit', '--no-verify', '-m', commitMessage ])
+    await actions.exec('git', [ 'checkout', branch ]);
+    await actions.exec('git', [ 'add', '-A' ])
+    await actions.exec('git', [ 'config', '--local', 'user.name', authorName ])
+    await actions.exec('git', [ 'config', '--local', 'user.email', authorEmail ])
+    await actions.exec('git', [ 'commit', '--no-verify', '-m', commitMessage ])
+    await actions.exec('git', [ 'push' ])
   }
 
   function writeToFile(yamlString, filePath) {

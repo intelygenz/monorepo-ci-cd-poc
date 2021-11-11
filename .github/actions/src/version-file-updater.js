@@ -3,7 +3,7 @@ const yaml = require('js-yaml');
 const path = require('path');
 const lodash = require('lodash');
 const core = require('@actions/core');
-const { exec } = require('@actions/exec');
+const actions = require('@actions/exec');
 
 
 module.exports = function () {
@@ -22,6 +22,7 @@ module.exports = function () {
     core.debug("parsed files are ", versionFiles);
 
     let updatedContent;
+    let filesUpdated = 0;
 
     versionFiles.forEach((file) => {
       core.debug("file ", file);
@@ -41,18 +42,22 @@ module.exports = function () {
 
       // write to actual file
       writeToFile(yaml.dump(ymlObj), file.file);
+      filesUpdated ++
     });
 
     // commit the files
-    return await commitChanges(branch, commitMessage, author, authorEmail);
+    if (filesUpdated > 0 ){
+      return await commitChanges(branch, commitMessage, author, authorEmail);
+    }
   }
 
   async function commitChanges (branch, commitMessage, authorName, authorEmail) {
-    await exec('git', [ 'checkout', branch ]);
-    await exec('git', [ 'add', '-A' ])
-    await exec('git', [ 'config', '--local', 'user.name', authorName ])
-    await exec('git', [ 'config', '--local', 'user.email', authorEmail ])
-    await exec('git', [ 'commit', '--no-verify', '-m', commitMessage ])
+    await actions.exec('git', [ 'checkout', branch ]);
+    await actions.exec('git', [ 'add', '-A' ])
+    await actions.exec('git', [ 'config', '--local', 'user.name', authorName ])
+    await actions.exec('git', [ 'config', '--local', 'user.email', authorEmail ])
+    await actions.exec('git', [ 'commit', '--no-verify', '-m', commitMessage ])
+    await actions.exec('git', [ 'push' ])
   }
 
   function writeToFile(yamlString, filePath) {
