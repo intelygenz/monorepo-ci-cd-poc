@@ -32,15 +32,15 @@ module.exports = function () {
       }
 
       const ymlObj = yaml.load(fs.readFileSync(file.file, 'utf8'));
-      core.debug(`YML file ${file.file} contents: `, doc)
+      core.debug(`YML file ${file.file} contents: `, ymlObj)
 
       core.debug(`Parsed JSON: ${JSON.stringify(ymlObj)}`);
 
       // update the object property with the version
-      lodash.update(ymlObj, property, () => version);
+      lodash.update(ymlObj, file.property, () => version);
 
       // write to actual file
-      writeToFile(yaml.dump(ymlObj), filePath);
+      writeToFile(yaml.dump(ymlObj), file.file);
     });
 
     // commit the files
