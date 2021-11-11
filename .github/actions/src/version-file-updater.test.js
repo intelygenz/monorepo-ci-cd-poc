@@ -1,6 +1,6 @@
 const updaterMod = require('./version-file-updater');
 const fs = require('fs');
-const {exec} = require('@actions/exec');
+const { exec } = require('@actions/exec');
 
 describe('update file with version', () => {
 
