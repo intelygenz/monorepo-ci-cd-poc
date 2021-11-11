@@ -16,7 +16,7 @@ describe('update file with version', () => {
   test('two writes for an array of two files', async () => {
     const updater = updaterMod();
     const files = '[{"file": "metaapp/values.yaml", "property": "app.tag"}, {"file": "metaapp/Chart.yaml", "property": "appVersion"}]'
-    updater.updateVersionInFileAndCommit(files, version, branch, commitMessage, author, authorEmail)
+    await updater.updateVersionInFileAndCommit(files, version, branch, commitMessage, author, authorEmail)
 
     expect(fs.writeFile).toHaveBeenCalledTimes(2);
     expect(actions.exec).toHaveBeenCalledTimes(5);
