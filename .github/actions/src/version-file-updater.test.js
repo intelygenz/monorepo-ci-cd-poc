@@ -5,7 +5,7 @@ const exec = require('@actions/exec');
 describe('update file with version', () => {
 
   fs.writeFile = jest.fn();
-  exec.exec = jest.fn();
+  jest.mock('@actions/exec', () => ({ exec: ()=> jest.fn() }));
 
   const version = 'v3.4';
   const branch = 'main';
