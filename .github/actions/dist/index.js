@@ -27647,14 +27647,11 @@ module.exports = function () {
   }
 
   async function commitFile (branch, commitMessage, authorName, authorEmail) {
-    let sha;
     await exec('git', [ 'checkout', branch ]);
     await exec('git', [ 'add', '-A' ])
     await exec('git', [ 'config', '--local', 'user.name', authorName ])
     await exec('git', [ 'config', '--local', 'user.email', authorEmail ])
     await exec('git', [ 'commit', '--no-verify', '-m', commitMessage ])
-    await exec('git', [ 'rev-parse', 'HEAD' ], { listeners: { stdout: buffer => sha += buffer.toString() }})
-    return sha;
   }
 
   // Notice that readFile's utf8 is typed differently from Github's utf-8
