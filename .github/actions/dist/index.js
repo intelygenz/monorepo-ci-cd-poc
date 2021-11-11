@@ -27622,13 +27622,16 @@ module.exports = function () {
   async function updateVersionInFileAndCommit(files, version, branch, commitMessage, author, authorEmail) {
 
     const versionFiles = JSON.parse(files);
+    core.debug("parsed files are ", versionFiles);
+
     let updatedContent;
 
-    for (file in versionFiles) {
+    versionFiles.forEach((file) => {
+      core.debug("file ", file);
       // only yml files
       if (!file.file.endsWith('.yml') && !file.file.endsWith('.yaml')) {
         core.error(`Only yml files are valid to update the version.`);
-        continue;
+        return;
       }
 
       const yml = getFileAsUTF8(file.file);
@@ -27640,13 +27643,13 @@ module.exports = function () {
 
       // write to actual file
       writeToFile(JSON.stringify(ymlObj), filePath);
-    }
+    });
 
     // commit the files
-    return await commitFile(branch, commitMessage, author, authorEmail);
+    return await commitChanges(branch, commitMessage, author, authorEmail);
   }
 
-  async function commitFile (branch, commitMessage, authorName, authorEmail) {
+  async function commitChanges (branch, commitMessage, authorName, authorEmail) {
     await exec('git', [ 'checkout', branch ]);
     await exec('git', [ 'add', '-A' ])
     await exec('git', [ 'config', '--local', 'user.name', authorName ])
