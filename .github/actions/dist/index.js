@@ -31286,8 +31286,8 @@ const currentComponentTag = core.getInput('current-tag');
 const currentMajor = core.getInput('current-major');
 const updateVersionsIn = core.getInput('update-versions-in');
 const commitMessage = core.getInput('commit-message');
-const author = core.getInput('commit-author');
-const authorEmail = core.getInput('commit-author-email');
+const commitAuthor = core.getInput('commit-author');
+const commitAuthorEmail = core.getInput('commit-author-email');
 
 // Initialize Octokit
 const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
@@ -31306,8 +31306,8 @@ try {
     preReleaseName,
     updateVersionsIn,
     commitMessage,
-    author,
-    authorEmail,
+    commitAuthor,
+    commitAuthorEmail,
   });
 } catch (e) {
   core.setFailed(`RUN ERROR: \n\t${e}`);
@@ -31734,23 +31734,23 @@ module.exports = function () {
    */
   async function updateVersionInFileAndCommit(files, version, branch, commitMessage, author, authorEmail) {
     const versionFiles = JSON.parse(files);
-    core.debug('parsed files are ', versionFiles);
+    console.log('parsed files are ', versionFiles);
 
     let updatedContent;
     let filesUpdated = 0;
 
     versionFiles.forEach((file) => {
-      core.debug('file ', file);
+      console.log('file ', file);
       // only yml files
       if (!file.file.endsWith('.yml') && !file.file.endsWith('.yaml')) {
-        core.error(`Only yml files are valid to update the version.`);
+        console.log(`Only yml files are valid to update the version.`);
         return;
       }
 
       const ymlObj = yaml.load(fs.readFileSync(file.file, 'utf8'));
-      core.debug(`YML file ${file.file} contents: `, ymlObj);
+      console.log(`YML file ${file.file} contents: `, ymlObj);
 
-      core.debug(`Parsed JSON: ${JSON.stringify(ymlObj)}`);
+      console.log(`Parsed JSON: ${JSON.stringify(ymlObj)}`);
 
       // update the object property with the version
       lodash.update(ymlObj, file.property, () => version);
@@ -31778,7 +31778,7 @@ module.exports = function () {
   function writeToFile(yamlString, filePath) {
     fs.writeFile(filePath, yamlString, (err) => {
       if (err) {
-        core.warning(err.message);
+        console.log(err.message);
         throw err;
       }
     });
