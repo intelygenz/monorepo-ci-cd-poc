@@ -27,7 +27,7 @@ async function run(
     updateVersionsIn,
     commitMessage,
     commitAuthor,
-    commitAuthorEmail
+    commitAuthorEmail,
   }
 ) {
   const tags = newTagger(octokit, owner, repo);
@@ -95,10 +95,16 @@ async function run(
   }
 
   if (!dryRun) {
-
     // update version filess before the tag is made
     if (updateVersionsIn != false) {
-      await versionFileUpdater.updateVersionInFileAndCommit(updateVersionsIn, branchToTag, commitMessage, commitAuthor, commitAuthorEmail);
+      await versionFileUpdater.updateVersionInFileAndCommit(
+        updateVersionsIn,
+        tag,
+        branchToTag,
+        commitMessage,
+        commitAuthor,
+        commitAuthorEmail
+      );
       console.log(`Version updated in file ${versionFile}`);
     }
 

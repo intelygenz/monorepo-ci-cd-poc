@@ -5,7 +5,6 @@ const yamlReal = require('js-yaml');
 const actions = require('@actions/exec');
 
 describe('update file with version', () => {
-
   fs.writeFile = jest.fn();
   yaml.load = jest.fn();
   actions.exec = jest.fn();
@@ -14,17 +13,22 @@ describe('update file with version', () => {
   let version = 'v3.4';
   let branch = 'main';
   let commitMessage = 'test commit message';
-  let author = "author";
-  let authorEmail = "author@email.com";
+  let author = 'author';
+  let authorEmail = 'author@email.com';
 
   test('error on no yml file', async () => {
     // GIVEN a file that is not yml
-    const files = [
-      {file: "metaapp/values.js", property: "app.tag"}
-    ];
+    const files = [{ file: 'metaapp/values.js', property: 'app.tag' }];
 
     // WHEN the updater is executed
-    await updater.updateVersionInFileAndCommit(JSON.stringify(files), version, branch, commitMessage, author, authorEmail);
+    await updater.updateVersionInFileAndCommit(
+      JSON.stringify(files),
+      version,
+      branch,
+      commitMessage,
+      author,
+      authorEmail
+    );
 
     // THEN no writes and no commits are made
     expect(fs.writeFile).toHaveBeenCalledTimes(0);
@@ -34,12 +38,19 @@ describe('update file with version', () => {
   test('two writes for an array of two files', async () => {
     // GIVEN an array with two files to update
     const files = [
-      {file: "metaapp/values.yaml", property: "app.tag"},
-      {file: "metaapp/Chart.yaml", property: "appVersion"}
+      { file: 'metaapp/values.yaml', property: 'app.tag' },
+      { file: 'metaapp/Chart.yaml', property: 'appVersion' },
     ];
 
     // WHEN the updater is executed
-    await updater.updateVersionInFileAndCommit(JSON.stringify(files), version, branch, commitMessage, author, authorEmail);
+    await updater.updateVersionInFileAndCommit(
+      JSON.stringify(files),
+      version,
+      branch,
+      commitMessage,
+      author,
+      authorEmail
+    );
 
     // THEN two file writes occurs
     expect(fs.writeFile).toHaveBeenCalledTimes(2);
@@ -47,14 +58,19 @@ describe('update file with version', () => {
 
   test('writes a file with updated version', async () => {
     // GIVEN a file to be updated
-    const files = [
-      {file: "metaapp/values.yaml", property: "app.tag"}
-    ];
+    const files = [{ file: 'metaapp/values.yaml', property: 'app.tag' }];
     // AND the contents of the file is as follows
-    yaml.load.mockReturnValue({app: {tag: 1}});
+    yaml.load.mockReturnValue({ app: { tag: 1 } });
 
     // WHEN the updater is executed
-    await updater.updateVersionInFileAndCommit(JSON.stringify(files), version, branch, commitMessage, author, authorEmail);
+    await updater.updateVersionInFileAndCommit(
+      JSON.stringify(files),
+      version,
+      branch,
+      commitMessage,
+      author,
+      authorEmail
+    );
 
     // THEN one file is written
     expect(fs.writeFile).toHaveBeenCalledTimes(1);
@@ -65,12 +81,17 @@ describe('update file with version', () => {
 
   test('changes are commited', async () => {
     // GIVEN a file to be updated
-    const files = [
-      {file: "metaapp/values.yaml", property: "app.tag"}
-    ];
+    const files = [{ file: 'metaapp/values.yaml', property: 'app.tag' }];
 
     // WHEN the updater is executed
-    await updater.updateVersionInFileAndCommit(JSON.stringify(files), version, branch, commitMessage, author, authorEmail);
+    await updater.updateVersionInFileAndCommit(
+      JSON.stringify(files),
+      version,
+      branch,
+      commitMessage,
+      author,
+      authorEmail
+    );
 
     // THEN file was commited
     expect(actions.exec).toHaveBeenCalledTimes(6);
@@ -88,7 +109,6 @@ describe('update file with version', () => {
     expect(configNameParams[3]).toBe(author); // config --local user.name author
     expect(configEmailParams[3]).toBe(authorEmail); // config --local user.name authorEmail
     expect(commitParams[3]).toBe(commitMessage); // config --local user.name authorEmail
-    expect(pushParams[0]).toBe("push"); // push
+    expect(pushParams[0]).toBe('push'); // push
   });
-
 });
