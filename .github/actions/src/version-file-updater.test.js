@@ -19,7 +19,7 @@ describe('update file with version', () => {
     updater.updateVersionInFileAndCommit(files, version, branch, commitMessage, author, authorEmail)
 
     expect(fs.writeFile).toHaveBeenCalledTimes(2);
-    expect(exec.exec).toHaveBeenCalledTimes(2);
+    expect(exec).toHaveBeenCalledTimes(2);
   });
 
 });
