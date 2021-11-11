@@ -4,7 +4,7 @@ const fs = require('fs');
 describe('update file with version', () => {
 
   jest.mock('fs')
-  
+
   const version = 'v3.4';
   const branch = 'main';
   const commitMessage = 'test commit message';
@@ -16,7 +16,7 @@ describe('update file with version', () => {
     const files = '[{"file": "metaapp/values.yaml", "property": "app.tag"}, {"file": "metaapp/Chart.yaml", "property": "appVersion"}]'
     updater.updateVersionInFileAndCommit(files, version, branch, commitMessage, author, authorEmail)
 
-    //expect(fs.writeToFile).toHaveBeenCalledTimes(1);
+    expect(fs.writeToFile).toHaveBeenCalledTimes(1);
   });
 
 });
