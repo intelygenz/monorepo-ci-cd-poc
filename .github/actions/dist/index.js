@@ -27621,7 +27621,7 @@ module.exports = function () {
    */
   async function updateVersionInFileAndCommit(files, version, branch, commitMessage, author, authorEmail) {
 
-    const versionFiles = JSON.parse(updateVersionsIn);
+    const versionFiles = JSON.parse(files);
     let updatedContent;
 
     for (file in versionFiles) {
