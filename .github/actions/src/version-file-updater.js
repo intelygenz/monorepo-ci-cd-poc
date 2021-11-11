@@ -1,4 +1,5 @@
 const fs = require('fs');
+const yaml = require('js-yaml');
 const path = require('path');
 const lodash = require('lodash');
 const core = require('@actions/core');
@@ -30,15 +31,16 @@ module.exports = function () {
         return;
       }
 
-      const yml = getFileAsUTF8(file.file);
-      const ymlObj = JSON.parse(yml);
+      const ymlObj = yaml.load(fs.readFileSync(file.file, 'utf8'));
+      core.debug(`YML file ${file.file} contents: `, doc)
+
       core.debug(`Parsed JSON: ${JSON.stringify(ymlObj)}`);
 
       // update the object property with the version
       lodash.update(ymlObj, property, () => version);
 
       // write to actual file
-      writeToFile(JSON.stringify(ymlObj), filePath);
+      writeToFile(yaml.dump(ymlObj), filePath);
     });
 
     // commit the files
@@ -51,17 +53,6 @@ module.exports = function () {
     await exec('git', [ 'config', '--local', 'user.name', authorName ])
     await exec('git', [ 'config', '--local', 'user.email', authorEmail ])
     await exec('git', [ 'commit', '--no-verify', '-m', commitMessage ])
-  }
-
-  // Notice that readFile's utf8 is typed differently from Github's utf-8
-  function getFileAsUTF8(filePath) {
-    const absolutePath = path.join(process.cwd(), filePath);
-    core.debug(`FilePath: ${absolutePath}`);
-
-    if (!fs.existsSync(absolutePath)) {
-      throw new Error(`could not parse file with path: ${absolutePath}`);
-    }
-    return fs.readFileSync(filePath, 'utf8');
   }
 
   function writeToFile(yamlString, filePath) {
