@@ -1,11 +1,11 @@
 const updaterMod = require('./version-file-updater');
 const fs = require('fs');
-const { exec } = require('@actions/exec');
+const actions = require('@actions/exec');
 
 describe('update file with version', () => {
 
   fs.writeFile = jest.fn();
-  jest.mock('@actions/exec');
+  actions.exec = jest.fn();
 
   const version = 'v3.4';
   const branch = 'main';
@@ -19,7 +19,7 @@ describe('update file with version', () => {
     updater.updateVersionInFileAndCommit(files, version, branch, commitMessage, author, authorEmail)
 
     expect(fs.writeFile).toHaveBeenCalledTimes(2);
-    expect(exec).toHaveBeenCalledTimes(2);
+    expect(actions.exec).toHaveBeenCalledTimes(5);
   });
 
 });
