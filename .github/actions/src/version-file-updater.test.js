@@ -3,7 +3,7 @@ const fs = require('fs');
 
 describe('update file with version', () => {
 
-  jest.mock('fs');
+  fs.writeFile = jest.fn();
 
   const version = 'v3.4';
   const branch = 'main';
