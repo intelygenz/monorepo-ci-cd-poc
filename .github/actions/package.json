@@ -4,7 +4,9 @@
   "main": "index.js",
   "dependencies": {
     "@actions/core": "1.6.0",
-    "@actions/github": "4.0.0"
+    "@actions/exec": "1.1.0",
+    "@actions/github": "4.0.0",
+    "lodash": "4.17.21"
   },
   "devDependencies": {
     "@vercel/ncc": "0.25.0",
@@ -14,20 +16,35 @@
     "eslint-plugin-jest": "24.5.0",
     "eslint-plugin-node": "11.1.0",
     "eslint-plugin-prettier": "4.0.0",
+    "husky": "7.0.4",
     "jest": "27.2.4",
+    "js-yaml": "4.1.0",
+    "lint-staged": "11.2.3",
     "prettier": "2.4.1"
   },
   "scripts": {
     "build": "ncc build src/index.js",
     "test": "jest",
-    "lint": "npm run lint:check",
-    "lint:check": "eslint src",
-    "lint:write": "eslint src --fix"
+    "lint": "npm run lint:check && npm run prettier:check",
+    "prettier:check": "prettier -c src",
+    "lint:check": "eslint src"
   },
   "keywords": [
     "monorepo",
     "version-tags"
   ],
   "author": "Inteygenz",
-  "license": "ISC"
+  "license": "ISC",
+  "lint-staged": {
+    "src/**/*.js": [
+      "eslint --fix src",
+      "prettier --write src",
+      "git add"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  }
 }

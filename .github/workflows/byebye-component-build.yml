@@ -49,12 +49,13 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Generate a release tag
-        uses: intelygenz/monorepo-tagger-action@v1.0-rc.1
+        uses: ./.github/actions
         id: release_tag
         with:
           mode: 'component'
           type: 'final'
           component-prefix: "byebye-"
+          update-versions-in: '[{"file": "metaapp/values.yaml", "property": "byebyeWorld.tag"}]'
 
 
   create-fix-tag:
@@ -76,21 +77,24 @@ jobs:
           echo Component version in release branch is ${TAG}
 
       - name: Generate a fix
-        uses: intelygenz/monorepo-tagger-action@v1.0-rc.1
+        uses: ./.github/actions
         id: fix_tag
         with:
           mode: 'component'
           type: 'fix'
           component-prefix: "byebye-"
           current-tag: ${{ steps.component_version.outputs.TAG }}
+          update-versions-in: '[{"file": "metaapp/values.yaml", "property": "byebyeWorld.tag"}]'
 
 
   build-release:
     if: |
       always() &&
       (needs.create-release-tag.outputs.tag || needs.create-fix-tag.outputs.tag)
-    needs: [create-release-tag, create-fix-tag]
+    needs: [ create-release-tag, create-fix-tag ]
     runs-on: ubuntu-latest
+    outputs:
+      component-version: ${{ steps.set_tag.outputs.VERSION }}
     steps:
       #- name: Set up QEMU
       #  uses: docker/setup-qemu-action@v1
@@ -104,8 +108,12 @@ jobs:
       #    username: ${{ secrets.DOCKERHUB_USERNAME }}
       #    password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Store fix tag
-        run: echo Tag set to ${{needs.create-release-tag.outputs.tag}}${{needs.create-fix-tag.outputs.tag}}
+      - name: Store tag
+        id: set_tag
+        run: |
+          VERSION=${{needs.create-release-tag.outputs.tag}}${{needs.create-fix-tag.outputs.tag}}
+          echo Tag set to ${VERSION}
+          echo ::set-output name=VERSION::${VERSION}
 
       #- name: Push to Docker Hub
       #  uses: docker/build-push-action@v2
@@ -120,6 +128,8 @@ jobs:
 
       - name: CheckOut
         uses: actions/checkout@v2
+        with:
+          ref: ${{needs.create-release-tag.outputs.tag}}${{needs.create-fix-tag.outputs.tag}}
 
       - name: Changelog
         uses: ./.github/actions/git-chglog
@@ -138,3 +148,4 @@ jobs:
             ${{ steps.Changelog.outputs.changelog }}
           draft: false
           prerelease: false
+  

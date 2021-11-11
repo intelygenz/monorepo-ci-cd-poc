@@ -49,12 +49,13 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Generate a release tag
-        uses: intelygenz/monorepo-tagger-action@v1.0-rc.1
+        uses: ./.github/actions
         id: release_tag
         with:
           mode: 'component'
           type: 'final'
           component-prefix: "hello-"
+          update-versions-in: '[{"file": "metaapp/values.yaml", "property": "helloWorld.tag"}]'
 
 
   create-fix-tag:
@@ -76,13 +77,14 @@ jobs:
           echo Component version in release branch is ${TAG}
 
       - name: Generate a fix
-        uses: intelygenz/monorepo-tagger-action@v1.0-rc.1
+        uses: ./.github/actions
         id: fix_tag
         with:
           mode: 'component'
           type: 'fix'
           component-prefix: "hello-"
           current-tag: ${{ steps.component_version.outputs.TAG }}
+          update-versions-in: '[{"file": "metaapp/values.yaml", "property": "helloWorld.tag"}]'
 
 
   build-release:
@@ -146,26 +148,3 @@ jobs:
             ${{ steps.Changelog.outputs.changelog }}
           draft: false
           prerelease: false
-
-
-  chart-update-values:
-    if: always() && needs.build-release.outputs.component-version
-    needs: build-release
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - uses: chrisdickinson/setup-yq@latest
-      - name: Replace component versions
-        run: |
-          # set app version and chart version for kdl
-          yq w -i metaapp/values.yaml 'helloWorld.tag' ${{ needs.build-release.outputs.component-version }}
-          echo 'component version' ${{ needs.build-release.outputs.component-version }}
-
-      - name: Commit files
-        run: |
-          git config user.name "$GITHUB_ACTOR"
-          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
-          git commit -m "Update hello component to ${{ needs.build-release.outputs.component-version }} [skip-ci]" -a
-          git push

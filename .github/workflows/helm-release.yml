@@ -35,7 +35,7 @@ jobs:
 
       - name: Generate a pre-release
         id: rc_tag
-        uses: intelygenz/monorepo-tagger-action@v1.0-rc.1
+        uses: ./.github/actions
         with:
           current-major: 0
           mode: 'product'
@@ -59,7 +59,7 @@ jobs:
 
       - name: Generate a fix tag
         id: fix_tag
-        uses: intelygenz/monorepo-tagger-action@v1.0-rc.1
+        uses: ./.github/actions
         with:
           mode: 'product'
           type: 'fix'
@@ -115,7 +115,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Generate a pre-release
-        uses: intelygenz/monorepo-tagger-action@v1.0-rc.1
+        uses: ./.github/actions
         with:
           mode: 'product'
           type: 'pre-release'
@@ -134,7 +134,7 @@ jobs:
 
       - name: Generate a fix tag
         id: fix_tag
-        uses: intelygenz/monorepo-tagger-action@v1.0-rc.1
+        uses: ./.github/actions
         with:
           mode: 'product'
           type: 'fix'

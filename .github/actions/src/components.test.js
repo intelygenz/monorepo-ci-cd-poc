@@ -19,17 +19,15 @@ describe('components module', () => {
     github.context.payload = {
       ref: 'refs/heads/release/v0.1',
     };
-    // AND the tag creation returns the exepected tag
-    const expectedTag = 'test-component-v1.0.1'
+    // AND the tag creation returns the expected tag
+    const expectedTag = 'test-component-v1.0.1';
     tags.createTag.mockReturnValue(expectedTag);
 
     // WHEN the component action is processed
-    const tag = await components.processComponent({ prefix, type, currentTag, branch: null, dryRun: false });
+    const tag = await components.getComponentTag({ prefix, type, currentTag, branch: null, dryRun: false });
 
     // THEN the created tag is expectedTag
     expect(tag).toBe(expectedTag);
-    expect(tags.createTag).toHaveBeenCalledTimes(1);
-    expect(tags.createTag).toHaveBeenCalledWith(expectedTag, 'release/v0.1');
   });
 
   test('createComponentTag FINAL', async () => {
@@ -43,17 +41,15 @@ describe('components module', () => {
     tags.getLastTagWithPrefix.mockReturnValue('test-component-v1.0.0');
 
     // AND the tag creation returns the exepected tag
-    const expectedTag = 'test-component-v1.1.0'
+    const expectedTag = 'test-component-v1.1.0';
     tags.createTag.mockReturnValue(expectedTag);
 
     // WHEN the component action is processed
-    const tag = await components.processComponent({ prefix, type, branch, dryRun: false });
+    const tag = await components.getComponentTag({ prefix, type, branch, dryRun: false });
 
     // THEN the tag is as expected
     expect(tag).toBe(expectedTag);
     expect(tags.getLastTagWithPrefix).toHaveBeenCalledTimes(1);
     expect(tags.getLastTagWithPrefix).toHaveBeenCalledWith(prefix);
-    expect(tags.createTag).toHaveBeenCalledTimes(1);
-    expect(tags.createTag).toHaveBeenCalledWith(expectedTag, branch);
   });
 });

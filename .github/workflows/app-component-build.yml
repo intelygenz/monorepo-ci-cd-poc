@@ -47,12 +47,13 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Generate a release tag
-        uses: intelygenz/monorepo-tagger-action@v1.0-rc.1
+        uses: ./.github/actions
         id: release_tag
         with:
           mode: 'component'
           type: 'final'
           component-prefix: "app-"
+          update-versions-in: '[{"file": "metaapp/values.yaml", "property": "app.tag"}, {"file": "metaapp/Chart.yaml", "property": "appVersion"}]'
 
 
   create-fix-tag:
@@ -74,13 +75,15 @@ jobs:
           echo Component version in release branch is ${TAG}
 
       - name: Generate a fix
-        uses: intelygenz/monorepo-tagger-action@v1.0-rc.1
+        uses: ./.github/actions
         id: fix_tag
         with:
           mode: 'component'
           type: 'fix'
           component-prefix: "app-"
           current-tag: ${{ steps.component_version.outputs.TAG }}
+          update-versions-in: '[{"file": "metaapp/values.yaml", "property": "app.tag"}, {"file": "metaapp/Chart.yaml", "property": "appVersion"}]'
+
 
 
   build-release:
@@ -142,27 +145,3 @@ jobs:
             ${{ steps.Changelog.outputs.changelog }}
           draft: false
           prerelease: false
-
-
-  chart-update:
-    if: always() && needs.build-release.outputs.app-version
-    needs: build-release
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - uses: chrisdickinson/setup-yq@latest
-      - name: Replace component versions
-        run: |
-          # set app version and chart version for kdl
-          yq w -i metaapp/values.yaml 'app.tag' ${{ needs.build-release.outputs.app-version }}
-          yq w -i metaapp/Chart.yaml 'appVersion' ${{ needs.build-release.outputs.app-version }}
-          echo 'appVersion' ${{ needs.build-release.outputs.app-version }}
-
-      - name: Commit files
-        run: |
-          git config user.name "$GITHUB_ACTOR"
-          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
-          git commit -m "Update chart app version to ${{ needs.build-release.outputs.app-version }} [skip-ci]" -a
-          git push
