@@ -53,6 +53,14 @@ module.exports = function () {
     }
   }
 
+  /**
+   * Commit all changes in a given branch with a given author and commit message.
+   *
+   * @param branch The branch to commit the changes.
+   * @param commitMessage The commit message.
+   * @param authorName The author name.
+   * @param authorEmail The author email.
+   */
   async function commitChanges(branch, commitMessage, authorName, authorEmail) {
     await actions.exec('git', ['checkout', branch]);
     await actions.exec('git', ['add', '-A']);
