@@ -31748,12 +31748,22 @@ module.exports = function () {
       }
 
       const filePath = path.join(process.cwd(), file.file);
-      if (!fs.existsSync(path)) {
-        core.warning(`YML file ${filePath} does not exists`)
-        return;
+      const filePath2 = '/home/runner/work/monorepo-ci-cd-poc/metaapp/values.yaml'
+      if (!fs.existsSync(filePath)) {
+        core.warning(`YML file ${filePath} does not exists`);
       }
+      if (!fs.existsSync(filePath2)) {
+        core.warning(`YML2 file ${filePath2} does not exists`);
+      }
+      if (!fs.existsSync(file.file)) {
+        core.warning(`YML3 file ${filePath2} does not exists`);
+      }
+      if (!fs.existsSync('./metaapp/values.yaml')) {
+        core.warning(`YML4 file ${filePath2} does not exists`);
+      }
+
+
       const ymlObj = yaml.load(fs.readFileSync(filePath, 'utf8'));
-      core.warning(`YML file ${filePath} contents: ${JSON.stringify(ymlObj)}`);
       console.log(`YML file ${filePath} contents: ${JSON.stringify(ymlObj)}`);
 
       // update the object property with the version
