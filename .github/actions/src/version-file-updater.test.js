@@ -1,12 +1,12 @@
 const updaterMod = require('./version-file-updater');
 const fs = require('fs');
-const yaml = require('js-yaml');
-const yamlReal = require('js-yaml');
+const yaml = require('yaml');
+const yamlReal = require('yaml');
 const actions = require('@actions/exec');
 
 describe('update file with version', () => {
   fs.writeFile = jest.fn();
-  yaml.load = jest.fn();
+  yaml.parse = jest.fn();
   actions.exec = jest.fn();
   const updater = updaterMod();
 
@@ -60,7 +60,7 @@ describe('update file with version', () => {
     // GIVEN a file to be updated
     const files = [{ file: 'metaapp/values.yaml', property: 'app.tag' }];
     // AND the contents of the file is as follows
-    yaml.load.mockReturnValue({ app: { tag: 1 } });
+    yaml.parse.mockReturnValue({ app: { tag: 1 } });
 
     // WHEN the updater is executed
     await updater.updateVersionInFileAndCommit(
@@ -75,7 +75,7 @@ describe('update file with version', () => {
     // THEN one file is written
     expect(fs.writeFile).toHaveBeenCalledTimes(1);
     // AND the content that was written has the exepected updated version
-    const updatedContent = yamlReal.load(fs.writeFile.mock.calls[0][1]);
+    const updatedContent = yamlReal.parse(fs.writeFile.mock.calls[0][1]);
     expect(updatedContent.app.tag).toBe(version);
   });
 

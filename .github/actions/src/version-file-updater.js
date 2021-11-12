@@ -1,9 +1,9 @@
 const fs = require('fs');
-const yaml = require('js-yaml');
 const path = require('path');
 const lodash = require('lodash');
 const core = require('@actions/core');
 const actions = require('@actions/exec');
+const yaml = require('yaml');
 
 module.exports = function () {
   /**
@@ -36,14 +36,14 @@ module.exports = function () {
       }
 
       const fileContents = fs.readFileSync(filePath, 'utf8')
-      const ymlObj = yaml.load(fileContents);
+      const ymlObj = yaml.parse(fileContents);
       core.debug(`YML file ${filePath} contents: ${JSON.stringify(ymlObj)}`);
 
       // update the object property with the version
       lodash.update(ymlObj, file.property, () => version);
 
       // write to actual file
-      writeToFile(yaml.dump(ymlObj), file.file);
+      writeToFile(yaml.stringify(ymlObj), file.file);
       filesUpdated++;
     });
 
