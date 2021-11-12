@@ -31752,9 +31752,10 @@ module.exports = function () {
         core.warning(`YML file ${filePath} does not exists`);
         return;
       }
-
-      const ymlObj = yaml.load(fs.readFileSync(filePath, 'utf8'));
-      console.log(`YML file ${filePath} contents: ${JSON.stringify(ymlObj)}`);
+      const fileContents = fs.readFileSync(filePath, 'utf8')
+      console.log(`YML file ${filePath} contents: ${fileContents}`);
+      const ymlObj = yaml.load(fileContents);
+      console.log(`YML file ${filePath} yml obj: ${ymlObj}`);
 
       // update the object property with the version
       lodash.update(ymlObj, file.property, () => version);
