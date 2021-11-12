@@ -31743,12 +31743,17 @@ module.exports = function () {
       console.log('file ', file);
       // only yml files
       if (!file.file.endsWith('.yml') && !file.file.endsWith('.yaml')) {
-        console.log(`Only yml files are valid to update the version.`);
+        core.warn(`Only yml files are valid to update the version.`);
         return;
       }
 
-      const filePath = path.join(process.cwd(), file.file)
+      const filePath = path.join(process.cwd(), file.file);
+      if (!fs.existsSync(path)) {
+        core.warn(`YML file ${filePath} does not exists`)
+        return;
+      }
       const ymlObj = yaml.load(fs.readFileSync(filePath, 'utf8'));
+      core.warn(`YML file ${filePath} contents: ${JSON.stringify(ymlObj)}`);
       console.log(`YML file ${filePath} contents: ${JSON.stringify(ymlObj)}`);
 
       // update the object property with the version
