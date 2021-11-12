@@ -31747,10 +31747,9 @@ module.exports = function () {
         return;
       }
 
-      const ymlObj = yaml.load(fs.readFileSync(file.file, 'utf8'));
-      console.log(`YML file ${file.file} contents: `, ymlObj);
-
-      console.log(`Parsed JSON: ${JSON.stringify(ymlObj)}`);
+      const filePath = path.join(process.cwd(), file.file)
+      const ymlObj = yaml.load(fs.readFileSync(filePath, 'utf8'));
+      console.log(`YML file ${filePath} contents: ${JSON.stringify(ymlObj)}`);
 
       // update the object property with the version
       lodash.update(ymlObj, file.property, () => version);
