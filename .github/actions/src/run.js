@@ -105,7 +105,7 @@ async function run(
         commitAuthor,
         commitAuthorEmail
       );
-      console.log(`Version updated in file ${versionFile}`);
+      console.log(`Version updated in file(s)`);
     }
 
     await tags.createTag(tag, branchToTag);
