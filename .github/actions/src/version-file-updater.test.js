@@ -1,12 +1,10 @@
 const updaterMod = require('./version-file-updater');
 const fs = require('fs');
 const yaml = require('yaml');
-const yamlReal = require('yaml');
 const actions = require('@actions/exec');
 
 describe('update file with version', () => {
   fs.writeFile = jest.fn();
-  yaml.parseDocument = jest.fn();
   actions.exec = jest.fn();
   const updater = updaterMod();
 
@@ -58,9 +56,7 @@ describe('update file with version', () => {
 
   test('writes a file with updated version', async () => {
     // GIVEN a file to be updated
-    const files = [{ file: 'metaapp/values.yaml', property: 'app.tag' }];
-    // AND the contents of the file is as follows
-    yaml.parseDocument.mockReturnValue({ app: { tag: 1 } });
+    const files = [{ file: 'test/file.yaml', property: 'app.tag' }];
 
     // WHEN the updater is executed
     await updater.updateVersionInFileAndCommit(
@@ -75,13 +71,35 @@ describe('update file with version', () => {
     // THEN one file is written
     expect(fs.writeFile).toHaveBeenCalledTimes(1);
     // AND the content that was written has the exepected updated version
-    const updatedContent = yamlReal.parseDocument(fs.writeFile.mock.calls[0][1]);
-    expect(updatedContent.app.tag).toBe(version);
+    const updatedContent = fs.writeFile.mock.calls[0][1];
+    expect(updatedContent).toContain(version);
+  });
+
+  test('preserve comments', async () => {
+    // GIVEN a file to be updated with comments
+    const files = [{ file: 'test/file.yaml', property: 'app.tag' }];
+
+    // WHEN the updater is executed
+    await updater.updateVersionInFileAndCommit(
+        JSON.stringify(files),
+        version,
+        branch,
+        commitMessage,
+        author,
+        authorEmail
+    );
+
+    // THEN one file is written
+    expect(fs.writeFile).toHaveBeenCalledTimes(1);
+    // AND the content that was written has preserved the comments
+    const updatedContent = fs.writeFile.mock.calls[0][1];
+    expect(updatedContent).toContain('# comments');
+    expect(updatedContent).toContain('# inline comment');
   });
 
   test('changes are commited', async () => {
     // GIVEN a file to be updated
-    const files = [{ file: 'metaapp/values.yaml', property: 'app.tag' }];
+    const files = [{ file: 'test/file.yaml', property: 'app.tag' }];
 
     // WHEN the updater is executed
     await updater.updateVersionInFileAndCommit(

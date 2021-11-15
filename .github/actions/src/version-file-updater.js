@@ -1,6 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const lodash = require('lodash');
 const core = require('@actions/core');
 const actions = require('@actions/exec');
 const yaml = require('yaml');
@@ -35,18 +34,16 @@ module.exports = function () {
         return;
       }
 
-      const fileContents = fs.readFileSync(filePath, 'utf8')
+      const fileContents = fs.readFileSync(filePath, 'utf8');
       const ymlObj = yaml.parseDocument(fileContents);
-      console.log(`YML file ${filePath} contents: ${JSON.stringify(ymlObj)}`);
 
       // update the object property with the version
-      lodash.update(ymlObj, file.property, () => version);
+      ymlObj.setIn(file.property.split('.'), version);
       console.log(`Updated ${file.property} to new value ${version}`);
 
       // write to actual file
-      const ymlString = yaml.stringify(ymlObj);
-      writeToFile(ymlString, file.file);
-      console.log(`Updated contents ${ymlString}`);
+      writeToFile(ymlObj.toString(), file.file);
+      console.log(`Updated contents ${ymlObj.toString()}`);
       filesUpdated++;
     });
 
