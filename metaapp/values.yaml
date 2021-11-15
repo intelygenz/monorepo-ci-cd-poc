@@ -7,7 +7,7 @@ app:
 helloWorld:
   repository: local/hello-world
   pullPolicy: IfNotPresent
-  tag: hello-v0.127.0
+  tag: hello-v0.128.0
 byebyeWorld:
   repository: local/byebye-world
   pullPolicy: IfNotPresent
