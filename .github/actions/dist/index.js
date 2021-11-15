@@ -35529,13 +35529,13 @@ module.exports = function () {
    */
   async function updateVersionInFileAndCommit(files, version, branch, commitMessage, author, authorEmail) {
     const versionFiles = JSON.parse(files);
-    core.debug('parsed files are ', versionFiles);
+    console.log('parsed files are ', versionFiles);
 
     let updatedContent;
     let filesUpdated = 0;
 
     versionFiles.forEach((file) => {
-      core.debug('file ', file);
+      console.log('file ', file);
       // only yml files
       if (!file.file.endsWith('.yml') && !file.file.endsWith('.yaml')) {
         core.warning(`Only yml files are valid to update the version.`);
@@ -35550,7 +35550,7 @@ module.exports = function () {
 
       const fileContents = fs.readFileSync(filePath, 'utf8')
       const ymlObj = yaml.parseDocument(fileContents);
-      core.debug(`YML file ${filePath} contents: ${JSON.stringify(ymlObj)}`);
+      console.log(`YML file ${filePath} contents: ${JSON.stringify(ymlObj)}`);
 
       // update the object property with the version
       lodash.update(ymlObj, file.property, () => version);
