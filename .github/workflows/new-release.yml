@@ -87,3 +87,4 @@ jobs:
           mode: 'product'
           type: 'final'
           default-branch: ${{ needs.create-release-branch.outputs.tag }}
+          update-versions-in: '[{"file": "metaapp/Chart.yaml", "property": "version"}]'

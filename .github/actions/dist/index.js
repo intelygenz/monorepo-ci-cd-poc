@@ -35549,7 +35549,7 @@ module.exports = function () {
       }
 
       const fileContents = fs.readFileSync(filePath, 'utf8')
-      const ymlObj = yaml.parse(fileContents);
+      const ymlObj = yaml.parseDocument(fileContents);
       core.debug(`YML file ${filePath} contents: ${JSON.stringify(ymlObj)}`);
 
       // update the object property with the version
@@ -35566,6 +35566,14 @@ module.exports = function () {
     }
   }
 
+  /**
+   * Commit all changes in a given branch with a given author and commit message.
+   *
+   * @param branch The branch to commit the changes.
+   * @param commitMessage The commit message.
+   * @param authorName The author name.
+   * @param authorEmail The author email.
+   */
   async function commitChanges(branch, commitMessage, authorName, authorEmail) {
     await actions.exec('git', ['checkout', branch]);
     await actions.exec('git', ['add', '-A']);

@@ -36,7 +36,7 @@ module.exports = function () {
       }
 
       const fileContents = fs.readFileSync(filePath, 'utf8')
-      const ymlObj = yaml.parse(fileContents);
+      const ymlObj = yaml.parseDocument(fileContents);
       core.debug(`YML file ${filePath} contents: ${JSON.stringify(ymlObj)}`);
 
       // update the object property with the version

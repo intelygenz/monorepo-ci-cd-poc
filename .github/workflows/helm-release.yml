@@ -42,7 +42,7 @@ jobs:
           type: 'pre-release'
           release-branch-prefix: "release/v"
           pre-release-name: 'rc'
-          update-versions-in: '[{"file": "metaapp/values.yaml", "property": "app.tag"}, {"file": "metaapp/Chart.yaml", "property": "appVersion"}]'
+          update-versions-in: '[{"file": "metaapp/Chart.yaml", "property": "version"}]'
 
 
   calculate-fix-tag:
@@ -64,4 +64,4 @@ jobs:
           mode: 'product'
           type: 'fix'
           release-branch-prefix: "release/v"
-          update-versions-in: '[{"file": "metaapp/values.yaml", "property": "app.tag"}, {"file": "metaapp/Chart.yaml", "property": "appVersion"}]'
+          update-versions-in: '[{"file": "metaapp/Chart.yaml", "property": "version"}]'
