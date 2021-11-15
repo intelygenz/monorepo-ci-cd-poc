@@ -35554,9 +35554,12 @@ module.exports = function () {
 
       // update the object property with the version
       lodash.update(ymlObj, file.property, () => version);
+      console.log(`Updated ${file.property} to new value ${version}`);
 
       // write to actual file
-      writeToFile(yaml.stringify(ymlObj), file.file);
+      const ymlString = yaml.stringify(ymlObj);
+      writeToFile(ymlString, file.file);
+      console.log(`Updated contents ${ymlString}`);
       filesUpdated++;
     });
 
