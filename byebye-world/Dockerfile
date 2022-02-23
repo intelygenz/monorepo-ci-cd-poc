@@ -14,7 +14,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . /usr/src/app
 
 # Application Environment variables
-#ENV APP_ENV development
 ENV PORT 8081
 
 # Exposing Ports
