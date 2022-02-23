@@ -19,6 +19,8 @@ env:
   GITHUB_TOKEN: ${{ secrets.PATNAME }}
 
 
+concurrency: helm_release
+
 jobs:
 
   rc-tag:
