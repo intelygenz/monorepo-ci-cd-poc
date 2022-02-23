@@ -18375,7 +18375,7 @@ module.exports = function () {
     await actions.exec('git', ['config', '--local', 'user.name', authorName]);
     await actions.exec('git', ['config', '--local', 'user.email', authorEmail]);
     await actions.exec('git', ['commit', '--no-verify', '-m', commitMessage]);
-    await actions.exec('git', ['pull', 'rebase']);
+    await actions.exec('git', ['pull', '--rebase']);
     await actions.exec('git', ['push']);
   }
 
