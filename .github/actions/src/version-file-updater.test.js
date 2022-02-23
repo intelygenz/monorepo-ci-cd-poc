@@ -1,6 +1,5 @@
 const updaterMod = require('./version-file-updater');
 const fs = require('fs');
-const yaml = require('yaml');
 const actions = require('@actions/exec');
 
 describe('update file with version', () => {
@@ -36,8 +35,8 @@ describe('update file with version', () => {
   test('two writes for an array of two files', async () => {
     // GIVEN an array with two files to update
     const files = [
-      { file: 'metaapp/values.yaml', property: 'app.tag' },
-      { file: 'metaapp/Chart.yaml', property: 'appVersion' },
+      { file: 'test/file.yaml', property: 'app.tag' },
+      { file: 'test/file.yaml', property: 'appVersion' },
     ];
 
     // WHEN the updater is executed
@@ -81,12 +80,12 @@ describe('update file with version', () => {
 
     // WHEN the updater is executed
     await updater.updateVersionInFileAndCommit(
-        JSON.stringify(files),
-        version,
-        branch,
-        commitMessage,
-        author,
-        authorEmail
+      JSON.stringify(files),
+      version,
+      branch,
+      commitMessage,
+      author,
+      authorEmail
     );
 
     // THEN one file is written

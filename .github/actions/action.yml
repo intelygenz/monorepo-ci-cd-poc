@@ -36,6 +36,10 @@ inputs:
     description: 'String representation of an array of objects with file/property keys. If provided the action will update those files/properties with the version that is being released.'
     required: false
     default: false
+  strip-component-from-tag:
+    description: 'If component prefix should be removed from the tag when returning it or using it in a version file'
+    required: false
+    default: false
   commit-message:
     description: 'The message in the commit for version updates.'
     required: false
@@ -47,7 +51,7 @@ inputs:
   commit-author-email:
     description: 'The author email for the commit in the version updates.'
     required: false
-    default: 'tagger-action@automated.com'
+    default: 'no-reply-tagger-action@igz.es'
   dry-run:
     description: 'Enable dry run mode, e.g. "true" or "false"'
     required: false

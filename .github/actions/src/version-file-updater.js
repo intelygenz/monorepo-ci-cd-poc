@@ -17,7 +17,6 @@ module.exports = function () {
     const versionFiles = JSON.parse(files);
     console.log('parsed files are ', versionFiles);
 
-    let updatedContent;
     let filesUpdated = 0;
 
     versionFiles.forEach((file) => {

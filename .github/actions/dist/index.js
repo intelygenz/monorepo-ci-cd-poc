@@ -17863,6 +17863,7 @@ const tagBranch = core.getInput('tag-branch');
 const currentComponentTag = core.getInput('current-tag');
 const currentMajor = core.getInput('current-major');
 const updateVersionsIn = core.getInput('update-versions-in');
+const stripComponentPrefixFromTag = core.getInput('strip-component-from-tag');
 const commitMessage = core.getInput('commit-message');
 const commitAuthor = core.getInput('commit-author');
 const commitAuthorEmail = core.getInput('commit-author-email');
@@ -17883,6 +17884,7 @@ try {
     currentMajor,
     preReleaseName,
     updateVersionsIn,
+    stripComponentPrefixFromTag,
     commitMessage,
     commitAuthor,
     commitAuthorEmail,
@@ -17955,7 +17957,7 @@ module.exports = function (tags, branches) {
 
     if (type === TYPE_FIX) {
       let currentBranchName = github.context.ref.replace('refs/heads/', '');
-      if (github.context.payload) {
+      if (github.context.payload && github.context.payload.workflow_run) {
         currentBranchName = github.context.payload.workflow_run.head_branch;
       }
       return computeProductFixTag(releaseBranchPrefix, currentBranchName);
@@ -18004,6 +18006,7 @@ async function run(
     currentMajor,
     preReleaseName,
     updateVersionsIn,
+    stripComponentPrefixFromTag,
     commitMessage,
     commitAuthor,
     commitAuthorEmail,
@@ -18028,6 +18031,7 @@ async function run(
     currentMajor,
     preReleaseName,
     updateVersionsIn,
+    stripComponentPrefixFromTag,
     commitMessage,
     commitAuthor,
     commitAuthorEmail,
@@ -18047,6 +18051,10 @@ async function run(
 
   if (type === TYPE_FIX) {
     branchToTag = github.context.ref.replace('refs/heads/', '');
+    if (github.context.payload && github.context.payload.workflow_run) {
+      // if executed from a workflow
+      branchToTag = github.context.payload.workflow_run.head_branch;
+    }
   }
 
   switch (mode) {
@@ -18073,12 +18081,17 @@ async function run(
     return core.setFailed('Tag creation failed');
   }
 
+  let effectiveTag = tag;
+  if (stripComponentPrefixFromTag) {
+    effectiveTag = tag.replace(componentPrefix, '');
+  }
+
   if (!dryRun) {
     // update version filess before the tag is made
     if (updateVersionsIn != false) {
       await versionFileUpdater.updateVersionInFileAndCommit(
         updateVersionsIn,
-        tag,
+        effectiveTag,
         branchToTag,
         commitMessage,
         commitAuthor,
@@ -18091,7 +18104,7 @@ async function run(
     console.log(`🚀 New tag '${tag}' created in ${branchToTag}`);
   }
 
-  core.setOutput('tag', tag);
+  core.setOutput('tag', effectiveTag);
 }
 
 module.exports = {
@@ -18313,7 +18326,6 @@ module.exports = function () {
     const versionFiles = JSON.parse(files);
     console.log('parsed files are ', versionFiles);
 
-    let updatedContent;
     let filesUpdated = 0;
 
     versionFiles.forEach((file) => {
