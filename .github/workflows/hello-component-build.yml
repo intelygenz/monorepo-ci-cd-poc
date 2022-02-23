@@ -47,6 +47,8 @@ jobs:
     steps:
       - name: CheckOut
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - name: Generate a release tag
         uses: ./.github/actions
@@ -67,6 +69,8 @@ jobs:
     steps:
       - name: CheckOutversion
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - uses: chrisdickinson/setup-yq@latest
       - name: Get component versions
@@ -129,7 +133,8 @@ jobs:
       - name: CheckOut
         uses: actions/checkout@v2
         with:
-          ref: ${{needs.create-release-tag.outputs.tag}}${{needs.create-fix-tag.outputs.tag}}
+          fetch-depth: 0
+          ref: "hello-${{needs.create-release-tag.outputs.tag}}${{needs.create-fix-tag.outputs.tag}}"
 
       - name: Changelog
         uses: ./.github/actions/git-chglog
