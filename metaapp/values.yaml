@@ -11,7 +11,7 @@ helloWorld:
 byebyeWorld:
   repository: local/byebye-world
   pullPolicy: IfNotPresent
-  tag: v0.15.0
+  tag: v0.16.0
 ingress:
   enabled: false
   className: ""
