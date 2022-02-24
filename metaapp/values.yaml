@@ -3,7 +3,7 @@ replicaCount: 1
 app:
   repository: local/app
   pullPolicy: IfNotPresent
-  tag: app-v0.7.0
+  tag: 0.8.0
 helloWorld:
   repository: local/hello-world
   pullPolicy: IfNotPresent
