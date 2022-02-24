@@ -132,7 +132,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-          ref: "app-${{needs.create-release-tag.outputs.tag}}${{needs.create-fix-tag.outputs.tag}}"
+          ref: "${{needs.create-release-tag.outputs.tag}}${{needs.create-fix-tag.outputs.tag}}"
 
       - name: Changelog
         uses: ./.github/actions/git-chglog
