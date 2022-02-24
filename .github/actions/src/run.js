@@ -25,7 +25,7 @@ async function run(
     currentMajor,
     preReleaseName,
     updateVersionsIn,
-    stripComponentPrefixFromTag,
+    useTagInVersionsFile,
     commitMessage,
     commitAuthor,
     commitAuthorEmail,
@@ -50,7 +50,7 @@ async function run(
     currentMajor,
     preReleaseName,
     updateVersionsIn,
-    stripComponentPrefixFromTag,
+    useTagInVersionsFile,
     commitMessage,
     commitAuthor,
     commitAuthorEmail,
@@ -100,17 +100,20 @@ async function run(
     return core.setFailed('Tag creation failed');
   }
 
-  let effectiveTag = tag;
-  if (stripComponentPrefixFromTag) {
-    effectiveTag = tag.replace(componentPrefix, '');
+  let version = tag.replace(componentPrefix + 'v', '');
+  let versionInFile = version;
+  if (useTagInVersionsFile) {
+    versionInFile = tag;
   }
 
   if (!dryRun) {
     // update version filess before the tag is made
-    if (updateVersionsIn != false) {
+    // default values from action inputs are strings, so we need to compare with a string
+    if (updateVersionsIn != 'false') {
+      console.log(`Update versions in files ${updateVersionsIn}`);
       await versionFileUpdater.updateVersionInFileAndCommit(
         updateVersionsIn,
-        effectiveTag,
+        versionInFile,
         branchToTag,
         commitMessage,
         commitAuthor,
@@ -123,7 +126,8 @@ async function run(
     console.log(`🚀 New tag '${tag}' created in ${branchToTag}`);
   }
 
-  core.setOutput('tag', effectiveTag);
+  core.setOutput('tag', tag);
+  core.setOutput('version', version);
 }
 
 module.exports = {

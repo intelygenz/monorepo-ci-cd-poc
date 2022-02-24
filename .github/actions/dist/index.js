@@ -17863,7 +17863,7 @@ const tagBranch = core.getInput('tag-branch');
 const currentComponentTag = core.getInput('current-tag');
 const currentMajor = core.getInput('current-major');
 const updateVersionsIn = core.getInput('update-versions-in');
-const stripComponentPrefixFromTag = core.getInput('strip-component-from-tag');
+const useTagInVersionsFile = core.getInput('use-tag-in-versions-file');
 const commitMessage = core.getInput('commit-message');
 const commitAuthor = core.getInput('commit-author');
 const commitAuthorEmail = core.getInput('commit-author-email');
@@ -17884,7 +17884,7 @@ try {
     currentMajor,
     preReleaseName,
     updateVersionsIn,
-    stripComponentPrefixFromTag,
+    useTagInVersionsFile,
     commitMessage,
     commitAuthor,
     commitAuthorEmail,
@@ -18006,7 +18006,7 @@ async function run(
     currentMajor,
     preReleaseName,
     updateVersionsIn,
-    stripComponentPrefixFromTag,
+    useTagInVersionsFile,
     commitMessage,
     commitAuthor,
     commitAuthorEmail,
@@ -18031,7 +18031,7 @@ async function run(
     currentMajor,
     preReleaseName,
     updateVersionsIn,
-    stripComponentPrefixFromTag,
+    useTagInVersionsFile,
     commitMessage,
     commitAuthor,
     commitAuthorEmail,
@@ -18081,17 +18081,20 @@ async function run(
     return core.setFailed('Tag creation failed');
   }
 
-  let effectiveTag = tag;
-  if (stripComponentPrefixFromTag) {
-    effectiveTag = tag.replace(componentPrefix, '');
+  let version = tag.replace(componentPrefix + 'v', '');
+  let versionInFile = version;
+  if (useTagInVersionsFile) {
+    versionInFile = tag;
   }
 
   if (!dryRun) {
     // update version filess before the tag is made
-    if (updateVersionsIn != false) {
+    // default values from action inputs are strings, so we need to compare with a string
+    if (updateVersionsIn != 'false') {
+      console.log(`Update versions in files ${updateVersionsIn}`);
       await versionFileUpdater.updateVersionInFileAndCommit(
         updateVersionsIn,
-        effectiveTag,
+        versionInFile,
         branchToTag,
         commitMessage,
         commitAuthor,
@@ -18104,7 +18107,8 @@ async function run(
     console.log(`🚀 New tag '${tag}' created in ${branchToTag}`);
   }
 
-  core.setOutput('tag', effectiveTag);
+  core.setOutput('tag', tag);
+  core.setOutput('version', version);
 }
 
 module.exports = {
@@ -18375,7 +18379,6 @@ module.exports = function () {
     await actions.exec('git', ['config', '--local', 'user.name', authorName]);
     await actions.exec('git', ['config', '--local', 'user.email', authorEmail]);
     await actions.exec('git', ['commit', '--no-verify', '-m', commitMessage]);
-    await actions.exec('git', ['pull', '--rebase']);
     await actions.exec('git', ['push']);
   }
 
