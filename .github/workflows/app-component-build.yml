@@ -40,7 +40,8 @@ jobs:
     needs: quality-checks
     runs-on: ubuntu-20.04
     outputs:
-      tag: ${{ steps.release_tag.outputs.version }}
+      version: ${{ steps.release_tag.outputs.version }}
+      tag: ${{ steps.release_tag.outputs.tag }}
     steps:
       - name: CheckOut
         uses: actions/checkout@v2
