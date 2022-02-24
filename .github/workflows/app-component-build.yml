@@ -18,8 +18,6 @@ on:
 env:
   GITHUB_TOKEN: ${{ secrets.PATNAME }}
 
-concurrency: build_component
-
 jobs:
 
   quality-checks:
