@@ -18084,7 +18084,7 @@ async function run(
   let version = tag.replace(componentPrefix + 'v', '');
   let versionInFile = version;
   if (useTagInVersionsFile) {
-    versionInFile = tag;
+    versionInFile = version;
   }
 
   if (!dryRun) {
